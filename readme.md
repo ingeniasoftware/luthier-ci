@@ -48,6 +48,9 @@ You don't need to make nothing special, just start adding routes using the stati
 After you added all your routes, call the method ```Route::register()``` on the ```$route``` var:
 
 ```php
+// application/config/routes.php
+
+// (All your routes ...)
 $route = Route::register();
 ```
 
@@ -101,6 +104,16 @@ Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo', 'pre
 
 So the route will be accesed with the 'admin/hello/world' instead 'hello/world' . This makes more sense in the routes groups.
 
+#### The default controller:
+
+You can set the default controller using the method ```home()```:
+
+```php
+Route::home('home@index');
+```
+
+It will set the ```Home.php``` file inside the ```controllers``` folder with the method ```index()``` as your default controller.
+
 ### Route groups
 
 You can group your routes in a convenient way using the ```group()``` method:
@@ -146,7 +159,7 @@ class Auth_middleware extends Middleware
 
 In your route definition:
 ```php
-Route::get('foo', ['uses' => 'test@controller', 'middleware' => ['Auth']);
+Route::get('foo', ['uses' => 'test@controller', 'middleware' => ['Auth']]);
 ```
 
 The documentation of the complete features of Luthier will be placed in the repository [wiki](https://github.com/ingeniasoftware/luthier/wiki) soon!
