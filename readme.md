@@ -71,13 +71,13 @@ $route = Route::register();
 #### Single method routes
 
 ```php
-Route::get('foo/bar', ['uses' => 'testcontroller@index');
+Route::get('foo/bar', ['uses' => 'testcontroller@index']);
 ```
 
 This will be triggered with a GET request over the path 'foo/bar' and will call the ```index()``` method of ```testcontroller```
 
 ```php
-Route::post('foo/bar', ['uses' => 'testcontroller@another');
+Route::post('foo/bar', ['uses' => 'testcontroller@another']);
 ```
 
 This will be triggered with a POST request over the path 'foo/bar' and will call the ```another()``` method of ```testcontroller```
@@ -89,7 +89,7 @@ Notice that you can handle multiples HTTP verbs over the same path
 You can assign names to your routes so you don't have to worry about future path changes:
 
  ```php
-Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo');
+Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo']);
 ```
 
 In your views, you can use the function ```route()``` to retrieve the actual path:
@@ -106,14 +106,14 @@ Probably you have subdirectories in your controllers folder, so you can specify 
 The route:
 
  ```php
-Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo', 'namespace' => 'admin');
+Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo', 'namespace' => 'admin']);
 ```
 Will be point to *application/controllers/admin/Testcontroller.php*
 
 You can set a *prefix* to your routes
 
  ```php
-Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo', 'prefix' => 'admin');
+Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo', 'prefix' => 'admin']);
 ```
 
 So the route will be accesed with the 'admin/hello/world' instead 'hello/world' . This makes more sense in the routes groups.
