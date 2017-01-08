@@ -11,7 +11,16 @@ Has been inspired in the Laravel static routes and makes the job of writting API
 
 1. Download and unzip into your *application* folder.
 2. Open your *application/config/config.php* file an make sure that ```$config['enable_hooks']``` is ```TRUE```
-3. In your *application/config/hooks.php* file, add this hooks:
+3. Declare the following constants in *config/constants.php*:
+
+```php
+defined('DS')         OR define('DS', DIRECTORY_SEPARATOR);
+defined('ROOTPATH')   OR define('ROOTPATH', dirname(BASEPATH).DS);
+defined('CONFIGPATH') OR define('CONFIGPATH', ROOTPATH.'application'.DS.'config'.DS);
+defined('MODULEPATH') OR define('MODULEPATH', ROOTPATH.'application'.DS.'modules'.DS);
+defined('ASSETSPATH') OR define('ASSETSPATH', ROOTPATH.'assets'.DS);
+```
+4. In your *application/config/hooks.php* file, add this hooks:
 
 ```php
 /**
@@ -72,7 +81,7 @@ Notice that you can handle multiples HTTP verbs over the same path
 
 #### Named routes
 
-You can assign names to your routes so you don't have to worry about the future path changes:
+You can assign names to your routes so you don't have to worry about future path changes:
 
  ```php
 Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo');
@@ -165,3 +174,4 @@ Route::get('foo', ['uses' => 'test@controller', 'middleware' => ['Auth']]);
 The documentation of the complete features of Luthier will be placed in the repository [wiki](https://github.com/ingeniasoftware/luthier/wiki) soon!
 
 
+* [Twig library for CodeIgniter](https://github.com/andersonsalas/ci_twig)
