@@ -9,9 +9,11 @@ Has been inspired in the Laravel static routes and makes the job of writting API
 
 ## Installation
 
-1. Download and unzip into your *application* folder.
-2. Open your *application/config/config.php* file an make sure that ```$config['enable_hooks']``` is ```TRUE```
-3. Declare the following constants in *config/constants.php*:
+**Step 1:**  Download and unzip inside your *application* folder.
+
+**Step 2:** Open your *application/config/config.php* file an make sure that ```$config['enable_hooks']``` is ```TRUE```
+
+**Step 3:** Define the following constants in *config/constants.php*:
 
 ```php
 defined('DS')         OR define('DS', DIRECTORY_SEPARATOR);
@@ -20,7 +22,8 @@ defined('CONFIGPATH') OR define('CONFIGPATH', ROOTPATH.'application'.DS.'config'
 defined('MODULEPATH') OR define('MODULEPATH', ROOTPATH.'application'.DS.'modules'.DS);
 defined('ASSETSPATH') OR define('ASSETSPATH', ROOTPATH.'assets'.DS);
 ```
-4. In your *application/config/hooks.php* file, add this hooks:
+
+**Step 4:**  In your *application/config/hooks.php* file, add this hooks:
 
 ```php
 /**
@@ -49,6 +52,8 @@ $hook['post_controller_constructor'][] = function()
     Middleware::routeMiddleware();
 };
 ```
+
+**And you're done!**
 
 ## Ussage and examples
 
@@ -174,4 +179,4 @@ Route::get('foo', ['uses' => 'test@controller', 'middleware' => ['Auth']]);
 The documentation of the complete features of Luthier will be placed in the repository [wiki](https://github.com/ingeniasoftware/luthier/wiki) soon!
 
 
-* [Twig library for CodeIgniter](https://github.com/andersonsalas/ci_twig)
+* [Twig library for CodeIgniter]()
