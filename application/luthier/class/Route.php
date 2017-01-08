@@ -84,7 +84,7 @@ class Route
      *
      * @access private
      */
-    private static $routes;
+    private static $routes = array();
 
 
     /**
@@ -782,7 +782,7 @@ class Route
         if(isset($attr['prefix']))
             show_error('Default controller may not have a prefix!',500,'Route error: prefix not allowed');
 
-        self::$defaultController = self::add('GET', '/', ['uses' => $controller, 'as' => $as],TRUE, TRUE);
+        self::$defaultController = self::$routes[] = self::add('GET', '/', ['uses' => $controller, 'as' => $as],TRUE, TRUE);
     }
 
     /**
