@@ -106,6 +106,10 @@ class LuthierRequest_middleware extends Middleware
         if(method_exists($this->CI,$this->route->method))
         {
             $this->CI->{$this->route->method}();
+
+            // TODO: Add support to hooks in this execution thread
+
+            $this->CI->output->_display();
             exit(0); // Exit the "parent" controller callback
         }
         else
