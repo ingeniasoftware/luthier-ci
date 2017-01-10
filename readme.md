@@ -228,4 +228,5 @@ Route::group(['prefix' => 'foo', 'middleware' => ['Auth'] ], function(){
 For the complete documentation, look the repository's [wiki](https://github.com/ingeniasoftware/luthier/wiki)!
 
 **Tired of the CodeIngiter views?, try Twig:**
-[Twig library for CodeIgniter]()
+
+[Twig library for CodeIgniter](https://github.com/andersonsalas/ci_twig)
