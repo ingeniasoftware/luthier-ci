@@ -9,7 +9,7 @@ Luthier is a set of functions that extends CodeIgniter core and improves the dev
 * Named routes
 * Route groups
 * Route *namespaces* and *prefix*
-* Resource (RESTFul) controllers
+* Resource (RESTFul) routes
 * Middleware
 
 ## Installation
