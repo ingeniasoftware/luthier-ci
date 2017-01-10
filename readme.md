@@ -62,7 +62,7 @@ $hook['post_controller_constructor'][] = function()
 
 ## Ussage and examples
 
-### Routing
+### Routes
 
 Luthier uses a Laravel inspired routing. You can define routes using the static methods of the ```Route``` class in your *config/routes.php* file.
 
@@ -176,28 +176,17 @@ While you can ommit the namespace, the route group prefix is mandatory.
 
 The middleware allows you to add *layers* in your requests before accesing the controllers. All the middleware must extend the ```Middleware``` class and must be saved in the ```middleware```. Both the filename and the class must have the suffix ```_middleware```.
 
-You can define middlewares in your routes:
+### Creating middlewares
 
-```php
-Route::get('foo', ['uses' => 'mycontroller@method', 'middleware' => ['Auth']]);
-```
+Your middlewares must be saved in the *application/middleware* folder. Both the file name and the class name must have the suffix ```_middleware```.
 
-And route groups:
-
-```php
-Route::group(['prefix' => 'foo', 'middleware' => ['Auth'] ], function(){
-    Route::get('bar', ['uses' => 'test@bar']);
-    Route::get('baz', ['uses' => 'test@baz']);
-});
-```
-
-
-Here's a basic example:
+*Basic example:*
 
 ```php
 // application/middelware/Auth_middleware.php
 class Auth_middleware extends Middleware
 {
+    // You must call the parent constructor:
      public function __construct()
      {
            // This emulates the controller singleton made by
@@ -217,7 +206,26 @@ class Auth_middleware extends Middleware
     }
 }
 ```
-The documentation of all functions of Luthier can be a quite extense, so feel free to look into the repository's [wiki](https://github.com/ingeniasoftware/luthier/wiki) soon!
+All your middleware must extend the ```Middleware``` class. The method ```run()``` is the entry point of the middleware.
+
+### Including middlewares in your routes
+
+*Example 1: single route middleware*
+
+```php
+Route::get('foo', ['uses' => 'mycontroller@method', 'middleware' => ['Auth']]);
+```
+
+*Example 2: group middleware*
+
+```php
+Route::group(['prefix' => 'foo', 'middleware' => ['Auth'] ], function(){
+    Route::get('bar', ['uses' => 'test@bar']);
+    Route::get('baz', ['uses' => 'test@baz']);
+});
+```
+
+For the complete documentation, look the repository's [wiki](https://github.com/ingeniasoftware/luthier/wiki)!
 
 **Tired of the CodeIngiter views?, try Twig:**
 [Twig library for CodeIgniter]()
