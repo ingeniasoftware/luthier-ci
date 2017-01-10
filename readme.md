@@ -137,7 +137,7 @@ Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo', 'nam
 ```
 Will be point to *application/controllers/admin/Testcontroller.php*
 
-### Route prefix
+#### Route prefix
 
 You can set a *prefix* to your routes with the following syntax:
 
@@ -172,7 +172,7 @@ The route groups allows to encapsule a set of routes with a prefix and namespace
 
 While you can ommit the namespace, the route group prefix is mandatory.
 
-### Route middleware
+## Middleware
 
 The middleware allows you to add *layers* in your requests before accesing the controllers. All the middleware must extend the ```Middleware``` class and must be saved in the ```middleware```. Both the filename and the class must have the suffix ```_middleware```.
 
