@@ -80,28 +80,12 @@ class Middleware
     {
         self::$instance =& get_instance();
         self::$uri_string = self::$instance->router->uri->uri_string();
-
-        // ---------------------------------------------------------------------------- //
-        // Internal Luthier Middleware
-        // (It executes with all controller request always, before any middleware)
-        //
-        // Please do not modify this unless you know what are you doing
-
+        
         $internalMiddlewareDir = APPPATH.'luthier'.DS.'middleware'.DS;
 
-        $internalMiddleware =
-            [
-                'Request'
-            ];
+        self::routeMiddleware();
 
-        foreach($internalMiddleware as $middleware)
-        {
-            // We prefix 'Luthier' to all internal middleware to avoid conflicts with
-            // user defined middleware:
-            self::runMiddleware('Luthier'.$middleware, $internalMiddlewareDir);
-        }
-
-        // ---------------------------------------------------------------------------- //
+        self::runMiddleware('LuthierRequest', $internalMiddlewareDir);
     }
 
     /**
@@ -194,5 +178,6 @@ class Middleware
 
         if(method_exists(self::$instance, '_afterMiddleware'))
             self::$instance->_afterMiddleware();
+
     }
 }

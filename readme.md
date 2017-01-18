@@ -54,7 +54,6 @@ $hook['post_controller_constructor'][] = function()
     require APPPATH.'luthier'.DS.'class'.DS.'Middleware.php';
 
     Middleware::init();
-    Middleware::routeMiddleware();
 };
 ```
 
