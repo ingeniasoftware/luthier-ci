@@ -4,8 +4,6 @@
 
 Improved routing and middleware support for CodeIgniter Framework. Luthier is a set of classes that extends the framework and helps with the development of large and complex applications.
 
-For the complete documentation, see the [wiki](https://github.com/ingeniasoftware/luthier/wiki)
-
 ## Key features
 
 * Laravel-inspired static Route class
@@ -188,7 +186,7 @@ All your middleware must be saved in the *application/middleware* folder. Both t
 *Basic example:*
 
 ```php
-&lt;?php
+<?php
 // application/middelware/Auth_middleware.php
 
 use Luthier\Core\Middleware as Middleware
