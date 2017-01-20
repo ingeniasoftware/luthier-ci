@@ -52,7 +52,7 @@ $hook = LuthierLoader::init();
 Now you can start adding routes in your `config/routes.php` file using the `Route` static methods. In the first line add the following:
   
 ```php
-use Luthier\Core\Route as Route;
+use Luthier\Core\Route;
 ```
 
 And then, for example:
@@ -66,7 +66,7 @@ Once you added all your routes, call the `Route::register()` method in the `$rou
 Example:
 
 ```php
-use Luthier\Core\Route as Route;
+use Luthier\Core\Route;
 
 Route::get('foo', ['uses' => 'controller@method', 'as' => 'my-awesome-named-route']);
 Route::home('home@index'); // Default controller
@@ -188,6 +188,7 @@ All your middleware must be saved in the *application/middleware* folder. Both t
 *Basic example:*
 
 ```php
+&lt;?php
 // application/middelware/Auth_middleware.php
 
 use Luthier\Core\Middleware as Middleware
