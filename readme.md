@@ -189,7 +189,7 @@ All your middleware must be saved in the *application/middleware* folder. Both t
 <?php
 // application/middelware/Auth_middleware.php
 
-use Luthier\Core\Middleware
+use Luthier\Core\Middleware;
 
 class Auth_middleware extends Middleware
 {
