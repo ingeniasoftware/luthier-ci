@@ -1,72 +1,19 @@
 <?php
+
 /**
  * Route class
  *
- * Provides an improvement of CodeIgniter's routes, emulating Laravel static routing methods
- *
- * Adds cool features such a named routes, route groups and route's 'meta data' wich helps
- * a lot know the actual request context:
- *  - Route prefix
- *  - Pseudo-namespaces
- *  - Request accepted HTTP Verb
- *
- * You can even define route's Middleware
- *
- * In 'config/routes.php', instead of this:
- *
- *      $route['foo/(:any)'] = 'far/baz/$1';
- *
- * You can use:
- *
- *      Route::get('path/{arg1}', ['uses' => 'controller@method', 'as' => 'route-name']);
- *
- * PLEASE NOTE: this process is entirely a Syntactic sugar, this mean that all the routes
- * will be compiled to the CodeIgniter's standar routes so do NOT consider this class as
- * a replacement of built-in routing system.
- *
- * @package   Luthier Framework Core
  * @author    Anderson Salas <me@andersonsalas.com.ve>
- * @copyright 2016
- * @license   https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version   1.0
+ * @copyright 2017
+ * @license   GNU-3.0
+ * @version   1.0.0-rc
  *
  */
 
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *     68 class Route
- *    186   function add($verb, $path, $attr, $hideOriginal = TRUE, $return = FALSE)
- *    340   function get($url, $attr, $hideOriginal = TRUE)
- *    357   function post($url, $attr, $hideOriginal = TRUE)
- *    374   function put($url, $attr, $hideOriginal = TRUE)
- *    391   function patch($url, $attr, $hideOriginal = TRUE)
- *    408   function delete($url, $attr, $hideOriginal = TRUE)
- *    425   function any($url, $attr, $hideOriginal = TRUE)
- *    447   function matches($verbs, $url, $attr, $hideOriginal = FALSE)
- *    481   function resource($url, $controller, $attr = NULL)
- *    566   function compileRoute($route)
- *    637   function register()
- *    687   function group($attr, $routes)
- *    769   function home($controller, $as = , $attr = NULL)
- *    799   function auth($attr = NULL)
- *    825   function getRoutes()
- *    830   function getHiddenRoutes()
- *    846   function getGroupMiddleware()
- *    862   function getRouteByName($search, $args = NULL)
- *    881   function getRouteByPath($path, $requestMethod = NULL)
- *    937   function getHTTPVerbs()
- *    943   function set404($page)
- *    948   function setTrasnlateUriDashes($value)
- *
- * TOTAL FUNCTIONS: 22
- *
- */
-
+namespace Luthier\Core;
 
 class Route
 {
-    const VERSION = 1.0;
 
     /**
      * Supported HTTP Verbs for this class
@@ -826,6 +773,14 @@ class Route
         return self::$routes;
     }
 
+    /**
+     * [add description]
+     *
+     * @return [add type]  [add description]
+     *
+     * @access public
+     * @static
+     */
     public static function getHiddenRoutes()
     {
         return self::$hiddenRoutes;
@@ -912,11 +867,7 @@ class Route
             foreach($routes as $route)
             {
                 $compiled = $route->compiled;
-                //var_dump(
-                //    $findPath,
-                //    key($compiled)
-                //    $route->compiled[key($compiled)]
-                //);
+
                 if($findPath == key($compiled))
                     return $route;
             }
@@ -939,11 +890,32 @@ class Route
     }
 
 
-    public static function set404($page)
+    /**
+     * Set the 404 error controller ($route['404_override'])
+     *
+     * @param  string  $controller
+     * @param  string  $namespace (Optional)
+     *
+     * @return void
+     *
+     * @access public
+     * @static
+     */
+    public static function set404($controller, $namespace = NULL)
     {
         self::$_404page = $page;
     }
 
+    /**
+     * Set the 'translate_uri_dashes' value ($route['translate_uri_dashes'])
+     *
+     * @param  $value
+     *
+     * @return value
+     *
+     * @access public
+     * @static
+     */
     public static function setTrasnlateUriDashes($value)
     {
         self::$translateDashes = (bool) $value;

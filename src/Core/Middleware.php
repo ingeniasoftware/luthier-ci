@@ -1,33 +1,19 @@
 <?php
+
 /**
  * Middleware class
  *
- * Provides a easy way to implement Middleware in CodeIgniter
- *
- * @package   Luthier Framework Core
  * @author    Anderson Salas <me@andersonsalas.com.ve>
- * @copyright 2016
- * @license   https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version   1.0
+ * @copyright 2017
+ * @license   GNU-3.0
+ * @version   1.0.0-rc
  *
  */
 
-/**
- * [CLASS/FUNCTION INDEX of SCRIPT]
- *
- *     28 class Middleware
- *     37   function __construct()
- *     50   function init()
- *     86   function routeMiddleware()
- *    136   function runMiddleware($middlewareName, $middlewareDir = NULL)
- *
- * TOTAL FUNCTIONS: 4
- *
- */
+namespace Luthier\Core;
 
 class Middleware
 {
-    const VERSION = 1.0;
 
     /**
      * CodeIgniter instance (in dynamic context)
@@ -80,12 +66,16 @@ class Middleware
     {
         self::$instance =& get_instance();
         self::$uri_string = self::$instance->router->uri->uri_string();
-        
-        $internalMiddlewareDir = APPPATH.'luthier'.DS.'middleware'.DS;
 
+        // Execute user defined middleware:
         self::routeMiddleware();
 
-        self::runMiddleware('LuthierRequest', $internalMiddlewareDir);
+        // Execute Luthier's internal middleware
+        $internalMiddleware = dirname(__DIR__).DIRECTORY_SEPARATOR.'Middleware'.DIRECTORY_SEPARATOR;
+        require $internalMiddleware.'Request.php';
+
+        $request = new \Luthier\Middleware\Request();
+        $request->run();
     }
 
     /**
@@ -147,10 +137,10 @@ class Middleware
      * @access private
      * @static
      */
-    private static function runMiddleware($middlewareName, $middlewareDir = NULL)
+    private static function runMiddleware($middlewareName)
     {
         if(is_null($middlewareDir))
-            $middlewareDir = APPPATH.'middleware'.DS;
+            $middlewareDir = APPPATH.'middleware'.DIRECTORY_SEPARATOR;
 
         $middlewareOriginalName = $middlewareName;
 
@@ -171,11 +161,14 @@ class Middleware
 
         $middleware = new $middlewareName();
 
+        // Call the current controller __beforeMiddleware() method, if exists:
         if(method_exists(self::$instance, '_beforeMiddleware'))
             self::$instance->_beforeMiddleware();
 
+        // Run the middleware
         $middleware->run();
 
+        // Call the current controller _afterMiddleware() method, if exists:
         if(method_exists(self::$instance, '_afterMiddleware'))
             self::$instance->_afterMiddleware();
 

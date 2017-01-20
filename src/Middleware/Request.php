@@ -1,20 +1,20 @@
 <?php
+
 /**
  * Luthier Request middleware (internal)
  *
- * This is the soul of Luthier: takes the current uri string, transforms it into a
- * improved route, get's their meta-data and serves his specific response.
- *
- * Provides an actual RESTFul API to CodeIgniter
- *
- * @package   Luthier Framework Core
  * @author    Anderson Salas <me@andersonsalas.com.ve>
- * @copyright 2016
- * @license   https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version   1.0
+ * @copyright 2017
+ * @license   GNU-3.0
+ * @version   1.0.0-rc
+ *
  */
 
-class LuthierRequest_middleware extends Middleware
+namespace Luthier\Middleware;
+
+use Luthier\Core\Route as Route;
+
+class Request extends \Luthier\Core\Middleware
 {
 
     /**
@@ -110,7 +110,7 @@ class LuthierRequest_middleware extends Middleware
             // TODO: Add support to hooks in this execution thread
 
             $this->CI->output->_display();
-            exit(0); // Exit the "parent" controller callback
+            exit(0);
         }
         else
         {
