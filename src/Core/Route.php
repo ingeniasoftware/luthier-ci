@@ -6,7 +6,7 @@
  * @author    Anderson Salas <me@andersonsalas.com.ve>
  * @copyright 2017
  * @license   GNU-3.0
- * @version   1.0.0-rc
+ * @version   1.0.2-alpha 
  *
  */
 
@@ -424,7 +424,7 @@ class Route
      * @access public
      * @static
      */
-    public static function resource($url, $controller, $attr = NULL)
+    public static function resource($name, $controller, $attr = NULL)
     {
         $base_attr = array();
 
@@ -458,43 +458,43 @@ class Route
 
         if(empty($only) || in_array('index', $only))
         {
-            $route_attr = array_merge($base_attr, ['uses' => $controller.'@index',   'as' => $controller.'.index']);
+            $route_attr = array_merge($base_attr, ['uses' => $controller.'@index',   'as' => $name.'.index']);
             self::get('/', $route_attr, $hideOriginal);
         }
 
         if(empty($only) || in_array('create', $only))
         {
-            $route_attr = array_merge($base_attr, ['uses' => $controller.'@create', 'as' => $controller.'.create']);
+            $route_attr = array_merge($base_attr, ['uses' => $controller.'@create', 'as' => $name.'.create']);
             self::get('create', $route_attr, $hideOriginal);
         }
 
         if(empty($only) || in_array('store', $only))
         {
-            $route_attr = array_merge($base_attr, ['uses' => $controller.'@store', 'as' => $controller.'.store']);
+            $route_attr = array_merge($base_attr, ['uses' => $controller.'@store', 'as' => $name.'.store']);
             self::post('/', $route_attr, $hideOriginal);
         }
 
         if(empty($only) || in_array('show', $only))
         {
-            $route_attr = array_merge($base_attr, ['uses' => $controller.'@show', 'as' => $controller.'.show']);
+            $route_attr = array_merge($base_attr, ['uses' => $controller.'@show', 'as' => $name.'.show']);
             self::get('{slug}', $route_attr, $hideOriginal);
         }
 
         if(empty($only) || in_array('edit', $only))
         {
-            $route_attr = array_merge($base_attr, ['uses' => $controller.'@edit', 'as' => $controller.'.edit']);
+            $route_attr = array_merge($base_attr, ['uses' => $controller.'@edit', 'as' => $name.'.edit']);
             self::get('{slug}/edit', $route_attr, $hideOriginal);
         }
 
         if(empty($only) || in_array('update', $only))
         {
-            $route_attr = array_merge($base_attr, ['uses' => $controller.'@update', 'as' => $controller.'.update']);
+            $route_attr = array_merge($base_attr, ['uses' => $controller.'@update', 'as' => $name.'.update']);
             self::matches(['PUT', 'PATCH'], '{slug}/update', $route_attr, $hideOriginal);
         }
 
         if(empty($only) || in_array('destroy', $only))
         {
-            $route_attr = array_merge($base_attr, ['uses' => $controller.'@destroy', 'as' => $controller.'.destroy']);
+            $route_attr = array_merge($base_attr, ['uses' => $controller.'@destroy', 'as' => $name.'.destroy']);
             self::delete('{slug}', $route_attr, $hideOriginal);
         }
     }
@@ -742,7 +742,7 @@ class Route
      * @access public
      * @static
      */
-    public static function auth($attr = NULL)
+    public static function auth($controller = 'auth', $attr = NULL)
     {
         $baseAttr['prefix']     = 'auth';
         $baseAttr['middleware'] = 'Auth';
@@ -752,10 +752,10 @@ class Route
             $baseAttr = array_merge($baseAttr, $attr);
         }
 
-        self::group($baseAttr, function()
+        self::group($baseAttr, function() use($controller)
         {
-            self::get('/login',  ['uses' => 'auth@login',  'as' => 'login']);
-            self::get('/logout', ['uses' => 'auth@logout', 'as' => 'logout']);
+            self::matches(['get','post'], '/login',  ['uses' => $controller.'@login',  'as' => $controller.'.login']);
+            self::get('/logout', ['uses' => $controller.'@logout', 'as' => $controller.'.logout']);
         });
     }
 

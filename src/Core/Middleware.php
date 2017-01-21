@@ -6,7 +6,7 @@
  * @author    Anderson Salas <me@andersonsalas.com.ve>
  * @copyright 2017
  * @license   GNU-3.0
- * @version   1.0.0-rc
+ * @version   1.0.2-alpha
  *
  */
 
