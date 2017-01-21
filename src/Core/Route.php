@@ -903,7 +903,7 @@ class Route
      */
     public static function set404($controller, $namespace = NULL)
     {
-        self::$_404page = $page;
+        self::$_404page = $controller;
     }
 
     /**
