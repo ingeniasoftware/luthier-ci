@@ -1,6 +1,6 @@
 # Luthier
 
-*Version 1.0.0-alpha*  
+*Version 1.0.1-alpha*  
 
 Improved routing and middleware support for CodeIgniter Framework. Luthier is a set of classes that extends the framework and helps with the development of large and complex applications.
 
@@ -16,7 +16,7 @@ Improved routing and middleware support for CodeIgniter Framework. Luthier is a 
 #### Step 1: Get Luthier with Composer
 
 ```
-composer require luthier/luthier 1.0.0-alpha
+composer require luthier/luthier 1.0.1-alpha
 ```
 
 **Please note:** Luthier is still an Alpha version. Avoid use it on production environments!
