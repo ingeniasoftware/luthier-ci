@@ -139,8 +139,7 @@ class Middleware
      */
     private static function runMiddleware($middlewareName)
     {
-        if(is_null($middlewareDir))
-            $middlewareDir = APPPATH.'middleware'.DIRECTORY_SEPARATOR;
+        $middlewareDir = APPPATH.'middleware'.DIRECTORY_SEPARATOR;
 
         $middlewareOriginalName = $middlewareName;
 
