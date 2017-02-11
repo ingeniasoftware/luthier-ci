@@ -20,7 +20,7 @@ Improved routing and middleware support for CodeIgniter Framework. Luthier is a 
 #### Step 1: Get Luthier with Composer
 
 ```
-composer require luthier/luthier 1.0.2-alpha
+composer require luthier/luthier dev-master
 ```
 
 
