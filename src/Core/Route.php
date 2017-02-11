@@ -6,7 +6,6 @@
  * @author    Anderson Salas <me@andersonsalas.com.ve>
  * @copyright 2017
  * @license   GNU-3.0
- * @version   1.0.2-alpha 
  *
  */
 
@@ -51,7 +50,7 @@ class Route
      *
      * @access private
      */
-    private static $_404page = '';
+    private static $_404page = NULL;
 
     /**
      * CodeIgniter 'translate_uri_dashes' index of the $route variable in config/routes.php
@@ -613,7 +612,15 @@ class Route
 
         $routes['default_controller'] = $defaultController;
 
-        $routes['404_override']         = self::$_404page;
+        if(is_null(self::$_404page))
+        {
+            $routes['404_override'] = '';
+        }
+        else
+        {
+            $routes['404_override'] = self::$_404page->controller;
+        }
+
         $routes['translate_uri_dashes'] = self::$translateDashes;
 
         return $routes;
@@ -774,9 +781,9 @@ class Route
     }
 
     /**
-     * [add description]
+     * Get all hidden routes
      *
-     * @return [add type]  [add description]
+     * @return array
      *
      * @access public
      * @static
@@ -792,7 +799,7 @@ class Route
      * This middleware actually works as uri filter since they will not check the route,
      * just check if the current uri string matches the prefix of the route group.
      *
-     * @return [add type]
+     * @return array
      *
      * @access public
      * @static
@@ -831,6 +838,8 @@ class Route
      *  uri string and attempts to find a CodeIgniter route that matches with his pattern
      *
      * @param  string $search The current uri string
+     *
+     * @return mixed
      */
     public static function getRouteByPath($path, $requestMethod = NULL)
     {
@@ -901,9 +910,28 @@ class Route
      * @access public
      * @static
      */
-    public static function set404($controller, $namespace = NULL)
+    public static function set404($controller, $path = '404')
     {
-        self::$_404page = $controller;
+        self::$_404page = (object)
+        [
+            'controller' => $controller,
+            'path'       => $path
+        ];
+    }
+
+    /**
+     * Get the 404 route
+     *
+     * @return array $_404page
+     *
+     * @return object | null
+     *
+     * @access public
+     * @static
+     */
+    public static function get404()
+    {
+        return self::$_404page;
     }
 
     /**
@@ -911,7 +939,7 @@ class Route
      *
      * @param  $value
      *
-     * @return value
+     * @return void
      *
      * @access public
      * @static

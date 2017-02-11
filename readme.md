@@ -1,6 +1,10 @@
 # Luthier
 
-*Version 1.0.2-alpha*  
+[![Latest Stable Version](https://poser.pugx.org/luthier/luthier/v/stable)](https://packagist.org/packages/luthier/luthier)
+[![Total Downloads](https://poser.pugx.org/luthier/luthier/downloads)](https://packagist.org/packages/luthier/luthier)
+[![Latest Unstable Version](https://poser.pugx.org/luthier/luthier/v/unstable)](https://packagist.org/packages/luthier/luthier)
+[![License](https://poser.pugx.org/luthier/luthier/license)](https://packagist.org/packages/luthier/luthier)
+[![composer.lock](https://poser.pugx.org/luthier/luthier/composerlock)](https://packagist.org/packages/luthier/luthier)
 
 Improved routing and middleware support for CodeIgniter Framework. Luthier is a set of classes that extends the framework and helps with the development of large and complex applications.
 
@@ -19,7 +23,7 @@ Improved routing and middleware support for CodeIgniter Framework. Luthier is a 
 composer require luthier/luthier 1.0.2-alpha
 ```
 
-**Please note:** Luthier is still an Alpha version. Avoid use it on production environments!
+
 
 #### Step 2: Enable *hooks* and *Composer autoload* in your application
 

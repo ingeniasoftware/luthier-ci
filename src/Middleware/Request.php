@@ -6,7 +6,6 @@
  * @author    Anderson Salas <me@andersonsalas.com.ve>
  * @copyright 2017
  * @license   GNU-3.0
- * @version   1.0.2-alpha
  *
  */
 
@@ -93,34 +92,42 @@ class Request extends \Luthier\Core\Middleware
     {
         if(!$this->route)
         {
-            if(ENVIRONMENT != 'production')
-            {
-                show_error('The request method '.$this->requestMethod.' is not allowed to view the resource', 403, 'Forbidden method');
-            }
-            else
-            {
+            if(is_null(Route::get404()))
                 show_404();
+
+            if(Route::get404()->controller != get_class($this->CI))
+            {
+                if(ENVIRONMENT != 'production')
+                {
+                    show_error('The request method '.$this->requestMethod.' is not allowed to view the resource', 403, 'Forbidden method');
+                }
+                else
+                {
+                    redirect(Route::get404()->path);
+                }
             }
-        }
-
-        if(method_exists($this->CI,$this->route->method))
-        {
-            $this->CI->{$this->route->method}();
-
-            // TODO: Add support to hooks in this execution thread
-
-            $this->CI->output->_display();
-            exit(0);
         }
         else
         {
-            if(ENVIRONMENT != 'production')
+            if(method_exists($this->CI,$this->route->method))
             {
-                show_error('The method '.$this->route->controller.'::'.$this->route->method.'() does not exists', 500, 'Method not found');
+                $this->CI->{$this->route->method}();
+
+                // TODO: Add support to hooks in this execution thread
+
+                $this->CI->output->_display();
+                exit(0);
             }
             else
             {
-                show_404();
+                if(ENVIRONMENT != 'production')
+                {
+                    show_error('The method '.$this->route->controller.'::'.$this->route->method.'() does not exists', 500, 'Method not found');
+                }
+                else
+                {
+                    redirect(Route::get404()->path);
+                }
             }
         }
     }
