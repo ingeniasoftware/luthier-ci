@@ -19,18 +19,18 @@ class Route
      *
      * @var static array $http_verbs Array of supported HTTP Verbs
      *
-     * @access private
+     * @access protected
      */
-    private static $http_verbs = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'TRACE', 'CONNECT', 'HEAD'];
+    protected static $http_verbs = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'TRACE', 'CONNECT', 'HEAD'];
 
     /**
      * All improved routes parsed
      *
      * @var static array $routes Array of routes with meta data
      *
-     * @access private
+     * @access protected
      */
-    private static $routes = array();
+    protected static $routes = array();
 
 
     /**
@@ -38,9 +38,9 @@ class Route
      *
      * @var static $defaultController
      *
-     * @access private
+     * @access protected
      */
-    private static $defaultController;
+    protected static $defaultController;
 
 
     /**
@@ -48,72 +48,63 @@ class Route
      *
      * @var static $_404page
      *
-     * @access private
+     * @access protected
      */
-    private static $_404page = NULL;
+    protected static $_404page = NULL;
 
     /**
      * CodeIgniter 'translate_uri_dashes' index of the $route variable in config/routes.php
      *
      * @var static $translateDashes
      *
-     * @access private
+     * @access protected
      */
-    private static $translateDashes = FALSE;
+    protected static $translateDashes = FALSE;
 
     /**
      * Array of hidden routes, it will parsed as an route with a show_404() callback into a clousure
      *
      * @var static $hiddenRoutes
      *
-     * @access private
+     * @access protected
      */
-    private static $hiddenRoutes = array();
+    protected static $hiddenRoutes = array();
 
     /**
      * (For route groups only) makes the 'hideOriginal' attribute global for the current group
      *
      * @var static $hideOriginals
      *
-     * @access private
+     * @access protected
      */
-    private static $hideOriginals = FALSE;
+    protected static $hideOriginals = [];
 
     /**
      * (For route groups only) makes the 'prefix' attribute global for the current group
      *
      * @var static $prefix
      *
-     * @access private
+     * @access protected
      */
-    private static $prefix = NULL;
+    protected static $prefix = [];
 
     /**
      * (For route groups only) makes the 'namespace' attribute global for the current group
      *
      * @var static $namespace
      *
-     * @access private
+     * @access protected
      */
-    private static $namespace = NULL;
-
-    /**
-     * (For route groups only) makes the 'middleware' attribute global for the current group
-     *
-     * @var static $middleware
-     *
-     * @access private
-     */
-    private static $middleware = array();
+    protected static $namespace = [];
 
     /**
      * Array with group middleware. It will be used with the Middleware class as a global route filter
      *
      * @var static $groupMiddleware
      *
-     * @access private
+     * @access protected
      */
-    private static $groupMiddleware = array();
+    protected static $groupMiddleware = array();
 
     /**
      * Generic method to add a improved route
@@ -145,6 +136,7 @@ class Route
             show_error('Route controller must be in format controller@method', 500, 'Route error: bad controller format');
         }
 
+
         $controller = $parsedController[1];
         $method     = $parsedController[2];
 
@@ -171,9 +163,6 @@ class Route
 
         $path = trim($path,'/');
 
-        //if($path == '')
-        //    $path = '/';
-
         $route['path']       = $path;
         $route['controller'] = $controller;
         $route['method']     = $method;
@@ -187,33 +176,35 @@ class Route
             $route['name'] = NULL;
         }
 
-        $route['prefix'] = NULL;
+        // Setting up the prefix
 
-        if(!is_null(self::$prefix))
-            $route['prefix'] = self::$prefix;   # Group
+        $route['prefix'] = NULL;
+        $group_prefix = end(self::$prefix);
+
+        if($group_prefix)
+            $route['prefix'] = $group_prefix.'/';
+
         if(isset($attr['prefix']))
-            $route['prefix'] = $attr['prefix']; # Specific (will overwrite group prefix)
+            $route['prefix'] .= $attr['prefix'];
+
+        // Setting up the namespace
 
         $route['namespace'] = NULL;
+        $group_namespace = end(self::$namespace);
 
-        if(!is_null(self::$namespace))
-            $route['namespace'] = self::$namespace;   # Group
+        if(!is_null($group_namespace))
+            $route['namespace'] = $group_namespace.'/';
         if(isset($attr['namespace']))
-            $route['namespace'] = $attr['namespace']; # Specific (will overwrite group namespace)
+            $route['namespace'] .= $attr['namespace'];
 
-        # Removing trailing slashes
-        if(!is_null($route['prefix']))
-        {
-            $route['prefix'] = trim($route['prefix'],'/');
-            if($route['prefix'] == '')
-                $route['prefix'] = NULL;
-        }
-        if(!is_null($route['namespace']))
-        {
-            $route['namespace'] = trim($route['namespace'],'/');
-            if($route['namespace'] == '')
-                $route['namespace'] = NULL;
-        }
+        $route['prefix']    = trim($route['prefix'], '/');
+        $route['namespace'] = trim($route['namespace'],'/');
+
+        if(empty($route['prefix']))
+            $route['prefix'] = NULL;
+
+        if(empty($route['namespace']))
+            $route['namespace'] = NULL;
 
         $route['middleware'] = array();
 
@@ -236,11 +227,14 @@ class Route
 
         $compiledRoute = self::compileRoute((object) $route);
 
-        $route['compiled'] = [
-            $compiledRoute->path => $compiledRoute->route
-        ];
+        $route['compiled'] =
+            [
+                $compiledRoute->path => $compiledRoute->route
+            ];
 
-        if($hideOriginal || self::$hideOriginals === TRUE || ($compiledRoute->path != '' && $compiledRoute->path != '/' ) )
+        $groupHideOriginals = end(self::$hideOriginals);
+
+        if($hideOriginal || $groupHideOriginals || ($compiledRoute->path != '' && $compiledRoute->path != '/' ) )
         {
             $hiddenRoutePath      = $controller.'/'.$method;
             $hiddenRouteNamespace = '';
@@ -438,20 +432,24 @@ class Route
         if(isset($attr['hideOriginal']))
             $hideOriginal = (bool) $attr['hideOriginal'];
 
+        $base_attr['prefix'] = strtolower($name);
+
         if(isset($attr['prefix']))
             $base_attr['prefix']  = $attr['prefix'];
 
         $only = array();
 
+        $controller = strtolower($controller);
+
         if(isset($attr['only']) && (is_array($attr['only']) || is_string($attr['only'])))
         {
             if(is_array($attr['only']))
             {
-                $only  = strtolower($attr['only']);
+                $only  = $attr['only'];
             }
             else
             {
-                $only[] = strtolower($attr['only']);
+                $only[] = $attr['only'];
             }
         }
 
@@ -528,46 +526,73 @@ class Route
         if(!is_null($prefix))
             $path = $prefix.'/'.$path;
 
+        /*
         if(substr($path, 0, 1) == "/" && strlen($path) > 1)
             $path = substr($path,1);
+        */
 
         $controller = $route->controller.'/'.$route->method;
 
         if(!is_null($namespace))
             $controller = $namespace.'/'.$controller;
 
+        $path       = trim($path,'/');
+        $controller = trim($controller,'/');
+
         $replaces =
             [
-                '{\((.*)\):[a-zA-Z0-9-_]*}' => '($1)',   # Custom regular expression
-                '{num:[a-zA-Z0-9-_]*}'      => '(:num)', # (:num) route
-                '{any:[a-zA-Z0-9-_]*}'      => '(:any)', # (:any) route
-                '{[a-zA-Z0-9-_]*}'          => '(:any)', # Everything else
+                '{\((.*)\):[a-zA-Z0-9-_]*(\?}|})' => '($1)',   # Custom regular expression
+                '{num:[a-zA-Z0-9-_]*(\?}|})'      => '(:num)', # (:num) route
+                '{any:[a-zA-Z0-9-_]*(\?}|})'      => '(:any)', # (:any) route
+                '{[a-zA-Z0-9-_]*(\?}|})'          => '(:any)', # Everything else
             ];
 
-        $argCount = 0;
+        $foundedArgs = [];
 
         foreach($replaces as $regex => $replace)
         {
-            $path = preg_replace('/'.$regex.'/', $replace, $path, -1, $argCount);
+            $matches = [];
+            if(preg_match_all('/'.$regex.'/', $path, $matches ))
+            {
+                $foundedArgs = $matches[0];
+            }
+
+            $path = preg_replace('/'.$regex.'/', $replace, $path);
         }
 
-        if($argCount > 0)
+        $argConstraint = FALSE;
+
+        $args = [];
+        $args['required'] = [];
+        $args['optional'] = [];
+
+        foreach($foundedArgs as $arg)
         {
-            for($i = 0; $i < $argCount; $i++)
+            if(substr($arg,-2) == '?}')
+            {
+                $args['optional'][] = $arg;
+                $argConstraint = TRUE;
+            }
+            else
+            {
+                if($argConstraint)
+                    show_error('Optional route path argument not valid at this position', 500, 'Route error');
+                $args['required'][] = $arg;
+            }
+        }
+
+        if(count($foundedArgs) > 0)
+        {
+            for($i = 0; $i < count($foundedArgs); $i++)
             {
                 $controller .= '/$'.($i + 1);
             }
         }
 
-        // Removing trailing slash (it causes 404 even if the route exists, I don't know why)
-        if(substr($path,-1) == '/')
-        {
-            $path = substr($path,0,-1);
-        }
-
         return (object) [
             'path'  => $path,
             'route' => $controller,
+            'args'  => $args,
         ];
     }
 
@@ -645,27 +670,26 @@ class Route
         if(!isset($attr['prefix']))
             show_error('You must specify an prefix!');
 
-        self::$prefix = $attr['prefix'];
+        self::$prefix[] = $attr['prefix'];
 
         if(isset($attr['namespace']))
         {
-            self::$namespace = $attr['namespace'];
+            self::$namespace[] = $attr['namespace'];
         }
 
         if(isset($attr['hideOriginals']) && $attr['hideOriginals'] === TRUE)
         {
-            self::$hideOriginals = TRUE;
+            self::$hideOriginals[] = TRUE;
         }
         else
         {
-            self::$hideOriginals = FALSE;
+            self::$hideOriginals[] = FALSE;
         }
 
         if(isset($attr['middleware']))
         {
             if(is_array($attr['middleware']) || is_string($attr['middleware']))
             {
-                //self::$middleware = $attr['middleware'];
                 if(is_array($attr['middleware']) && !empty($attr['middleware']))
                 {
                     foreach($attr['middleware'] as $middleware)
@@ -682,28 +706,11 @@ class Route
             }
         }
 
-        # Special workarround for default group controller:
-        # Probably i'll remove it.
-        if(isset($attr['default']))
-        {
-            $url = str_ireplace('@', '/', $attr['default']);
-            $uri = explode('/',$attr['default']);
-            $controller = $uri[0];
-            $method = isset($uri[1]) ? $uri[1] : NULL;
-
-            if(self::$hideOriginals === TRUE)
-                self::$hiddenRoutes[] = [$controller => function(){ show_404(); }];
-
-            $route_attr['uses'] = $controller.( !is_null($method) ? '/'.$method : '');
-            self::get('/', $route_attr);
-        }
-
         $res = $routes->__invoke();
 
-        self::$prefix     = NULL;
-        self::$namespace  = NULL;
-        self::$middleware    = NULL;
-        self::$hideOriginals = FALSE;
+        array_pop(self::$prefix);
+        array_pop(self::$namespace);
+        array_pop(self::$hideOriginals);
     }
 
     /**
@@ -740,34 +747,6 @@ class Route
     }
 
     /**
-     * Create the Auth's routes
-     *
-     * @param  $attr (Optional) route attributes
-     *
-     * @return void
-     *
-     * @access public
-     * @static
-     */
-    public static function auth($controller = 'auth', $attr = NULL)
-    {
-        $baseAttr['prefix']     = 'auth';
-        $baseAttr['middleware'] = 'Auth';
-
-        if(!is_null($attr) && is_array($attr))
-        {
-            $baseAttr = array_merge($baseAttr, $attr);
-        }
-
-        self::group($baseAttr, function() use($controller)
-        {
-            self::matches(['get','post'], '/login',  ['uses' => $controller.'@login',  'as' => $controller.'.login']);
-            self::get('/logout', ['uses' => $controller.'@logout', 'as' => $controller.'.logout']);
-        });
-    }
-
-
-    /**
      * Get all the improved routes defined
      *
      * @return array List of all defined routes
@@ -775,9 +754,22 @@ class Route
      * @access public
      * @static
      */
-    public static function getRoutes()
+    public static function getRoutes($verb = NULL)
     {
-        return self::$routes;
+        if(is_null($verb))
+        {
+            return self::$routes;
+        }
+        else
+        {
+            $routes = [];
+            foreach(self::$routes as $route)
+            {
+                if($route->verb == $verb)
+                    $routes[] = $route;
+            }
+            return $routes;
+        }
     }
 
     /**
@@ -820,46 +812,76 @@ class Route
      * @access public
      * @static
      */
-    public static function getRouteByName($search, $args = NULL)
+    public static function getRouteByName($search)
     {
+        $founded = NULL;
+
+        $args = func_get_args();
+        unset($args[0]);
+
         foreach(self::$routes as $route)
         {
             if($route->name == $search)
-                return base_url(self::compileRoute($route)->path);
+            {
+                $founded = $route;
+            }
         }
 
-        show_error('The route "'.$search.'" is not defined', 500, 'Route error');
+        if(!is_null($founded))
+        {
+            $routeArgs        = self::compileRoute($founded)->args;
+            $routeArgCount    = count($routeArgs['required']) + count($routeArgs['optional']);
+            $routeReqArgCount = count($routeArgs['required']);
+
+            if(count($args) < $routeReqArgCount)
+            {
+                $missingArgs = $routeReqArgCount - count($args);
+                throw new \Exception('Missing '.$missingArgs.' required argument'.($missingArgs != 1 ? 's' : '').' for route "'.$founded->name.'"');
+            }
+            if(count($args) > $routeArgCount)
+            {
+                throw new \Exception('The route "'.$founded->name.'" expects maximum '.$routeArgCount.' argument'.($routeArgCount != 1 ? 's' : '').', '.count($args).' provided');
+            }
+
+            $path = self::compileRoute($founded)->path;
+
+            foreach($args as $replacement)
+            {
+                $path = preg_replace('/\((.*?)\)/', $replacement, $path, 1);
+            }
+
+            $argsLeft =  $routeArgCount - count($args);
+
+            for($i = $argsLeft; $i >= 0; $i--)
+            {
+                $path = preg_replace('/\((.*?)\)/', '', $path, 1);
+            }
+
+            return base_url(trim($path,'/'));
+        }
+
+        throw new \Exception('The route "'.$search.'" is not defined');
     }
 
     /**
-     *  Heuristic comprobation of current uri_string in compiled routes
+     *  Heuristic testing of current uri_string in compiled routes
      *
      *  This is the 'reverse' process of the improved routing, it'll take the current
      *  uri string and attempts to find a CodeIgniter route that matches with his pattern
      *
-     * @param  string $search The current uri string
+     * @param  string $search
      *
      * @return mixed
      */
     public static function getRouteByPath($path, $requestMethod = NULL)
     {
-        $routes = array();
-
-        foreach(self::$routes as $route)
-        {
-            $routes[$route->verb][] = $route;
-        }
-
-        if(empty($routes))
-            return FALSE;
-
         if(is_null($requestMethod))
             $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-        if(!isset($routes[$requestMethod]))
-            return FALSE;
+        $routes = self::getRoutes($requestMethod);
 
-        $routes = $routes[$requestMethod];
+        if(empty($routes))
+            return FALSE;
 
         $founded = FALSE;
         $matches = array();
@@ -867,18 +889,55 @@ class Route
         $path = trim($path);
 
         if($path == '')
-        {
             return self::$defaultController;
-        }
 
-        foreach( [$path, $path.'/index'] as $findPath )
+        $wildcards =
+            [
+                '/\(:any\)/',
+                '/\(:num\)/',
+                '/\((.*?)\)/',
+            ];
+
+        $replaces =
+            [
+                '[^/]+',
+                '[0-9]+',
+                '(.*)'
+            ];
+
+
+        foreach( ['exact' , 'regex'] as $mode)
         {
-            foreach($routes as $route)
+            foreach( [ $path, $path.'/index' ] as $findPath )
             {
-                $compiled = $route->compiled;
+                foreach($routes as $route)
+                {
+                    $compiledPath = key($route->compiled);
 
-                if($findPath == key($compiled))
-                    return $route;
+                    if($mode == 'exact')
+                    {
+                        if($findPath == $compiledPath)
+                            return $route;
+                    }
+                    else
+                    {
+                        $e_findPath     = explode('/', $findPath);
+                        $e_compiledPath = explode('/', $compiledPath);
+
+                        if( count($e_findPath) == count($e_compiledPath))
+                        {
+                            $valid = TRUE;
+                            for($i = 0; $i < count($e_findPath); $i++)
+                            {
+                                $reg = preg_replace($wildcards, $replaces, $e_compiledPath[$i]);
+
+                                $valid = (bool) preg_match('#^'.$reg.'$#', $e_findPath[$i]);
+                            }
+                            if($valid)
+                                return $route;
+                        }
+                    }
+                }
             }
         }
 
@@ -897,7 +956,6 @@ class Route
     {
         return self::$http_verbs;
     }
-
 
     /**
      * Set the 404 error controller ($route['404_override'])
