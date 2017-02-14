@@ -87,9 +87,8 @@ class Middleware
      */
     public static function routeMiddleware()
     {
-        $currentRoute    = Route::getRouteByPath(self::$uri_string);
+        $currentRoute = Route::getRouteByPath(self::$uri_string);
 
-        $groupMiddleware = Route::getGroupMiddleware();
         $_run = array();
 
         // Current route middleware
@@ -99,24 +98,6 @@ class Middleware
             {
                 if(!in_array($middleware,$_run))
                     $_run[] = $middleware;
-            }
-        }
-
-        // Group middleware:
-        foreach($groupMiddleware as $middlewares)
-        {
-            foreach($middlewares as $path => $middleware)
-            {
-                $_lenght = strlen($path);
-
-                $search = self::$uri_string;
-                $search = substr($search,0,$_lenght);
-
-                if( $search === $path )
-                {
-                    if(!in_array($middleware,$_run))
-                         $_run[] = $middleware;
-                }
             }
         }
 

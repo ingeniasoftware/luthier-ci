@@ -23,6 +23,7 @@ class Route
      */
     protected static $http_verbs = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'TRACE', 'CONNECT', 'HEAD'];
 
+
     /**
      * All improved routes parsed
      *
@@ -52,6 +53,7 @@ class Route
      */
     protected static $_404page = NULL;
 
+
     /**
      * CodeIgniter 'translate_uri_dashes' index of the $route variable in config/routes.php
      *
@@ -60,6 +62,7 @@ class Route
      * @access protected
      */
     protected static $translateDashes = FALSE;
+
 
     /**
      * Array of hidden routes, it will parsed as an route with a show_404() callback into a clousure
@@ -70,8 +73,9 @@ class Route
      */
     protected static $hiddenRoutes = array();
 
+
     /**
-     * (For route groups only) makes the 'hideOriginal' attribute global for the current group
+     * Route group '$hideOriginal' directive
      *
      * @var static $hideOriginals
      *
@@ -79,8 +83,9 @@ class Route
      */
     protected static $hideOriginals = [];
 
+
     /**
-     * (For route groups only) makes the 'prefix' attribute global for the current group
+     * Route group prefix
      *
      * @var static $prefix
      *
@@ -88,8 +93,9 @@ class Route
      */
     protected static $prefix = [];
 
+
     /**
-     * (For route groups only) makes the 'namespace' attribute global for the current group
+     * Route group namespace
      *
      * @var static $namespace
      *
@@ -97,14 +103,16 @@ class Route
      */
     protected static $namespace = [];
 
+
     /**
-     * Array with group middleware. It will be used with the Middleware class as a global route filter
+     * Route group middleware
      *
-     * @var static $groupMiddleware
+     * @var static $middleware [add description]
      *
      * @access protected
      */
-    protected static $groupMiddleware = array();
+    protected static $middleware = [];
+
 
     /**
      * Generic method to add a improved route
@@ -135,7 +143,6 @@ class Route
         {
             show_error('Route controller must be in format controller@method', 500, 'Route error: bad controller format');
         }
-
 
         $controller = $parsedController[1];
         $method     = $parsedController[2];
@@ -179,7 +186,7 @@ class Route
         // Setting up the prefix
 
         $route['prefix'] = NULL;
-        $group_prefix = end(self::$prefix);
+        $group_prefix = implode('/', self::$prefix);
 
         if($group_prefix)
             $route['prefix'] = $group_prefix.'/';
@@ -190,7 +197,7 @@ class Route
         // Setting up the namespace
 
         $route['namespace'] = NULL;
-        $group_namespace = end(self::$namespace);
+        $group_namespace = implode('/', self::$namespace);
 
         if(!is_null($group_namespace))
             $route['namespace'] = $group_namespace.'/';
@@ -206,7 +213,9 @@ class Route
         if(empty($route['namespace']))
             $route['namespace'] = NULL;
 
-        $route['middleware'] = array();
+        // Route middleware
+        $route['middleware'] = [];
+        $route['middleware'] = array_merge($route['middleware'], self::$middleware);
 
         if(isset($attr['middleware']))
         {
@@ -248,10 +257,10 @@ class Route
 
             if($method == 'index')
             {
-                self::$hiddenRoutes[] = [ $hiddenRouteNamespace.$controller  => function(){ show_404(); }];
+                self::$hiddenRoutes[] = [ $hiddenRouteNamespace.$controller  => function(){ self::trigger404(); }];
             }
 
-            self::$hiddenRoutes[] = [$hiddenRoutePath => function(){ show_404(); }];
+            self::$hiddenRoutes[] = [$hiddenRoutePath => function(){ self::trigger404(); }];
         }
 
         if(!$return)
@@ -263,6 +272,7 @@ class Route
             return (object) $route;
         }
     }
+
 
     /**
      * Adds a GET route, alias of Route::add('GET',$url,$attr,$hideOriginal)
@@ -281,6 +291,7 @@ class Route
         self::add('GET', $url,$attr, $hideOriginal);
     }
 
+
     /**
      * Adds a POST route, alias of Route::add('POST',$url,$attr,$hideOriginal)
      *
@@ -297,6 +308,7 @@ class Route
     {
         self::add('POST', $url,$attr, $hideOriginal);
     }
+
 
     /**
      * Adds a PUT route, alias of Route::add('PUT',$url,$attr,$hideOriginal)
@@ -315,6 +327,7 @@ class Route
         self::add('PUT', $url,$attr, $hideOriginal);
     }
 
+
     /**
      * Adds a PATCH route, alias of Route::add('PATCH',$url,$attr,$hideOriginal)
      *
@@ -332,6 +345,7 @@ class Route
         self::add('PATCH', $url,$attr, $hideOriginal);
     }
 
+
     /**
      * Adds a DELETE route, alias of Route::add('DELETE',$url,$attr,$hideOriginal)
      *
@@ -348,6 +362,7 @@ class Route
     {
         self::add('DELETE', $url,$attr, $hideOriginal);
     }
+
 
     /**
      * Adds a route with ALL accepted verbs on Route::$http_verbs
@@ -369,6 +384,7 @@ class Route
             self::add($verb, $url, $attr, $hideOriginal);
         }
     }
+
 
     /**
      * Adds a list of routes with the verbs contained in $verbs, alias of Route::add($verbs,$url,$attr,$hideOriginal)
@@ -394,23 +410,14 @@ class Route
         }
     }
 
+
     /**
      * Adds a RESTFul route wich contains methods for create, read, update, view an specific resource
      *
-     * This is a shorthand of creating
-     *      Route::get('{{url}}',['uses' => '{controller}@index', 'as' => '{controller}.index']);
-     *      Route::get('{{url}}/create',['uses' => '{controller}@create', 'as' => '{controller}.create']);
-     *      Route::post('{{url}}',['uses' => '{controller}@store', 'as' => '{controller}.store']);
-     *      Route::get('{{url}}/{slug}',['uses' => '{controller}@show', 'as' => '{controller}.show']);
-     *      Route::get('{{url}}/edit',['uses' => '{controller}@edit', 'as' => '{controller}.edit']);
-     *      Route::matches(['PUT','PATCH'],'{{url}}/{slug}',['uses' => '{controller}@update', 'as' => '{controller}.update']);
-     *      Route::delete('{{url}}/{slug}',['uses' => '{controller}@delete', 'as' => '{controller}.delete']);
      *
-     * PLEASE NOTE: This is NOT a crud generator, just a bundle of predefined routes.
-     *
-     * @param  string $url String or array of strings that will trigger this route
-     * @param  string $controller Controller name (only controller name)
-     * @param  array $attr Associative array of route attributes
+     * @param  string $name
+     * @param  string $controller
+     * @param  array $attr
      *
      * @return void
      *
@@ -419,7 +426,7 @@ class Route
      */
     public static function resource($name, $controller, $attr = NULL)
     {
-        $base_attr = array();
+        $base_attr = [];
 
         $hideOriginal = FALSE;
 
@@ -437,7 +444,7 @@ class Route
         if(isset($attr['prefix']))
             $base_attr['prefix']  = $attr['prefix'];
 
-        $only = array();
+        $only = [];
 
         $controller = strtolower($controller);
 
@@ -496,6 +503,7 @@ class Route
         }
     }
 
+
     /**
      * Compiles an improved route to a valid CodeIgniter route
      *
@@ -526,11 +534,6 @@ class Route
         if(!is_null($prefix))
             $path = $prefix.'/'.$path;
 
-        /*
-        if(substr($path, 0, 1) == "/" && strlen($path) > 1)
-            $path = substr($path,1);
-        */
-
         $controller = $route->controller.'/'.$route->method;
 
         if(!is_null($namespace))
@@ -538,6 +541,7 @@ class Route
 
         $path       = trim($path,'/');
         $controller = trim($controller,'/');
+        $baseController = $controller;
 
         $replaces =
             [
@@ -548,13 +552,29 @@ class Route
             ];
 
         $foundedArgs = [];
+        $basePath    = '';
+
+
+        foreach(explode('/', $path) as $path_segment)
+        {
+            if(!preg_match('/^\{(.*)\}$/', $path_segment))
+            {
+                $basePath .= $path_segment . '/' ;
+            }
+        }
+
+        $basePath = trim($basePath,'/');
 
         foreach($replaces as $regex => $replace)
         {
             $matches = [];
-            if(preg_match_all('/'.$regex.'/', $path, $matches ))
+
+            //if(preg_match_all('/'.$regex.'/', $path, $matches ))
+            if(preg_match_all('/\{(.*)\}/', $path, $matches ))
             {
-                $foundedArgs = $matches[0];
+                //$foundedArgs = $matches[0];
+                $foundedArgs = explode('/', $matches[0][0]);
+                //var_dump($path, $foundedArgs);
             }
 
             $path = preg_replace('/'.$regex.'/', $replace, $path);
@@ -590,11 +610,14 @@ class Route
         }
 
         return (object) [
-            'path'  => $path,
-            'route' => $controller,
-            'args'  => $args,
+            'path'      => $path,
+            'route'     => $controller,
+            'args'      => $args,
+            'baseRoute' => $baseController,
+            'basePath'  => $basePath
         ];
     }
+
 
     /**
      * Compile ALL improved routes into a valid CodeIgniter's associative array of routes
@@ -611,6 +634,64 @@ class Route
         foreach(self::$routes as $index => $route)
         {
             $compiled = self::compileRoute($route);
+
+            $backtrackingPath  = '';
+            $backtrackingRoute = '';
+
+            if( count($compiled->args['optional']) > 0 )
+            {
+                $e_path  = explode('/', $compiled->path);
+                $e_route = explode('/', $compiled->route);
+
+                $basePath = $compiled->basePath;
+                $baseRoute = $compiled->baseRoute;
+
+                $a = count(explode('/',$basePath));
+
+                for($r = 0; $r < count($compiled->args['required']); $r++)
+                {
+                    $basePath .= '/' . $e_path[ $a + $r ];
+                    $baseRoute .= '/' . '$' . ($r + 1);
+                }
+
+                $a = count(explode('/',$basePath));
+                $b = ($r + 1);
+
+                $backtracking = [];
+
+                for($o = 0; $o <= count($compiled->args['optional']); $o++)
+                {
+                    $backtrackingPath  = $basePath;
+                    $backtrackingRoute = $baseRoute;
+
+                    for($c = 0; $c < $o  ; $c++)
+                    {
+                        $backtrackingPath .= '/' . $e_path[$a + $c - 1];
+                        $backtrackingRoute .= '/' . '$' . ($b + $c);
+                    }
+
+                    $backtracking[$o] = [ 'path' => $backtrackingPath, 'route' => $backtrackingRoute ];
+                }
+
+                foreach($backtracking as $b_route)
+                {
+                    $b_compiled   = self::compileRoute($route);
+                    $b_args       = array_merge($b_compiled->args['required'], $b_compiled->args['optional']);
+                    $b_route_path = $b_route['path'];
+
+                    foreach($b_args as $arg)
+                    {
+                        $b_route_path = preg_replace('/\((.*?)\)/', $arg, $b_route_path, 1);
+                    }
+
+                    self::add($route->verb, $b_route_path, ['uses' => $route->controller.'@'.$route->method]);
+
+                    if( !isset($routes[$b_route['path']]) || $route->verb == 'GET' )
+                    {
+                        $routes[$b_route['path']] = $b_route['route'];
+                    }
+                }
+            }
 
             if( !isset($routes[$compiled->path]) || $route->verb == 'GET' )
             {
@@ -650,6 +731,7 @@ class Route
 
         return $routes;
     }
+
 
     /**
      * Creates a group of routes with common attributes
@@ -693,16 +775,16 @@ class Route
                 if(is_array($attr['middleware']) && !empty($attr['middleware']))
                 {
                     foreach($attr['middleware'] as $middleware)
-                        self::$groupMiddleware[] = [ $attr['prefix'] => $middleware ];
+                        self::$middleware[] = $middleware;
                 }
                 else
                 {
-                    self::$groupMiddleware[] = [ $attr['prefix'] => $attr['middleware'] ];
+                    self::$middleware[] = $attr['middleware'];
                 }
             }
             else
             {
-                show_error('Group middleware not valid');
+                show_error('Group middleware must be an array o a string', 500, 'Route error');
             }
         }
 
@@ -710,8 +792,10 @@ class Route
 
         array_pop(self::$prefix);
         array_pop(self::$namespace);
+        array_pop(self::$middleware);
         array_pop(self::$hideOriginals);
     }
+
 
     /**
      * Creates the 'default_controller' key in CodeIgniter's route array
@@ -746,6 +830,7 @@ class Route
         self::$defaultController = self::$routes[] = self::add('GET', '/', ['uses' => $controller, 'as' => $as],TRUE, TRUE);
     }
 
+
     /**
      * Get all the improved routes defined
      *
@@ -772,6 +857,7 @@ class Route
         }
     }
 
+
     /**
      * Get all hidden routes
      *
@@ -785,21 +871,6 @@ class Route
         return self::$hiddenRoutes;
     }
 
-    /**
-     * Get all middleware defined by route groups.
-     *
-     * This middleware actually works as uri filter since they will not check the route,
-     * just check if the current uri string matches the prefix of the route group.
-     *
-     * @return array
-     *
-     * @access public
-     * @static
-     */
-    public static function getGroupMiddleware()
-    {
-        return self::$groupMiddleware;
-    }
 
     /**
      * Retrieve a route wich is called $search (if exists)
@@ -863,6 +934,7 @@ class Route
         throw new \Exception('The route "'.$search.'" is not defined');
     }
 
+
     /**
      *  Heuristic testing of current uri_string in compiled routes
      *
@@ -883,9 +955,6 @@ class Route
         if(empty($routes))
             return FALSE;
 
-        $founded = FALSE;
-        $matches = array();
-
         $path = trim($path);
 
         if($path == '')
@@ -904,7 +973,6 @@ class Route
                 '[0-9]+',
                 '(.*)'
             ];
-
 
         foreach( ['exact' , 'regex'] as $mode)
         {
@@ -926,13 +994,27 @@ class Route
 
                         if( count($e_findPath) == count($e_compiledPath))
                         {
+                            //var_dump($findPath, $compiledPath);
+
                             $valid = TRUE;
+                            $seachUntil = NULL;
+
                             for($i = 0; $i < count($e_findPath); $i++)
                             {
                                 $reg = preg_replace($wildcards, $replaces, $e_compiledPath[$i]);
 
                                 $valid = (bool) preg_match('#^'.$reg.'$#', $e_findPath[$i]);
+
+                                if($valid && is_null($seachUntil))
+                                    $seachUntil = $i;
                             }
+
+                            if($valid)
+                            {
+                                for($i = 0; $i < $seachUntil; $i++)
+                                    $valid = $e_findPath[$i] == $e_compiledPath[$i];
+                            }
+
                             if($valid)
                                 return $route;
                         }
@@ -943,6 +1025,44 @@ class Route
 
         return FALSE;
     }
+
+
+    /**
+     * Parse improved route arguments by a provided path
+     *
+     * @param  object  $route
+     * @param  string  $path
+     *
+     * @return bool | object
+     *
+     * @access public
+     * @static
+     */
+    public static function getRouteArgs($route, $path)
+    {
+        $compiled = self::compileRoute($route);
+
+        $r_seg = explode('/', $compiled->path);
+        $p_seg = explode('/', $path);
+
+        $args   = [];
+        $n_args = 1;
+
+        for($s = 0; $s < count($r_seg); $s++)
+        {
+            if(!isset($p_seg[$s]))
+                continue;
+
+            if($r_seg[$s] != $p_seg[$s])
+            {
+                $args['$'.$n_args] = $p_seg[$s];
+                $n_args++;
+            }
+        }
+
+        return $args;
+    }
+
 
     /**
      * Returns an array with the valid HTTP Verbs used in routes
@@ -956,6 +1076,7 @@ class Route
     {
         return self::$http_verbs;
     }
+
 
     /**
      * Set the 404 error controller ($route['404_override'])
@@ -977,6 +1098,7 @@ class Route
         ];
     }
 
+
     /**
      * Get the 404 route
      *
@@ -992,6 +1114,7 @@ class Route
         return self::$_404page;
     }
 
+
     /**
      * Set the 'translate_uri_dashes' value ($route['translate_uri_dashes'])
      *
@@ -1005,5 +1128,25 @@ class Route
     public static function setTrasnlateUriDashes($value)
     {
         self::$translateDashes = (bool) $value;
+    }
+
+
+    /**
+     * Attempts to trigger a nice 404 view (if a custom 404 controller is defined)
+     *
+     * @return void
+     *
+     * @access public
+     * @static
+     */
+    public static function trigger404()
+    {
+        if( !is_null(self::$_404page) )
+        {
+            header( 'Location: ' . config_item('base_url') . self::$_404page->path );
+            die;
+        }
+
+        show_404();
     }
 }
