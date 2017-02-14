@@ -64,19 +64,19 @@ class Request extends \Luthier\Core\Middleware
 
         // FIXME: Solve ambiguity here! POST with _method="GET" makes no sense
 
-        if(isset($_POST['_method']) && in_array(strtoupper($_POST['_method']), $validMethods , TRUE))
+        if (isset($_POST['_method']) && in_array(strtoupper($_POST['_method']), $validMethods, TRUE))
             $formMethod = strtoupper($_POST['_method']);
 
-        if(is_null($formMethod))
+        if (is_null($formMethod))
         {
             $this->requestMethod = $requestMethod;
         }
         else
         {
-            if($requestMethod == 'POST')
+            if ($requestMethod == 'POST')
                 $this->requestMethod = $formMethod;
 
-            if(!$this->CI->input->is_ajax_request() && $this->requestMethod == 'HEAD')
+            if (!$this->CI->input->is_ajax_request() && $this->requestMethod == 'HEAD')
                 $this->requestMethod = 'POST';
         }
     }
@@ -90,27 +90,25 @@ class Request extends \Luthier\Core\Middleware
      */
     public function run()
     {
-        if(!$this->route)
+        if (!$this->route)
         {
             //if(is_null(Route::get404()))
             //    show_404();
 
-            if(Route::get404()->controller != get_class($this->CI))
+            if (Route::get404()->controller != get_class($this->CI))
             {
-                if(ENVIRONMENT != 'production')
+                if (ENVIRONMENT != 'production')
                 {
                     show_error('The request method '.$this->requestMethod.' is not allowed to view the resource', 403, 'Forbidden method');
-                }
-                else
+                } else
                 {
                     //redirect(Route::get404()->path);
                     Route::trigger404();
                 }
             }
-        }
-        else
+        } else
         {
-            if(method_exists($this->CI,$this->route->method))
+            if (method_exists($this->CI, $this->route->method))
             {
                 $path_args  = Route::getRouteArgs($this->route, self::$uri_string);
                 $route_args = Route::compileRoute($this->route)->args;
@@ -120,7 +118,7 @@ class Request extends \Luthier\Core\Middleware
                 // Redirect to 404 if not enough parameters provided
 
                 if(count($path_args) < count($route_args['required']))
-                   redirect(Route::get404()->path);
+                    redirect(Route::get404()->path);
 
                 if(count($path_args) == 0)
                 {
@@ -139,7 +137,7 @@ class Request extends \Luthier\Core\Middleware
             }
             else
             {
-                if(ENVIRONMENT != 'production')
+                if (ENVIRONMENT != 'production')
                 {
                     show_error('The method '.$this->route->controller.'::'.$this->route->method.'() does not exists', 500, 'Method not found');
                 }
