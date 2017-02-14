@@ -125,10 +125,10 @@ You can assign names to your routes so you don't have to worry about future path
 Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo']);
 ```
 
-In your views, you can use the function `route()` with the desired name to retrieve the actual path:
+In your views, you can use the function `Route::getRouteByName()` with the desired name to retrieve the actual path:
 
 ```php
-<a href="<?= route('foo');?>">My link!</a>
+<a href="<?= Route::getRouteByNames('foo');?>">My link!</a>
 //Produces: <a href="http://myapp.com/hello/world">Link</a>
 ```
 
