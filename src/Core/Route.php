@@ -986,25 +986,29 @@ class Route
 
                         if (count($e_findPath) == count($e_compiledPath))
                         {
-                            //var_dump($findPath, $compiledPath);
-
-                            $valid = TRUE;
-                            $seachUntil = NULL;
+                            $valid    = TRUE;
+                            $skip_seg = [];
 
                             for ($i = 0; $i < count($e_findPath); $i++)
                             {
-                                $reg = preg_replace($wildcards, $replaces, $e_compiledPath[$i]);
-
+                                $count = 0;
+                                $reg   = preg_replace($wildcards, $replaces, $e_compiledPath[$i], -1, $count);
                                 $valid = (bool) preg_match('#^'.$reg.'$#', $e_findPath[$i]);
 
-                                if ($valid && is_null($seachUntil))
-                                    $seachUntil = $i;
+                                if ($valid && $count > 0)
+                                    $skip_seg[] = $i;
                             }
 
                             if ($valid)
                             {
-                                for ($i = 0; $i < $seachUntil; $i++)
-                                    $valid = $e_findPath[$i] == $e_compiledPath[$i];
+                                for ($i = 0; $i < count($e_findPath); $i++)
+                                {
+                                    if(in_array($i, $skip_seg))
+                                        continue;
+
+                                    if ($valid)
+                                        $valid = $e_findPath[$i] == $e_compiledPath[$i];
+                                }
                             }
 
                             if ($valid)

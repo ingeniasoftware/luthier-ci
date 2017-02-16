@@ -1,5 +1,7 @@
 # Luthier
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ingeniasoftware/luthier/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/ingeniasoftware/luthier/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/ingeniasoftware/luthier/badges/build.png?b=master)](https://scrutinizer-ci.com/g/ingeniasoftware/luthier/build-status/master)
 [![Latest Stable Version](https://poser.pugx.org/luthier/luthier/v/stable)](https://packagist.org/packages/luthier/luthier)
 [![Total Downloads](https://poser.pugx.org/luthier/luthier/downloads)](https://packagist.org/packages/luthier/luthier)
 [![Latest Unstable Version](https://poser.pugx.org/luthier/luthier/v/unstable)](https://packagist.org/packages/luthier/luthier)
