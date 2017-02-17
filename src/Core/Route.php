@@ -562,20 +562,32 @@ class Route
 
         $basePath = trim($basePath, '/');
 
-        foreach ($replaces as $regex => $replace)
+        $segments = explode('/', $path);
+
+        foreach ($segments as &$segment)
         {
-            $matches = [];
-
-            //if(preg_match_all('/'.$regex.'/', $path, $matches ))
-            if (preg_match_all('/\{(.*)\}/', $path, $matches))
+            $customRegex = FALSE;
+            foreach ($replaces as $regex => $replace)
             {
-                //$foundedArgs = $matches[0];
-                $foundedArgs = explode('/', $matches[0][0]);
-                //var_dump($path, $foundedArgs);
-            }
+                if($customRegex)
+                    continue;
 
-            $path = preg_replace('/'.$regex.'/', $replace, $path);
+                $matches = [];
+
+                if (preg_match_all('/\{(.*)\}/', $path, $matches))
+                {
+                    $foundedArgs = explode('/', $matches[0][0]);
+                }
+
+                $c = 0;
+                $segment = preg_replace('/'.$regex.'/', $replace, $segment, 1, $c);
+
+                if( $regex == array_keys($replaces)[0] && $c > 0)
+                    $customRegex = TRUE;
+            }
         }
+
+        $path = implode('/', $segments);
 
         $argConstraint = FALSE;
 
