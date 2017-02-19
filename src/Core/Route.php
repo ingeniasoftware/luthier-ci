@@ -200,7 +200,7 @@ class Route
         if (!is_null($group_namespace))
             $route['namespace'] = $group_namespace.'/';
         if (isset($attr['namespace']))
-            $route['namespace'] .= $attr['namespace'];
+            $route['namespace'] .= $attr['namespace'].'/';
 
         $route['prefix']    = trim($route['prefix'], '/');
         $route['namespace'] = trim($route['namespace'], '/');
