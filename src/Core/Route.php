@@ -200,7 +200,7 @@ class Route
         if (!is_null($group_namespace))
             $route['namespace'] = $group_namespace.'/';
         if (isset($attr['namespace']))
-            $route['namespace'] .= $attr['namespace'].'/';
+            $route['namespace'] .= $attr['namespace'];
 
         $route['prefix']    = trim($route['prefix'], '/');
         $route['namespace'] = trim($route['namespace'], '/');
@@ -564,9 +564,10 @@ class Route
 
         $segments = explode('/', $path);
 
-        foreach ($segments as &$segment)
+        foreach ($segments as $key => &$segment)
         {
             $customRegex = FALSE;
+
             foreach ($replaces as $regex => $replace)
             {
                 if($customRegex)
@@ -574,9 +575,9 @@ class Route
 
                 $matches = [];
 
-                if (preg_match_all('/\{(.*)\}/', $path, $matches))
+                if(preg_match('/^\{(.*)\}$/', $segment))
                 {
-                    $foundedArgs = explode('/', $matches[0][0]);
+                    $foundedArgs[$key] = $segment;
                 }
 
                 $c = 0;
@@ -610,9 +611,11 @@ class Route
             }
         }
 
-        if (count($foundedArgs) > 0)
+        $c_foundedArgs = count($foundedArgs);
+
+        if ($c_foundedArgs > 0)
         {
-            for ($i = 0; $i < count($foundedArgs); $i++)
+            for ($i = 0; $i < $c_foundedArgs; $i++)
             {
                 $controller .= '/$'.($i + 1);
             }
