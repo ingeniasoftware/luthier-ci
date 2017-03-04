@@ -650,7 +650,10 @@ class Route
             $backtrackingPath  = '';
             $backtrackingRoute = '';
 
-            if (count($compiled->args['optional']) > 0)
+            $c_reqArgs = count($compiled->args['required']);
+            $c_optArgs = count($compiled->args['optional']);
+
+            if ($c_optArgs > 0)
             {
                 $e_path  = explode('/', $compiled->path);
                 $e_route = explode('/', $compiled->route);
@@ -660,7 +663,7 @@ class Route
 
                 $a = count(explode('/', $basePath));
 
-                for ($r = 0; $r < count($compiled->args['required']); $r++)
+                for ($r = 0; $r < $c_reqArgs; $r++)
                 {
                     $basePath .= '/'.$e_path[$a + $r];
                     $baseRoute .= '/'.'$'.($r + 1);
@@ -671,7 +674,7 @@ class Route
 
                 $backtracking = [];
 
-                for ($o = 0; $o <= count($compiled->args['optional']); $o++)
+                for ($o = 0; $o <= $c_optArgs; $o++)
                 {
                     $backtrackingPath  = $basePath;
                     $backtrackingRoute = $baseRoute;
@@ -778,18 +781,21 @@ class Route
             self::$hideOriginals[] = FALSE;
         }
 
+        $mcount = 0;
         if (isset($attr['middleware']))
         {
             if (is_array($attr['middleware']) || is_string($attr['middleware']))
             {
                 if (is_array($attr['middleware']) && !empty($attr['middleware']))
                 {
+                    $mcount = count($attr['middleware']);
                     foreach ($attr['middleware'] as $middleware)
                         self::$middleware[] = $middleware;
                 }
                 else
                 {
                     self::$middleware[] = $attr['middleware'];
+                    $mcount = 1;
                 }
             }
             else
@@ -802,8 +808,11 @@ class Route
 
         array_pop(self::$prefix);
         array_pop(self::$namespace);
-        array_pop(self::$middleware);
         array_pop(self::$hideOriginals);
+
+        // Flushing nested middleware:
+        for($i = 0; $i < $mcount; $i++)
+            array_pop(self::$middleware);
     }
 
 
