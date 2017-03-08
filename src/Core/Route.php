@@ -1008,15 +1008,19 @@ class Route
                         $e_findPath     = explode('/', $findPath);
                         $e_compiledPath = explode('/', $compiledPath);
 
-                        if (count($e_findPath) == count($e_compiledPath))
+                        $c_e_findPath     = count($e_findPath);
+                        $c_e_compiledPath = count($e_compiledPath);
+
+                        if ($c_e_findPath == $c_e_compiledPath)
                         {
                             $valid    = TRUE;
                             $skip_seg = [];
 
-                            for ($i = 0; $i < count($e_findPath); $i++)
+                            for ($i = 0; $i < $c_e_findPath; $i++)
                             {
                                 $count = 0;
                                 $reg   = preg_replace($wildcards, $replaces, $e_compiledPath[$i], -1, $count);
+
                                 $valid = (bool) preg_match('#^'.$reg.'$#', $e_findPath[$i]);
 
                                 if ($valid && $count > 0)
@@ -1025,7 +1029,7 @@ class Route
 
                             if ($valid)
                             {
-                                for ($i = 0; $i < count($e_findPath); $i++)
+                                for ($i = 0; $i < $c_e_findPath; $i++)
                                 {
                                     if(in_array($i, $skip_seg))
                                         continue;
