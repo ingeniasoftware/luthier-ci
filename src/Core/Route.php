@@ -807,8 +807,10 @@ class Route
         $res = $routes->__invoke();
 
         array_pop(self::$prefix);
-        array_pop(self::$namespace);
         array_pop(self::$hideOriginals);
+
+        if( isset($attr['namespace']) )
+            array_pop(self::$namespace);
 
         // Flushing nested middleware:
         for($i = 0; $i < $mcount; $i++)
