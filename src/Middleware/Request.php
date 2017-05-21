@@ -92,28 +92,21 @@ class Request extends \Luthier\Core\Middleware
     {
         if (!$this->route)
         {
-            //if(is_null(Route::get404()))
-            //    show_404();
+            if (ENVIRONMENT != 'production')
+                show_error('The request method '.$this->requestMethod.' is not allowed to view the resource', 403, 'Forbidden method');
+
+            if(is_null(Route::get404()))
+                show_404();
 
             if (Route::get404()->controller != get_class($this->CI))
-            {
-                if (ENVIRONMENT != 'production')
-                {
-                    show_error('The request method '.$this->requestMethod.' is not allowed to view the resource', 403, 'Forbidden method');
-                } else
-                {
-                    //redirect(Route::get404()->path);
-                    Route::trigger404();
-                }
-            }
-        } else
+                Route::trigger404();
+        }
+        else
         {
             if (method_exists($this->CI, $this->route->method))
             {
                 $path_args  = Route::getRouteArgs($this->route, self::$uri_string);
                 $route_args = Route::compileRoute($this->route)->args;
-
-
 
                 // Redirect to 404 if not enough parameters provided
 
@@ -129,7 +122,6 @@ class Request extends \Luthier\Core\Middleware
                     call_user_func_array( [$this->CI, $this->route->method], array_values($path_args) );
                 }
 
-
                 // TODO: Add support to hooks in this execution thread
 
                 $this->CI->output->_display();
@@ -138,14 +130,13 @@ class Request extends \Luthier\Core\Middleware
             else
             {
                 if (ENVIRONMENT != 'production')
-                {
                     show_error('The method '.$this->route->controller.'::'.$this->route->method.'() does not exists', 500, 'Method not found');
-                }
-                else
-                {
-                    //redirect(Route::get404()->path);
+
+                if(is_null(Route::get404()))
+                    show_404();
+
+                if (Route::get404()->controller != get_class($this->CI))
                     Route::trigger404();
-                }
             }
         }
     }
