@@ -1168,7 +1168,7 @@ class Route
     {
         if (!is_null(self::$_404page))
         {
-            header('Location: '.config_item('base_url').self::$_404page->path);
+            header('Location: '.config_item('base_url').'/'.self::$_404page->path);
             die;
         }
 

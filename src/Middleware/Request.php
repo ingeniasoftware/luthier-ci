@@ -90,15 +90,12 @@ class Request extends \Luthier\Core\Middleware
      */
     public function run()
     {
+        if(self::$overrideRequest !== NULL && is_callable(self::$overrideRequest))
+            die((self::$overrideRequest)($this->CI));
+
         if (!$this->route)
         {
-            if (ENVIRONMENT != 'production')
-                show_error('The request method '.$this->requestMethod.' is not allowed to view the resource', 403, 'Forbidden method');
-
-            if(is_null(Route::get404()))
-                show_404();
-
-            if (Route::get404()->controller != get_class($this->CI))
+            if(Route::get404()->controller != get_class($this->CI))
                 Route::trigger404();
         }
         else

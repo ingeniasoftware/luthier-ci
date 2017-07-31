@@ -13,6 +13,7 @@ namespace Luthier\Core;
 
 class Middleware
 {
+    protected static $overrideRequest = NULL;
 
     /**
      * CodeIgniter instance (in dynamic context)
@@ -51,6 +52,11 @@ class Middleware
     public function __construct()
     {
         $this->CI = & self::$instance;
+    }
+
+    public static function overrideRequestWith($request)
+    {
+        self::$overrideRequest = $request;
     }
 
     /**
@@ -101,10 +107,16 @@ class Middleware
             }
         }
 
+        // Call the current controller __beforeMiddleware() method, if exists:
+        if (method_exists(self::$instance, '_beforeMiddleware'))
+            self::$instance->_beforeMiddleware();
+
         foreach ($_run as $middleware)
-        {
-            self::runMiddleware($middleware);
-        }
+            self::start($middleware);
+
+        // Call the current controller _afterMiddleware() method, if exists:
+        if (method_exists(self::$instance, '_afterMiddleware'))
+            self::$instance->_afterMiddleware();
     }
 
     /**
@@ -117,39 +129,28 @@ class Middleware
      * @access private
      * @static
      */
-    private static function runMiddleware($middlewareName)
+    public static function start($name, $dir = NULL)
     {
-        $middlewareDir = APPPATH.'middleware'.DIRECTORY_SEPARATOR;
+        if($dir === NULL)
+        {
+            $dir  = APPPATH.'middleware'.DIRECTORY_SEPARATOR;
+            $name = ucfirst($name).'_middleware';
+        }
 
-        $middlewareOriginalName = $middlewareName;
+        if (!file_exists($dir))
+            show_error('Unable to find (or read) the middleware folder: "'.$dir.'"');
 
-        $middlewareName = ucfirst($middlewareName).'_middleware';
+        $target = $dir.$name.'.php';
 
-        if (!file_exists($middlewareDir))
-            show_error('Unable to find (or read) the middleware folder: "'.$middlewareDir.'"');
+        if (!file_exists($target))
+            show_error('Unable to find (or read) the middleware "'.$target.'"');
 
-        $runMiddleware = $middlewareDir.$middlewareName.'.php';
+        require $target;
 
-        if (!file_exists($runMiddleware))
-            show_error('Unable to find (or read) the middleware "'.$runMiddleware.'"');
+        if (!class_exists($name))
+            show_error('Class "'.$name.'" not found');
 
-        require $runMiddleware;
-
-        if (!class_exists($middlewareName))
-            show_error('Class "'.$middlewareName.'" not found');
-
-        $middleware = new $middlewareName();
-
-        // Call the current controller __beforeMiddleware() method, if exists:
-        if (method_exists(self::$instance, '_beforeMiddleware'))
-            self::$instance->_beforeMiddleware();
-
-        // Run the middleware
+        $middleware = new $name();
         $middleware->run();
-
-        // Call the current controller _afterMiddleware() method, if exists:
-        if (method_exists(self::$instance, '_afterMiddleware'))
-            self::$instance->_afterMiddleware();
-
     }
 }
