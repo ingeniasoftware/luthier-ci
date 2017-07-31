@@ -1,5 +1,5 @@
 {
-    "name": "luthier/luthier",
+    "name": "luthier/luthier-ci",
     "description": "Improved routing and middleware support for CodeIgniter framework",
     "type": "library",
     "require": {
