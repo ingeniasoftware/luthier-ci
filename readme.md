@@ -1,123 +1,83 @@
-# Luthier
+# Luthier-CI
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ingeniasoftware/luthier/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/ingeniasoftware/luthier/?branch=master)
 [![Build Status](https://scrutinizer-ci.com/g/ingeniasoftware/luthier/badges/build.png?b=master)](https://scrutinizer-ci.com/g/ingeniasoftware/luthier/build-status/master)
-[![Latest Stable Version](https://poser.pugx.org/luthier/luthier/v/stable)](https://packagist.org/packages/luthier/luthier)
 [![Total Downloads](https://poser.pugx.org/luthier/luthier/downloads)](https://packagist.org/packages/luthier/luthier)
 [![Latest Unstable Version](https://poser.pugx.org/luthier/luthier/v/unstable)](https://packagist.org/packages/luthier/luthier)
-[![License](https://poser.pugx.org/luthier/luthier/license)](https://packagist.org/packages/luthier/luthier)
-[![composer.lock](https://poser.pugx.org/luthier/luthier/composerlock)](https://packagist.org/packages/luthier/luthier)
 
-Improved routing and middleware support for CodeIgniter Framework. Luthier is a set of classes that extends the framework and helps with the development of large and complex applications.
+Laravel-like routing and Middleware for CodeIgniter. Luthier-CI makes the development of large apps more enjoyable and easy!
+
+**UNDER CONSTRUCTION . DO NOT USE THIS IN PRODUCTION UNTIL THE PROJECT REACH A STABLE RELEASE.**
 
 ## Key features
 
 * Laravel-inspired static Route class
 * Route groups
-* Resource (RESTFul) controllers
 * Middleware support
 
 ## Installation
 
-#### Step 1: Get Luthier with Composer
+**Note:** this tutorial is assuming that you have a fresh CodeIgniter installation
+
+#### Step 1: Get Luthier-CI with Composer
 
 ```
 composer require luthier/luthier dev-master
 ```
 
+#### Step 2: Configure Hooks and Composer in your CodeIgniter app
 
+Go to your `config/config.php` file and make sure that you have both *hooks* and *composer
+autoload* enabled:
 
-#### Step 2: Enable *hooks* and *Composer autoload* in your application
-
-Go to your `config/config.php` file and make sure that:  
-  
 ```php
+
 $config['enable_hooks'] = TRUE;
-```
-  
-and  
-  
-```php
-$config['composer_autoload'] = TRUE;
-```  
-  
-#### Step 3: Initialize the Luthier hooks
-  
-Go to your `config/hooks.php` file and add this at the top of the script:  
-  
-```php
-use Luthier\Core\Loader as LuthierLoader;
 
-$hook = LuthierLoader::init();
+$config['composer_autoload'] = TRUE;
+```
+
+#### Step 3: Connect Luthier-CI with CodeIgniter
+
+In your `config/hooks.php` file put the following in the very first `$hook` declaration
+
+```php
+$hook = Luthier\Hook::getHooks();
+```
+
+Then, in your  `config/routes.php` file put the following in the very first `$route` declaration
+
+```php
+$route = Luthier\Route::getRoutes();
 ```
 
 #### Step 4: Add your routes
-  
-Now you can start adding routes in your `config/routes.php` file using the `Route` static methods. In the first line add the following:
-  
+
+The first time that you run Luthier-CI, several files and folders are created:
+
+* `routes/web.php` (Default HTTP-Based routes, start here!)
+* `routes/api.php` (AJAX routes)
+* `routes/cli.php` (CLI routes, not working yet)
+* `controllers/Luthier.php` (Default fake controller)
+
+Some examples:
 ```php
-use Luthier\Core\Route;
+// Single route
+Route::get('foo', 'bar@baz');
+
+// Route with parameters
+Route::get('blog/{slug}', 'blog@post');
 ```
 
-And then, for example:
+You can use anonymous functions/callbacks in your routes, without a controller:
 
 ```php
-Route::get('foo', ['uses' => 'controller@method', 'as' => 'my-awesome-named-route']);
+Route::get('foo', function(){
+    // The ci() function is an alias of get_instance()
+    ci()->load->view('some_view');
+});
 ```
-  
-Once you added all your routes, call the `Route::register()` method in the `$route` variable to compile all your routes.
-
-Example:
-
-```php
-use Luthier\Core\Route;
-
-Route::get('foo', ['uses' => 'controller@method', 'as' => 'my-awesome-named-route']);
-Route::home('home@index'); // Default controller
-
-$route = Route::register(); 
-// This compile all the Luthier routes in the CodeIgniter's native format
-
-```
-
-
-**and you're done!**
-
 
 ## Routes
-
-
-#### Example 1: Defining a GET route:
-
-```php
-Route::get('foo/bar', ['uses' => 'testcontroller@index']);
-```
-This will be triggered with a GET request over the path *foo/bar* and will call the `index()` method of `testcontroller`
-
-#### Example 2: Defining a POST route:
-
-```php
-Route::post('foo/bar', ['uses' => 'testcontroller@another']);
-```
-
-This will be triggered with a POST request over the path *foo/bar* and will call the `another()` method of `testcontroller`
-
-As you probably noticed, the anterior routes have the same path. Don't worry, Luthier can handle the correct controller over multiples paths depending of the request method.
-  
-Luthier works with the most common HTTP Verbs:
-  
-* Route::get();
-* Route::post();
-* Route::put();
-* Route::patch();
-* Route::delete();
-
-However, you can use any what you want, with the `Route::add()` method:
-
-```php
-Route::add('OPTIONS', ['uses' => 'foo@bar']);
-```
-  
 
 #### Named routes
 
@@ -127,21 +87,21 @@ You can assign names to your routes so you don't have to worry about future path
 Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo']);
 ```
 
-In your views, you can use the function `Route::getRouteByName()` with the desired name to retrieve the actual path:
+In your views, you can use the function `route()` with the desired name to retrieve the actual path:
 
 ```php
-<a href="<?= Route::getRouteByName('foo');?>">My link!</a>
-//Produces: <a href="http://myapp.com/hello/world">Link</a>
+<a href="<?= route('foo');?>">My link!</a>
+// <a href="http://[App Base Url]/hello/world">Link</a>
 ```
 
 #### Route namespaces
 
-If you have subdirectories in your controllers folder, you can specify a *pseudo-namespace* in your routes to indicate to CodeIgniter the actual folder structure to reach the desired controller.
+If you have subdirectories in your controllers folder, you can specify a *pseudo-namespace* in your routes to indicate to CodeIgniter the path to the controller.
 
 *Example:*
 
 ```php
-Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo', 'namespace' => 'admin']);
+Route::get('hello/world', 'testcontroller@index', ['namespace' => 'admin']);
 ```
 
 Will be point to *application/controllers/admin/Testcontroller.php*
@@ -151,89 +111,29 @@ Will be point to *application/controllers/admin/Testcontroller.php*
 You can set a *prefix* to your routes with the following syntax:
 
 ```php
-Route::get('hello/world', ['uses' => 'testcontroller@index', 'as' => 'foo', 'prefix' => 'admin']);
+Route::get('hello/world', 'testcontroller@index', ['prefix' => 'admin']);
 ```
 
-So the route will be accesed with the 'admin/hello/world' instead 'hello/world'
+So the route will be accessed with the 'admin/hello/world' path instead 'hello/world'
 
 #### The default controller:
 
-You can set the default controller using the method `home()`:
+Luthier-CI automatically set any GET route to '/' path as your default controller, however,
+you can set it explicitly with:
 
 ```php
-Route::home('home@index');
+Route::set('default_controller', 'welcome/index');
+// Note that this is a bind to $route['default_controller'] index and must be in CI
+// native format
 ```
-
-It will set the ```Home.php``` file inside the `controllers` folder with the method `index()` as your default controller.
-
 ### Route groups
 
-You can group your routes in a convenient way using the `group()` method:
+You can group your routes in a convenient way using the `Route::group()` method:
 
 ```php
-Route::group(['prefix' => 'foo'], function(){
+Route::group('prefix', function(){
     Route::get('bar', ['uses' => 'test@bar']);
     Route::get('baz', ['uses' => 'test@baz']);
 });
 ```
-
-The route groups allows to encapsulate a set of routes with a prefix and namespace.
-
-While you can omit the namespace, the route group prefix is mandatory.
-
-## Middleware
-
-The middleware allows you to add *layers* in your requests before accessing the controllers.
-
-### Creating middleware
-
-All your middleware must be saved in the *application/middleware* folder. Both the file name and the class name must have the `_middleware` suffix .
-
-*Basic example:*
-
-```php
-<?php
-// application/middelware/Auth_middleware.php
-
-use Luthier\Core\Middleware;
-
-class Auth_middleware extends Middleware
-{
-
-    public function __construct()
-    {
-    	 // You MUST call the parent constructor:
-         parent::__construct();
-    }
-
-	// This is the middleware entry point:
-    public function run()
-    {
-         // The current CodeIgniter instance is available as $this->CI
-         if( is_null( $this->CI->session->userdata('logged_in') )
-         {
-              echo 'You must be logged in to view this resource!';
-              die;
-         }
-
-    }
-}
-```
-All your middleware must extend the `Middleware` class. The method `run()` is the entry point of the middleware.
-
-### Including middleware in your routes
-
-*Example 1: single route middleware*
-
-```php
-Route::get('foo', ['uses' => 'mycontroller@method', 'middleware' => ['Auth']]);
-```
-
-*Example 2: group middleware*
-
-```php
-Route::group(['prefix' => 'foo', 'middleware' => ['Auth'] ], function(){
-    Route::get('bar', ['uses' => 'test@bar']);
-    Route::get('baz', ['uses' => 'test@baz']);
-});
-```
+*Full documentation will be available soon...*
