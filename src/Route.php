@@ -406,9 +406,9 @@ class Route
      */
     public static function getByName(string $name)
     {
-        if(isset(self::$routeMap['names'][$name]))
+        if(isset(self::$compiled['names'][$name]))
         {
-            return self::$routeMap['names'][$name];
+            return self::$compiled['names'][$name];
         }
 
         throw new RouteNotFoundException;
@@ -610,7 +610,6 @@ class Route
         }
 
         // Essential route attributes
-
         list($path, $action) = $route;
 
         $this->path = trim($path, '/') == '' ? '/' : trim($path, '/');
@@ -621,7 +620,6 @@ class Route
         }
 
         $this->action = $action;
-
         $attributes = isset($route[2]) && is_array($route[2]) ? $route[2] : NULL;
 
         // Route group-inherited attributes
@@ -762,10 +760,10 @@ class Route
             $methods = [ $currentMethod ];
         }
 
-        foreach($methods as $method)
+
+        foreach($methods as $verb)
         {
             $path   = $this->path;
-
             $target = null;
 
             if(!empty($this->prefix))
@@ -780,7 +778,6 @@ class Route
             else
             {
                 list($controller, $method) = explode('@', $this->action);
-
                 $target = $controller . '/' . $method;
 
                 if(!empty($this->namespace))
@@ -821,16 +818,16 @@ class Route
 
                     $route->setPath(implode('/', $routePath));
 
-                    $subRoute = $route->compile($method);
+                    $subRoute = $route->compile($verb);
                     $_path    = key($subRoute[0]);
-                    $_target  = $subRoute[0][key($subRoute[0])][$method];
+                    $_target  = $subRoute[0][key($subRoute[0])][$verb];
 
-                    $routes[][$_path][$method] =  $_target;
+                    $routes[][$_path][$verb] =  $_target;
 
                 }while($isOptional);
             }
 
-            $routes[][$path][$method] = $target;
+            $routes[][$path][$verb] = $target;
         }
 
         $last   = array_pop($routes);
@@ -854,9 +851,8 @@ class Route
                 return $_param->value;
             }
         }
-
-        throw new \Exception('Undefined route "' .  $name . '" param ');
     }
+
 
     public function hasParam($name)
     {
@@ -921,7 +917,7 @@ class Route
             }
         }
 
-        return base_url() . $path;
+        return base_url() . trim($path,'/');
     }
 
 

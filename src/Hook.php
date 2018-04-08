@@ -32,6 +32,13 @@ final class Hook
             $hooks['pre_system'][] = $_hook;
         }
 
+        if(isset($hooks['pre_controller']) && !is_array($hooks['pre_controller']))
+        {
+            $_hook = $hooks['pre_controller'];
+            $hooks['pre_controller']   = [];
+            $hooks['pre_controller'][] = $_hook;
+        }
+
         if(isset($hooks['post_controller_constructor']) && !is_array($hooks['post_controller_constructor']))
         {
             $_hook = $hooks['post_controller_constructor'];
@@ -154,64 +161,79 @@ final class Hook
         };
 
         //
-        //  Controller constructor hook
+        //  Pre controller hook
         //
 
-        $hooks['post_controller_constructor'][] = function()
+        $hooks['pre_controller'][] = function()
         {
-            // Load required URI helper
-            ci()->load->helper('url');
+            global $params, $URI;
 
-            // Inject current route to singleton
             $route = Route::getCurrentRoute();
-            ci()->route = &$route;
-
-            $_path  = (!empty($route->getPrefix()) ? '/' : '') . $route->getPath();
-            $params = [];
+            $path   = (!empty($route->getPrefix()) ? '/' : '') . $route->getPath();
             $pcount = 0;
 
-            foreach(explode('/', $_path) as $i => $segment)
+            foreach(explode('/', $path) as $i => $segment)
             {
                 if(preg_match('/^\{(.*)\}$/', $segment))
                 {
-                    $params[] = $route->params[$pcount]->value = ci()->uri->segment($i+1);
+                    $route->params[$pcount]->value =  $URI->segment($i+1);
+
+                    // Removing "sticky" route parameters from CI callback parameters
+                    if(substr($route->params[$pcount]->getName(), 0, 1) == '_')
+                    {
+                        unset($params[$pcount]);
+                    }
                     $pcount++;
                 }
             }
 
             Route::setCurrentRoute($route);
+        };
+
+        //
+        //  Post controller constructor hook
+        //
+
+        $hooks['post_controller_constructor'][] = function()
+        {
+            global $params;
+
+            // Loading required URL helper
+            ci()->load->helper('url');
+
+            // Injecting current route
+            ci()->route = Route::getCurrentRoute();
 
             // Injecting middleware class
             ci()->middleware = new Middleware();
 
-            // Running custom user pre-middleware action
             if(method_exists(ci(), 'preMiddleware'))
             {
                 call_user_func([ci(), 'preMiddleware']);
             }
 
-            // Running global middleware
             foreach(Route::getGlobalMiddleware()['pre_controller'] as $middleware)
             {
                 ci()->middleware->run($middleware);
             }
 
-            // Make 'Sticky' _locale special route param if the current route defines it
-            if($route->hasParam('_locale'))
+            // Seting "sticky" route params values as default for current route
+            foreach(ci()->route->params as &$param)
             {
-                Route::setParam('_locale', $route->param('_locale'));
+                if(substr($param->getName(),0,1) == '_')
+                {
+                    Route::setDefaultParam($param->getName(), ci()->route->param($param->getName()));
+                }
             }
 
-            // Running route middleware (if any)
-            foreach($route->getMiddleware() as $middleware)
+            foreach(ci()->route->getMiddleware() as $middleware)
             {
                 ci()->middleware->run($middleware);
             }
 
-            if(is_callable($route->getAction()))
+            if(is_callable(ci()->route->getAction()))
             {
-                var_dump($params);
-                call_user_func_array($route->getAction(), $params);
+                call_user_func_array(ci()->route->getAction(), $params);
             }
         };
 
@@ -221,8 +243,6 @@ final class Hook
 
         $hooks['post_controller'][] = function()
         {
-            $route = Route::getCurrentRoute();
-
             foreach(Route::getGlobalMiddleware()['post_controller'] as $middleware)
             {
                 ci()->middleware->run($middleware);
