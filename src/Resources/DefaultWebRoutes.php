@@ -16,7 +16,6 @@
  *
  *    Route::get('blog/{slug}', 'blog@post');
  *      -> $route['blog/(:any)'] = 'blog/post/$1'
- *
  */
 
 
