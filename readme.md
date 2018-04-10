@@ -155,7 +155,7 @@ class ShopCategory extends CI_Controller
     public function CategoryList($id)
     {
         // assuming that the path is 'shop/en/category/1':
-        var_dump($id, $this->param('_locale');
+        var_dump($id, $this->route->param('_locale');
         // 1, 'en'
     }
 }
@@ -320,4 +320,4 @@ Route::middleware(function(){
 
 ## Donate
 
-Enjoying Luthier-CI? Donate with [Paypal](https://paypal.me/andersalasm) and help me to make more cool stuff!
+Enjoying Luthier-CI? Donate with [Paypal](https://paypal.me/andersalasm) and help us to make more cool stuff!
