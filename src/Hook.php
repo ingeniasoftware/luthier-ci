@@ -217,7 +217,7 @@ final class Hook
                 }
             }
 
-            foreach(explode('/', $path) as $i => $segment)
+            foreach(explode('/', implode('/', [$route->getPrefix(), $path])) as $i => $segment)
             {
                 if(preg_match('/^\{(.*)\}$/', $segment))
                 {
@@ -228,6 +228,7 @@ final class Hook
                     {
                         unset($params[$pcount]);
                     }
+
                     $pcount++;
                 }
             }
@@ -273,7 +274,15 @@ final class Hook
 
             foreach(ci()->route->getMiddleware() as $middleware)
             {
-                ci()->middleware->run($middleware);
+                if(is_string($middleware))
+                {
+                    $middleware = [ $middleware ];
+                }
+
+                foreach($middleware as $_middleware)
+                {
+                    ci()->middleware->run($_middleware);
+                }
             }
 
             if(is_callable(ci()->route->getAction()))

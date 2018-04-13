@@ -662,7 +662,7 @@ class Route
         if(!empty(self::$context['middleware']['route']))
         {
             $middlewares = self::$context['middleware']['route'];
-            foreach($middlewares as $middleare)
+            foreach($middlewares as $middleware)
             {
                 if(!in_array($middleware, $this->middleware))
                 {
