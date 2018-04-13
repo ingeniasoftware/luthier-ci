@@ -16,6 +16,11 @@ A design goal of Luthier-CI is to have the less side effects possible and be dee
 * Global and per-route middleware
 * Advanced routing: prefixes, namespaces, anonymous functions as routes, route groups, named parameters, optional parameters, default parameter values and "sticky" parameters
 
+## Requirements
+
+* PHP 5 and 7 are compatible
+* CodeIgniter 3.x
+
 ## Installation
 
 (**Note:** this tutorial is assuming that you have a fresh CodeIgniter installation)
@@ -64,14 +69,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route = Luthier\Route::getRoutes();
 ```
 
-The first time that you run Luthier-CI, several files and folders are created:
+The first time that Luthier-CI runs, several files and folders are created:
 
 * `routes/web.php`: Default HTTP-Based routes
 * `routes/api.php`: AJAX routes
 * `routes/cli.php`: CLI routes (not working yet)
 * `controllers/Luthier.php`: Fake controller, needed to run route callbacks
   
-During the initialization CodeIgniter will run some hooks: `Luthier\Hook::getHooks()` returns all Luthier-CI related hooks, included the needed to boot. At this phase, Luthier-CI parses and compiles all the routes defined in the first three files. Then, when the framework loads the routes, `Luthier\Route::getRoutes()` returns the actual array of routes. All after this is just the normal execution of the framework.
+During the framework initialization some hooks are called: the first, `Luthier\Hook::getHooks()` returns all Luthier-CI related hooks, included the needed to boot. At this point, Luthier-CI parses and compiles all the routes defined in the first three files. Then, when the framework loads the routes, `Luthier\Route::getRoutes()` returns the actual array of routes. All after this is just the normal execution of the framework.
 
 ## Routes
 
@@ -83,8 +88,7 @@ To add routes, use the static methods of the `Route` class facade:
 <?php 
 # application/routes/web.php
 
-// This is a very simple route that points to 'baz' method of 'bar' controller
-// on '/foo' path under a GET request:
+// This points to 'baz' method of 'bar' controller at '/foo' path under a GET request:
 Route::get('foo', 'bar@baz');
 
 // To add a route parameter, enclose with curly brackets {}
@@ -97,87 +101,21 @@ Route::get('categories/{primary?}/{secondary?}/{filter?}', 'clients@list');
 // The (:any) and (:num) CodeIgniter route placeholders are availables to use, with this syntax:
 Route::get('cars/{num:id}/{any:registration}', 'CarCatalog@index');
 
-// Custom regex? it's possible too:
+// Custom regex? it's possible with this syntax:
 Route::post('main/{((es|en)):_locale}/about', 'about@index');
 ```
 
-#### Sticky parameters
-  
-What if you want to define a global route parameter and make it available to all inherited routes? This can be done with help of *sticky* parameters. A sticky parameter starts with an underscore `_` and has a few singularities:  
-  
-* Is NOT passed in the arguments of the pointed controller's method  
-* The parameter value is the same of the current route value and is setted by default if is not present, making it *sticky* (if the subsequent routes shares that parameter, of course)  
-  
-Here's an example:  
-  
-```php
-Route::group('shop/{_locale}', function()
-{
-    Route::get('category/{id}', 'ShopCategory@categoryList')->name('shop.category');
-    Route::get('product/{id}/details', 'ShopProduct@details')->name('shop.product.details');
-});
-```
+#### Callbacks as routes:
 
-Both `shop.category` and `shop.products.details` routes shares the `_locale` parameter. While is required to be in the path, is not mandatory to be present in the `route()` array of parameters if called in that context. So, if you visit the path `shop/en/category/1` (`shop.category` route) and want to link another categories without the tedious labor of specify the `_locale` parameter, just skip it:
-  
-```php
-// If the path is 'shop/en/category/1', {_locale} will be 'en' here:
-route('shop.category', ['id' => 1]); # shop/en/category/1
-route('shop.category', ['id' => 2]); # shop/en/category/2
-route('shop.category', ['id' => 3]); # shop/en/category/3
-
-// however, you can override with another value:
-route('shop.category', ['_locale' => 'es', 'id' => 1]); # shop/es/category/1
-```
-
-Inside the `ShopCategory` and `ShopProduct` controllers, their methods must define only one argument: $id, since only this will be passed:  
-  
-```php
-<?php
-
-class ShopCategory extends CI_Controller
-{
-    // CategoryList($_locale, $id) will just not work
-    public function CategoryList($id)
-    {
-        var_dump($id);
-    }
-}
-```
-
-So, how we get the `_locale` parameter value? calling the `route->param()` method:
-  
-```php
-<?php
-
-class ShopCategory extends CI_Controller
-{
-    public function CategoryList($id)
-    {
-        // assuming that the path is 'shop/en/category/1':
-        var_dump($id, $this->route->param('_locale');
-        // 1, 'en'
-    }
-}
-```
-
-#### Custom route callbacks:
-
-You can use an anonymous function (AKA Lambda functions) in a route action, instead a `controller@method` definition:
-
-```php
-Route::get('foo', function(){
-    // ( ... )
-});
-```
-
-To access to the CodeIgniter instance inside route callbacks, use the `ci()` function:
+It's posible to use an anonymous function as a route! here's an example:
 
 ```php
 Route::get('foo', function(){
     ci()->load->view('some_view');
 });
 ```
+
+The `ci()` function returns the framework instance, acting as a *virtual* controller.
 
 #### Named routes
 
@@ -187,7 +125,7 @@ You can assign names to your routes so you don't have to worry about future path
 Route::get('company/about_us', 'testcontroller@index')->name('about_us');
 ```
 
-Use the `route()` function with the route name to retrieve the compiled path:
+Use the `route()` function with to retrieve the compiled path:
 
 ```php
 <a href="<?= route('about_us');?>">My link!</a>
@@ -200,9 +138,70 @@ If the route have parameters, pass a second argument to the function with an arr
 <?= route('route_name', ['param1' => 'value2', 'param2' => 'value2' ... ]); ?>
 ```
 
-#### Namepsaces
+#### Sticky parameters
 
-If you have subdirectories inside your controllers folder, use the *namespace* property to indicate to CodeIgniter the path to the controller. (Please note that this is not an actual *namespace*, is just the directory path to the controller)
+What if you want to define a global route parameter and make it available to all inherited routes? This can be done with help of *sticky* parameters. A sticky parameter starts with an underscore `_` and has a few singularities:
+
+* Is NOT passed in the arguments of the pointed controller's method
+* The parameter value is the same of the current route value and is setted by default if is not present, making it *sticky* (if the subsequent routes shares that parameter, of course)
+
+Here's an example:
+
+```php
+Route::group('shop/{_locale}', function()
+{
+    Route::get('category/{id}', 'ShopCategory@categoryList')->name('shop.category');
+    Route::get('product/{id}/details', 'ShopProduct@details')->name('shop.product.details');
+});
+```
+
+Both `shop.category` and `shop.products.details` routes shares the `_locale` parameter. While is required to be in the path, is not mandatory to be present in the `route()` array of parameters if called in that context. So, if you visit the path `shop/en/category/1` (`shop.category` route) and want to link another categories without the tedious labor of specify the `_locale` parameter, just skip it:
+
+```php
+// If the path is 'shop/en/category/1', {_locale} will be 'en' here:
+route('shop.category', ['id' => 1]); # shop/en/category/1
+route('shop.category', ['id' => 2]); # shop/en/category/2
+route('shop.category', ['id' => 3]); # shop/en/category/3
+
+// however, you can override with another value:
+route('shop.category', ['_locale' => 'es', 'id' => 1]); # shop/es/category/1
+```
+
+Inside the `ShopCategory` and `ShopProduct` controllers, their methods must define only one argument: $id, since only this will be passed:
+
+```php
+<?php
+
+class ShopCategory extends CI_Controller
+{
+    // CategoryList($_locale, $id) will just not work
+
+    public function CategoryList($id)
+    {
+        var_dump($id);
+    }
+}
+```
+
+So, how we get the `_locale` parameter value? calling the `route->param()` method:
+
+```php
+<?php
+
+class ShopCategory extends CI_Controller
+{
+    public function CategoryList($id)
+    {
+        // Assuming that the path is 'shop/en/category/1':
+        var_dump($id, $this->route->param('_locale');
+        // 1, 'en'
+    }
+}
+```
+
+#### Namespaces
+
+Use the *namespace* property to indicate to CodeIgniter the path to the controller. (Please note that this is not an actual *namespace*, is just the controller path)
 
 ```php
 // This points to application/controllers/admin/Testcontroller.php
@@ -211,27 +210,26 @@ Route::get('hello/world', 'testcontroller@index', ['namespace' => 'admin']);
 
 #### Prefixes
 
-You can set a *prefix* to your routes with the following syntax:
+Prefixing routes is easy, just use the *prefix* property:
 
 ```php
+//The route will be accessed with the 'admin/hello/world' path instead 'hello/world'
 Route::get('hello/world', 'testcontroller@index', ['prefix' => 'admin']);
 ```
 
-So the route will be accessed with the 'admin/hello/world' path instead 'hello/world'
-  
 #### Route Groups
 
-You can group your routes in a convenient way using the `Route::group()` method. All routes
-inside the group will share the *prefix* (first argument) and, optionally, another properties (*namespace*, *middleware*, etc.) 
+Group routes is possible with the  `Route::group()` method. All routes
+inside the group will share the *prefix* (first argument) and, optionally, another properties (*namespace*, *middleware*, etc.)
 
 ```php
-// Simple route group
+// Prefix only
 Route::group('prefix', function(){
     Route::get('bar','test@bar');
     Route::get('baz','test@baz);
 });
 
-// Route group with shared properties
+// Prefix and shared properties
 Route::group('prefix', ['namespace' => 'foo', 'middleware' => ['Admin','IPFilter']], function(){
     Route::get('bar','test@bar');
     Route::get('baz','test@baz);
@@ -281,12 +279,12 @@ Route::group('site', ['middleware' => ['Admin']], function(){
 Route::middleware('Admin', 'pre_controller');
 ````
 
-The middleware files must be saved in the `application/middleware` folder. If not exists, you must create it. A middleware file is any php class with a public `run()` method, which is the entry point. It's strongly adviced to name all your middleware with CamelCase and avoid name conflicts with your controllers.  
+The middleware files must be saved in the `application/middleware` folder. If not exists, you must create it first. A middleware file is any php class with a public `run()` method, which is the entry point. It's strongly advised to name all your middleware with CamelCase and avoid name conflicts with your controllers.
   
 #### Manually running middleware
   
-In your controllers, you can call a middleware with the `middleware->run()` method:  
-  
+Use the `middleware->run()` method in your controllers to run a middleware on-demand:
+
 ```php
 <?php
 
@@ -304,7 +302,7 @@ class MyController extends CI_Controller
   
 #### Callbacks as middleware
   
-You can use callbacks in your middleware definitions and works exactly as route actions callbacks:  
+You can use callbacks in middleware definitions, and works exactly as route callbacks:
   
 ```php
 Route::middleware(function(){

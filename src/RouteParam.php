@@ -115,7 +115,7 @@ final class RouteParam
      *
      * @access public
      */
-    public function __construct(string $segment, $default = null)
+    public function __construct($segment, $default = null)
     {
         $this->segment = $segment;
         $customRegex = false;

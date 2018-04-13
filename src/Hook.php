@@ -60,7 +60,6 @@ final class Hook
         $hooks['pre_system'][] = function()
         {
             // Defining some constants
-
             define('LUTHIER_CI_VERSION', 1.0);
 
             $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
@@ -68,14 +67,18 @@ final class Hook
             $isWeb  = !$isCli;
 
             // Including facades
-
             require_once __DIR__ . '/Facades/Route.php' ;
 
             // Route files
-
             if( !file_exists(APPPATH . '/routes') )
             {
                 mkdir( APPPATH . '/routes' );
+            }
+
+            // Middleware folder
+            if( !file_exists(APPPATH . '/middleware') )
+            {
+                mkdir( APPPATH . '/middleware' );
             }
 
             if( !file_exists(APPPATH . '/routes/web.php') )
@@ -100,7 +103,6 @@ final class Hook
 
             // CLI routes file
             // (NOT WORKING YET!!!)
-
             if( !file_exists(APPPATH . '/routes/cli.php') )
             {
                 copy(__DIR__ . '/Resources/DefaultCliRoutes.php', APPPATH.'/routes/cli.php' );
@@ -113,23 +115,29 @@ final class Hook
             }
 
             // Default (fake) controller
-
             if( !file_exists(APPPATH . '/controllers/' .  Route::DEFAULT_CONTROLLER . '.php'))
             {
                 copy(__DIR__ . '/Resources/DefaultController.php', APPPATH.'/controllers/'.  Route::DEFAULT_CONTROLLER .'.php' );
             }
 
             // Global functions
-
             require_once( __DIR__ . '/Functions.php');
 
             // Compile all routes
-
             Route::compileAll();
+
+            // This allows us to use any HTTP Verb through a form with a hidden field
+            // named "_method"
+            if(isset($_SERVER['REQUEST_METHOD']) && strtolower($_SERVER['REQUEST_METHOD']) == 'post')
+            {
+                if(isset($_POST['_method']))
+                {
+                    $_SERVER['RQUEST_METHOD'] = $_POST['_method'];
+                }
+            }
 
             // Parsing uri and setting the current Luthier route (if exists)
             // FIXME: Maybe this isn't sufficient
-
             $uri = '/';
 
             if(isset($_SERVER['PATH_INFO']))
@@ -155,7 +163,8 @@ final class Hook
                         show_404();
                     }
                 });
-            }
+                $currentRoute->is404 = true;
+            };
 
             Route::setCurrentRoute($currentRoute);
         };
@@ -166,11 +175,47 @@ final class Hook
 
         $hooks['pre_controller'][] = function()
         {
-            global $params, $URI;
+            global $params, $URI, $class, $method;
 
-            $route = Route::getCurrentRoute();
+            $route  = Route::getCurrentRoute();
             $path   = (!empty($route->getPrefix()) ? '/' : '') . $route->getPath();
             $pcount = 0;
+
+            //
+            // Removing controller's subdirectories limitation over "/" path
+            //
+
+            if($path == '/' && !$route->is404)
+            {
+                if(!empty($route->getNamespace()) || is_string($route->getAction()))
+                {
+                    $dir = $route->getNamespace();
+                    list($_class, $_method) = explode('@', $route->getAction());
+
+                    $_controller = APPPATH . 'controllers/' . (!empty($dir) ? $dir . '/' : '') . $_class .'.php';
+
+                    if(file_exists($_controller))
+                    {
+                        require_once $_controller;
+
+                        list($class, $method) = explode('@', $route->getAction());
+                    }
+                    else
+                    {
+                        $route->setAction( function(){
+                            if(!is_cli() && is_callable(Route::get404()))
+                            {
+                                $_404 = Route::get404();
+                                call_user_func($_404);
+                            }
+                            else
+                            {
+                                show_404();
+                            }
+                        });
+                    }
+                }
+            }
 
             foreach(explode('/', $path) as $i => $segment)
             {

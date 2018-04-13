@@ -96,7 +96,8 @@ class Middleware
         }
         else
         {
-            $CI->hooks->hooks[$hook][] = ($this->run($middleware, $args))();
+            //$CI->hooks->hooks[$hook][] = $this->run($middleware, $args))();
+            $CI->hooks->hooks[$hook][] = call_user_function_array([$this,'run'], [ $middleware, $args] );
         }
     }
 }

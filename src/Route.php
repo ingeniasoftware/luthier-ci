@@ -185,6 +185,17 @@ class Route
     private $hasOptionalParams = false;
 
 
+
+    /**
+     * Is the current route a 404 page?
+     *
+     * @var $is404
+     *
+     * @access private
+     */
+    public $is404 = false;
+
+
     /**
      * Method overload used to define routes
      *
@@ -286,7 +297,7 @@ class Route
      * @access public
      * @static
      */
-    public static function middleware($middlewares, $point = 'controller')
+    public static function middleware($middlewares, $point = 'pre_controller')
     {
         if(!is_array($middlewares))
         {
@@ -338,23 +349,23 @@ class Route
                     {
                         $routes[$path][$method] = $target;
 
-                        if(!isset(self::$compiled['paths'][$path]))
-                        {
-                            $routePlaceholders = RouteParam::getPlaceholderReplacements();
-
-                            $regexPath = implode('\\/', explode('/', $path));
-                            $regexPath = preg_replace(array_keys($routePlaceholders), array_values($routePlaceholders), $regexPath);
-
-                            self::$compiled['paths']['#^' . $regexPath . '$#'] = clone $route;
-                        }
+                        $routePlaceholders = RouteParam::getPlaceholderReplacements();
+                        $regexPath = implode('\\/', explode('/', $path));
+                        $regexPath = preg_replace(array_keys($routePlaceholders), array_values($routePlaceholders), $regexPath);
+                        self::$compiled['paths']['#^' . $regexPath . '$#'][] = clone $route;
                     }
                 }
             }
         }
 
-        $routes['default_controller']   = self::$compiled['reserved']['default_controller'];
-        $routes['translate_uri_dashes'] = self::$compiled['reserved']['translate_uri_dashes'];
-        $routes['404_override']         = self::$compiled['reserved']['404_override'];
+        $routes['default_controller']   = isset(self::$compiled['reserved']['default_controller']) ?
+            self::$compiled['reserved']['default_controller'] : null;
+
+        $routes['translate_uri_dashes'] = isset(self::$compiled['reserved']['translate_uri_dashes']) ?
+            self::$compiled['reserved']['translate_uri_dashes'] : FALSE;
+
+        $routes['404_override'] = isset(self::$compiled['reserved']['404_override']) ?
+            self::$compiled['reserved']['404_override'] : '';
 
         self::$compiled['routes'] = $routes;
     }
@@ -371,9 +382,9 @@ class Route
      * @access public
      * @static
      */
-    public static function getByUrl(string $url, $requestMethod = null)
+    public static function getByUrl($url, $requestMethod = null)
     {
-        foreach(self::$compiled['paths'] as $path => $route)
+        foreach(self::$compiled['paths'] as $path => $routes)
         {
             if(preg_match($path, $url))
             {
@@ -382,9 +393,12 @@ class Route
                     $requestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
                 }
 
-                if(in_array($requestMethod, $route->methods))
+                foreach($routes as $route)
                 {
-                    return $route;
+                    if(in_array(strtolower($requestMethod), array_map(function($method){ return strtolower($method); }, $route->methods)))
+                    {
+                        return $route;
+                    }
                 }
             }
         }
@@ -404,7 +418,7 @@ class Route
      * @access public
      * @static
      */
-    public static function getByName(string $name)
+    public static function getByName($name)
     {
         if(isset(self::$compiled['names'][$name]))
         {
@@ -472,7 +486,8 @@ class Route
             return self:: $_404;
         }
 
-        return self::$compiled['reserved']['404_override'];
+        return isset(self::$compiled['reserved']['404_override']) ?
+            self::$compiled['reserved']['404_override'] : null;
     }
 
 
@@ -720,11 +735,11 @@ class Route
         // Automatically set the default controller if path is "/" (root)
         if($path == '/' && in_array('GET', $this->methods))
         {
-            if(!empty($this->namespace))
-            {
-                show_error('Default controller in subfolder is not allowed due CodeIgniter limitations');
-            }
-            self::$compiled['reserved']['default_controller'] = is_string($action) ? implode('/', explode('@', $action)) : self::DEFAULT_CONTROLLER;
+            self::$compiled['reserved']['default_controller'] = is_string($action)
+                ?
+                    ( empty($this->namespace) ? implode('/', explode('@', $action)) : self::DEFAULT_CONTROLLER )
+                :
+                    self::DEFAULT_CONTROLLER;
         }
     }
 
@@ -987,9 +1002,19 @@ class Route
         return $this->action;
     }
 
+    public function setAction($action)
+    {
+        $this->action = $action;
+    }
+
 
     public function getMiddleware()
     {
         return $this->middleware;
+    }
+
+    public function getNamespace()
+    {
+        return $this->namespace;
     }
 }
