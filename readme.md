@@ -4,7 +4,6 @@
 [![Total Downloads](https://poser.pugx.org/luthier/luthier/downloads?format=flat-square)](https://packagist.org/packages/luthier/luthier)
 [![Latest Unstable Version](https://poser.pugx.org/luthier/luthier/v/unstable?format=flat-square)](https://packagist.org/packages/luthier/luthier)
 [![License](https://poser.pugx.org/luthier/luthier/license?format=flat-square)](https://packagist.org/packages/luthier/luthier)
-[![composer.lock](https://poser.pugx.org/luthier/luthier/composerlock?format=flat-square)](https://packagist.org/packages/luthier/luthier)
 
 Laravel-like routing and Middleware support for CodeIgniter 3. **Luthier-CI** makes the development of CodeIgniter apps even more enjoyable and simple!  
   
@@ -226,13 +225,13 @@ inside the group will share the *prefix* (first argument) and, optionally, anoth
 // Prefix only
 Route::group('prefix', function(){
     Route::get('bar','test@bar');
-    Route::get('baz','test@baz);
+    Route::get('baz','test@baz');
 });
 
 // Prefix and shared properties
 Route::group('prefix', ['namespace' => 'foo', 'middleware' => ['Admin','IPFilter']], function(){
     Route::get('bar','test@bar');
-    Route::get('baz','test@baz);
+    Route::get('baz','test@baz');
 });
 ```
 

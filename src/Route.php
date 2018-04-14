@@ -13,6 +13,7 @@ use Luthier\Exception\RouteNotFoundException;
 
 class Route
 {
+
     const DEFAULT_CONTROLLER = 'Luthier';
 
     const HTTP_VERBS = ['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS','TRACE'];
@@ -20,8 +21,6 @@ class Route
 
     /**
      * Luthier routes
-     *
-     * (This us used internally by Luthier)
      *
      * @var static $routes
      *
@@ -32,8 +31,6 @@ class Route
 
     /**
      * Luthier routing context
-     *
-     * (This us used internally by Luthier)
      *
      * @var static $context
      *
@@ -59,8 +56,6 @@ class Route
     /**
      * Compiled routes
      *
-     * (This us used internally by Luthier)
-     *
      * @var static $compiled
      *
      * @access private
@@ -76,6 +71,8 @@ class Route
     /**
      * Current active route
      *
+     * (This us used internally by Luthier-CI)
+     *
      * @var static $current
      *
      * @access private
@@ -86,7 +83,7 @@ class Route
     /**
      * Custom 404 route
      *
-     * It could be both a path to an controller or a callaback
+     * It could be both a path to an controller or a callback
      *
      * @var static $_404
      *
@@ -185,7 +182,6 @@ class Route
     private $hasOptionalParams = false;
 
 
-
     /**
      * Is the current route a 404 page?
      *
@@ -226,13 +222,12 @@ class Route
     }
 
 
-
     /**
-     * Creates a route group with path $prefix and shared $attributes
+     * Creates a route group with
      *
-     * @param  string          $prefix
-     * @param  array|callback  $attributes
-     * @param  callback        $routes (Optional)
+     * @param  string          $prefix Group path prefix
+     * @param  array|callback  $attributes Group shared attributes/Routes
+     * @param  callback        $routes (Optional) Routes
      *
      * @return void
      *
@@ -289,7 +284,7 @@ class Route
     /**
      * Defines a route middleware in global context
      *
-     * @param  string|array  $middlewares
+     * @param  string|array  $middleware
      * @param  string $point (Optional) the point of execution of the middleware
      *
      * @return void
@@ -297,25 +292,27 @@ class Route
      * @access public
      * @static
      */
-    public static function middleware($middlewares, $point = 'pre_controller')
+    public static function middleware($middleware, $point = 'pre_controller')
     {
-        if(!is_array($middlewares))
+        if(!is_array($middleware))
         {
-            $middlewares = [ $middlewares ];
+            $middleware = [ $middleware ];
         }
 
-        foreach($middlewares as $middleware)
+        foreach($middleware as $_middleware)
         {
-            if(!in_array($middleware, self::$context['middleware']['global'][$point]))
+            if(!in_array($_middleware, self::$context['middleware']['global'][$point]))
             {
-                self::$context['middleware']['global'][$point][] = $middleware;
+                self::$context['middleware']['global'][$point][] = $_middleware;
             }
         }
     }
 
 
     /**
-     * Compile all routes to CI format
+     * Returns an array of all compiled Luthier-CI routes, in the native framework format
+     *
+     * (This us used internally by Luthier-CI)
      *
      * @return array
      *
@@ -374,7 +371,9 @@ class Route
     /**
      * Fetch route by path
      *
-     * @param  string $path
+     * (This us used internally by Luthier-CI)
+     *
+     * @param string $path Current URI path
      *
      * @return Route
      *
@@ -410,7 +409,7 @@ class Route
     /**
      * Fetch route by name
      *
-     * @param  string  $name
+     * @param  string  $name Route name
      *
      * @return Route
      *
@@ -430,7 +429,9 @@ class Route
 
 
     /**
-     * Get all compiled routes (CI Format)
+     * Get all compiled routes (CodeIgniter format)
+     *
+     * (This us used internally by Luthier-CI)
      *
      * @return array
      *
@@ -446,6 +447,8 @@ class Route
     /**
      * Get the current active route
      *
+     * (This us used internally by Luthier-CI)
+     *
      * @return Route
      *
      * @access public
@@ -460,6 +463,8 @@ class Route
     /**
      * Get global middleware
      *
+     * (This us used internally by Luthier-CI)
+     *
      * @return array
      *
      * @access public
@@ -472,7 +477,9 @@ class Route
 
 
     /**
-     * Get the custom 404 route
+     * Get the current custom 404 route
+     *
+     * (This us used internally by Luthier-CI)
      *
      * @return string|callback
      *
@@ -494,7 +501,7 @@ class Route
     /**
      * Set the current active route
      *
-     * (This us used internally by Luthier)
+     * (This us used internally by Luthier-CI)
      *
      * @param  Route $route
      *
@@ -510,9 +517,9 @@ class Route
 
 
     /**
-     * Add a compiled (CI Format) route
+     * Add a compiled (CodeIgniter Format) route at boot time
      *
-     * (This is used internally by Luthier)
+     * (This us used internally by Luthier-CI)
      *
      * @param  string  $path
      * @param  string  $target (Optional)
@@ -567,12 +574,12 @@ class Route
 
 
     /**
-     * Defines a CI reserved route
+     * Defines a CodeIgniter reserved or custom Luthier configuration
      *
-     * @param  [add type]   $name
-     * @param  [add type]   $value
+     * @param  string  $name
+     * @param  mixed   $value
      *
-     * @return [add type]
+     * @return void
      *
      * @access public
      * @static
@@ -597,8 +604,8 @@ class Route
     /**
      * Class constructor
      *
-     * @param  string|array $methods
-     * @param  array|callable $route
+     * @param  string|array $methods HTTP Verbs
+     * @param  array|callable $route Route definition
      *
      * @return void
      * @access public
@@ -624,9 +631,8 @@ class Route
             $this->methods[] = strtoupper($method);
         }
 
-        // Essential route attributes
+        // Required route attributes
         list($path, $action) = $route;
-
         $this->path = trim($path, '/') == '' ? '/' : trim($path, '/');
 
         if(!is_callable($action) && count(explode('@', $action)) != 2)
@@ -638,7 +644,6 @@ class Route
         $attributes = isset($route[2]) && is_array($route[2]) ? $route[2] : NULL;
 
         // Route group-inherited attributes
-
         if(!empty(self::$context['prefix']))
         {
             $prefixes = self::$context['prefix'];
@@ -672,7 +677,6 @@ class Route
         }
 
         // Optional route attributes
-
         if($attributes !== NULL)
         {
             if(isset($attributes['namespace']))
@@ -697,9 +701,7 @@ class Route
         }
 
         // Parsing route arguments
-
         $_names   = [];
-
         $fullPath = trim($this->prefix,'/') != '' ? $this->prefix . '/' . $this->path : $this->path;
         $fullPath = trim($fullPath, '/');
 
@@ -732,7 +734,7 @@ class Route
             }
         }
 
-        // Automatically set the default controller if path is "/" (root)
+        // Automatically set the default controller if path is "/"
         if($path == '/' && in_array('GET', $this->methods))
         {
             self::$compiled['reserved']['default_controller'] = is_string($action)
@@ -745,11 +747,11 @@ class Route
 
 
     /**
-     * Compiles the Luthier route to CodeIgniter plain route array (with subroutes)
+     * Compiles a Luthier-CI route into a CodeIgniter native route
      *
      * (This is used internally by Luthier)
      *
-     * @param  string $currentMethod (Optional) Set the current method during a recursive callback
+     * @param  string $currentMethod (Optional) Current HTTP Verb
      *
      * @return array
      *
@@ -774,7 +776,6 @@ class Route
         {
             $methods = [ $currentMethod ];
         }
-
 
         foreach($methods as $verb)
         {
@@ -813,7 +814,7 @@ class Route
 
             if($this->hasOptionalParams && $currentMethod === null)
             {
-                $route  = clone $this;
+                $route = clone $this;
 
                 do
                 {
@@ -839,13 +840,13 @@ class Route
 
                     $routes[][$_path][$verb] =  $_target;
 
-                }while($isOptional);
+                } while( $isOptional );
             }
 
             $routes[][$path][$verb] = $target;
         }
 
-        $last   = array_pop($routes);
+        $last = array_pop($routes);
         array_unshift($routes, $last);
         $routes = array_reverse($routes);
 
@@ -853,6 +854,16 @@ class Route
     }
 
 
+    /**
+     * Get or set a route parameter
+     *
+     * @param  string  $name Parameter name
+     * @param  string  $value (Optional) Parameter value
+     *
+     * @return null|string
+     *
+     * @access public
+     */
     public function param($name, $value = null)
     {
         foreach($this->params as &$_param)
@@ -869,6 +880,15 @@ class Route
     }
 
 
+    /**
+     * Check if the route has a specific parameter
+     *
+     * @param  string  $name
+     *
+     * @return bool
+     *
+     * @access public
+     */
     public function hasParam($name)
     {
         foreach($this->params as &$_param)
@@ -882,6 +902,15 @@ class Route
     }
 
 
+    /**
+     * Builds the route URL with the provided parameters (if any)
+     *
+     * @param  string|array $params Route parameters
+     *
+     * @return sting
+     *
+     * @access public
+     */
     public function parseUrl($params)
     {
         $defaultParams = self::getDefaultParams();
@@ -979,40 +1008,95 @@ class Route
     }
 
 
+    /**
+     * Get route path
+     *
+     * @return string
+     *
+     * @access public
+     */
     public function getPath()
     {
         return $this->path;
     }
 
 
+    /**
+     * Set route path
+     *
+     * @param  string  $path
+     *
+     * @return void
+     *
+     * @access public
+     */
     public function setPath($path)
     {
         $this->path = $path;
     }
 
 
+    /**
+     * Get route prefix
+     *
+     * @return string
+     *
+     * @access public
+     */
     public function getPrefix()
     {
         return $this->prefix;
     }
 
 
+    /**
+     * Get route action
+     *
+     * @return string|callback
+     *
+     * @access public
+     */
     public function getAction()
     {
         return $this->action;
     }
 
+
+    /**
+     * Set route action
+     *
+     * @param  string|callback   $action
+     *
+     * @return void
+     *
+     * @access public
+     */
     public function setAction($action)
     {
         $this->action = $action;
     }
 
 
+    /**
+     * Get route middleware
+     *
+     * @return array
+     *
+     * @access public
+     */
     public function getMiddleware()
     {
         return $this->middleware;
     }
 
+
+    /**
+     * Get route namespace
+     *
+     * @return string
+     *
+     * @access public
+     */
     public function getNamespace()
     {
         return $this->namespace;

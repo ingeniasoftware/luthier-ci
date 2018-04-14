@@ -17,7 +17,7 @@ final class Hook
      * Defines all required hooks in order to boot Luthier-CI
      *
      * @param  array $hooks Existing hooks
-
+     *
      * @return array
      *
      * @access public
@@ -53,29 +53,27 @@ final class Hook
             $hooks['post_controller'][] = $_hook;
         }
 
-        //
-        // Pre system  hook
-        //
-
         $hooks['pre_system'][] = function()
         {
-            // Defining some constants
-            define('LUTHIER_CI_VERSION', 1.0);
+            //
+            // Luthier-CI Initialization
+            //
+            // Defining some constants, creating and loading required files, etc.
+            //
+
+            define('LUTHIER_CI_VERSION', '0.2.0');
 
             $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
             $isCli  = is_cli();
             $isWeb  = !$isCli;
 
-            // Including facades
             require_once __DIR__ . '/Facades/Route.php' ;
 
-            // Route files
             if( !file_exists(APPPATH . '/routes') )
             {
                 mkdir( APPPATH . '/routes' );
             }
 
-            // Middleware folder
             if( !file_exists(APPPATH . '/middleware') )
             {
                 mkdir( APPPATH . '/middleware' );
@@ -101,7 +99,6 @@ final class Hook
                 require_once(APPPATH . '/routes/api.php');
             }
 
-            // CLI routes file
             // (NOT WORKING YET!!!)
             if( !file_exists(APPPATH . '/routes/cli.php') )
             {
@@ -114,20 +111,24 @@ final class Hook
                 Route::get('/', Route::DEFAULT_CONTROLLER . '@index' );
             }
 
-            // Default (fake) controller
             if( !file_exists(APPPATH . '/controllers/' .  Route::DEFAULT_CONTROLLER . '.php'))
             {
                 copy(__DIR__ . '/Resources/DefaultController.php', APPPATH.'/controllers/'.  Route::DEFAULT_CONTROLLER .'.php' );
             }
 
-            // Global functions
             require_once( __DIR__ . '/Functions.php');
 
-            // Compile all routes
             Route::compileAll();
 
-            // This allows us to use any HTTP Verb through a form with a hidden field
+
+            //
+            // HTTP verbs in forms fix
+            //
+            // Since we only can perform GET and POST request via traditional html forms,
+            // this allows us to use any HTTP Verb if the form contains a hidden field
             // named "_method"
+            //
+
             if(isset($_SERVER['REQUEST_METHOD']) && strtolower($_SERVER['REQUEST_METHOD']) == 'post')
             {
                 if(isset($_POST['_method']))
@@ -136,23 +137,127 @@ final class Hook
                 }
             }
 
-            // Parsing uri and setting the current Luthier route (if exists)
-            // FIXME: Maybe this isn't sufficient
-            $uri = '/';
 
-            if(isset($_SERVER['PATH_INFO']))
+            //
+            // Parsing the current url
+            //
+            // This is the same code of the CI_URI class, but since we can't load it here
+            // (because 'undefined constant' errors) we have not choice that copy the
+            // needed code:
+            //
+
+            $uriProtocol = config_item('uri_protocol');
+
+            $removeRelativeDirectory = function($uri)
             {
-                $uri = trim($_SERVER['PATH_INFO'],'/');
+                $uris = array();
+                $tok = strtok($uri, '/');
+                while ($tok !== FALSE)
+                {
+                    if (( ! empty($tok) OR $tok === '0') && $tok !== '..')
+                    {
+                        $uris[] = $tok;
+                    }
+                    $tok = strtok('/');
+                }
+
+                return implode('/', $uris);
+            };
+
+            $parseRequestUri = function() use($removeRelativeDirectory)
+            {
+                $uri   = parse_url('http://dummy'.$_SERVER['REQUEST_URI']);
+                $query = isset($uri['query']) ? $uri['query'] : '';
+                $uri   = isset($uri['path']) ? $uri['path'] : '';
+
+                if (isset($_SERVER['SCRIPT_NAME'][0]))
+                {
+                    if (strpos($uri, $_SERVER['SCRIPT_NAME']) === 0)
+                    {
+                        $uri = (string) substr($uri, strlen($_SERVER['SCRIPT_NAME']));
+                    }
+                    elseif (strpos($uri, dirname($_SERVER['SCRIPT_NAME'])) === 0)
+                    {
+                        $uri = (string) substr($uri, strlen(dirname($_SERVER['SCRIPT_NAME'])));
+                    }
+                }
+
+                if (trim($uri, '/') === '' && strncmp($query, '/', 1) === 0)
+                {
+                    $query = explode('?', $query, 2);
+                    $uri   = $query[0];
+                    $_SERVER['QUERY_STRING'] = isset($query[1]) ? $query[1] : '';
+                }
+                else
+                {
+                    $_SERVER['QUERY_STRING'] = $query;
+                }
+
+                parse_str($_SERVER['QUERY_STRING'], $_GET);
+
+                if ($uri === '/' OR $uri === '')
+                {
+                    $uri = '/';
+                }
+
+                $uri = $removeRelativeDirectory($uri);
+
+                return $uri;
+            };
+
+            if($uriProtocol == 'REQUEST_URI')
+            {
+                $url = $parseRequestUri();
             }
+            elseif($uriProtocol == 'QUERY_STRING')
+            {
+                $uri = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : @getenv('QUERY_STRING');
+
+                if (trim($uri, '/') === '')
+                {
+                    $uri = '';
+                }
+                elseif (strncmp($uri, '/', 1) === 0)
+                {
+                    $uri = explode('?', $uri, 2);
+                    $_SERVER['QUERY_STRING'] = isset($uri[1]) ? $uri[1] : '';
+                    $uri = $uri[0];
+                }
+
+                parse_str($_SERVER['QUERY_STRING'], $_GET);
+
+                $url = $removeRelativeDirectory($uri);
+            }
+            elseif($uriProtocol == 'PATH_INFO')
+            {
+                $url = isset($_SERVER['PATH_INFO']) ? trim($_SERVER['PATH_INFO']) : $parseRequestUri();
+            }
+            else
+            {
+                show_error('Unsupported uri protocol', 500, 'Luthier-CI boot error');
+            }
+
+            if(empty($url))
+            {
+                $url = '/';
+            }
+
+
+            //
+            // Setting the current Luthier-CI route
+            //
+            // With the url correctly parsed, now it's time to find what
+            // route matches that url
+            //
 
             try
             {
-                $currentRoute = Route::getByUrl($uri);
+                $currentRoute = Route::getByUrl($url);
             }
             catch(RouteNotFoundException $e)
             {
-                Route::addCompiledRoute($uri);
-                $currentRoute =  Route::any($uri, function(){
+                Route::addCompiledRoute($url);
+                $currentRoute =  Route::any($url, function(){
                     if(!is_cli() && is_callable(Route::get404()))
                     {
                         $_404 = Route::get404();
@@ -168,10 +273,6 @@ final class Hook
 
             Route::setCurrentRoute($currentRoute);
         };
-
-        //
-        //  Pre controller hook
-        //
 
         $hooks['pre_controller'][] = function()
         {
@@ -223,7 +324,7 @@ final class Hook
                 {
                     $route->params[$pcount]->value =  $URI->segment($i+1);
 
-                    // Removing "sticky" route parameters from CI callback parameters
+                    // Removing "sticky" route parameters
                     if(substr($route->params[$pcount]->getName(), 0, 1) == '_')
                     {
                         unset($params[$pcount]);
@@ -236,21 +337,12 @@ final class Hook
             Route::setCurrentRoute($route);
         };
 
-        //
-        //  Post controller constructor hook
-        //
-
         $hooks['post_controller_constructor'][] = function()
         {
             global $params;
 
-            // Loading required URL helper
             ci()->load->helper('url');
-
-            // Injecting current route
             ci()->route = Route::getCurrentRoute();
-
-            // Injecting middleware class
             ci()->middleware = new Middleware();
 
             if(method_exists(ci(), 'preMiddleware'))
@@ -263,7 +355,7 @@ final class Hook
                 ci()->middleware->run($middleware);
             }
 
-            // Seting "sticky" route params values as default for current route
+            // Setting "sticky" route parameters values as default for current route
             foreach(ci()->route->params as &$param)
             {
                 if(substr($param->getName(),0,1) == '_')
@@ -291,9 +383,6 @@ final class Hook
             }
         };
 
-        //
-        //  Post controller hook
-        //
 
         $hooks['post_controller'][] = function()
         {
@@ -302,6 +391,7 @@ final class Hook
                 ci()->middleware->run($middleware);
             }
         };
+
 
         return $hooks;
     }

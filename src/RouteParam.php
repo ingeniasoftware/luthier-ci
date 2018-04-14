@@ -88,7 +88,7 @@ final class RouteParam
 
 
     /**
-     * CI route placeholder to actual regex
+     * CodeIgniter route placeholder to regex
      *
      * @var static $placeholderReplacements
      *
@@ -100,6 +100,14 @@ final class RouteParam
     ];
 
 
+    /**
+     * Get the CodeIgniter route placeholder to Regex
+     *
+     * @return array
+     *
+     * @access public
+     * @static
+     */
     public static function getPlaceholderReplacements()
     {
         return self::$placeholderReplacements;
@@ -126,8 +134,6 @@ final class RouteParam
         {
             $this->placeholder  = '(' . $matches[1] . ')';
             $this->regex = $matches[1];
-
-
             $name = preg_replace('/\((.*)\):/', '', $segment, 1);
         }
         else
@@ -139,7 +145,6 @@ final class RouteParam
                 if($segment != $parsedSegment )
                 {
                     $this->placeholder = $replacement;
-
                     $this->regex = preg_replace(array_keys(self::$placeholderReplacements), array_values(self::$placeholderReplacements), $replacement,1);
                     $name = preg_replace(['/num:/', '/any:/'], '', $segment, 1);
                     break;
@@ -151,31 +156,66 @@ final class RouteParam
         $this->name = substr($name,1, !$this->optional ? -1 : -2);
     }
 
-    
+
+    /**
+     * Get parameter name
+     *
+     * @return string
+     *
+     * @access public
+     */
     public function getName()
     {
         return $this->name;
     }
 
 
+    /**
+     * Get original segment
+     *
+     * @return string
+     *
+     * @access public
+     */
     public function getSegment()
     {
         return $this->segment;
     }
 
-    
+
+    /**
+     * Get segment regex
+     *
+     * @return string
+     *
+     * @access public
+     */
     public function getRegex()
     {
         return $this->regex;
     }
 
 
+    /**
+     * Get segment placeholder
+     *
+     * @return string
+     *
+     * @access public
+     */
     public function getPlaceholder()
     {
         return $this->placeholder;
     }
 
 
+    /**
+     * Is the segment optional?
+     *
+     * @return bool
+     *
+     * @access public
+     */
     public function isOptional()
     {
         return $this->optional;

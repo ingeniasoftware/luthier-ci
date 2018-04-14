@@ -16,26 +16,24 @@ class Middleware
      *
      * @param  string|callable $middleware
      * @param  mixed ...$args
+     *
      * @return void
      *
      * @access public
      */
     final public function run($middleware, ...$args)
     {
-        $CI =& get_instance();
+        if(is_array($middleware))
+        {
+            foreach($middleware as $run)
+            {
+                $this->run($run, $args);
+            }
+            return;
+        }
 
         if(is_callable($middleware))
         {
-
-            if(empty($args))
-            {
-                $args[] =& $CI;
-            }
-            else
-            {
-                $args = array_unshift($args, $CI);
-            }
-
             call_user_func_array($middleware, $args);
         }
         else
@@ -44,16 +42,17 @@ class Middleware
             {
                 require_once(APPPATH . '/middleware/' . $middleware . '.php');
 
-                $middlewareInstance = new $middleware();
+                $instance = new $middleware();
 
-                if(!method_exists($middlewareInstance,'run'))
+                if(!method_exists($instance,'run'))
                 {
                     show_error('Your middleware doesn\'t have a run() method');
                 }
 
-                $middlewareInstance->CI = $CI;
+                // Injecting CodeIgniter instance in the middleware
+                $instance->CI = ci();
 
-                call_user_func([$middlewareInstance, 'run'], $args);
+                call_user_func([$instance, 'run'], $args);
             }
             else
             {
@@ -75,8 +74,6 @@ class Middleware
      */
     final public function addHook($hook, $middleware, ...$args)
     {
-        $CI =& get_instance();
-
         if(is_callable($middleware))
         {
             if(empty($args))
@@ -84,19 +81,17 @@ class Middleware
                 $args[] =& get_instance();
             }
 
-            if(isset($CI->hooks->hooks[$hook]) && !is_array($CI->hooks->hooks[$hook]))
+            if(isset(ci()->hooks->hooks[$hook]) && !is_array(ci()->hooks->hooks[$hook]))
             {
-                $_hook = $CI->hooks->hooks[$hook];
-                $CI->hooks->hooks[$hook] = [
-                    $_hook,
-                ];
+                $_hook = ci()->hooks->hooks[$hook];
+                ci()->hooks->hooks[$hook] = [ $_hook ];
             }
 
-            $CI->hooks->hooks[$hook][] = call_user_func_array($middleware, $args);
+            ci()->hooks->hooks[$hook][] = call_user_func_array($middleware, $args);
         }
         else
         {
-            $CI->hooks->hooks[$hook][] = call_user_function_array([$this,'run'], [ $middleware, $args] );
+            ci()->hooks->hooks[$hook][] = call_user_function_array([$this,'run'], [ $middleware, $args] );
         }
     }
 }
