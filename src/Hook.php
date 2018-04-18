@@ -14,7 +14,7 @@ use Luthier\Exception\RouteNotFoundException;
 final class Hook
 {
     /**
-     * Defines all required hooks in order to boot Luthier-CI
+     * Defines all required hooks to boot Luthier-CI
      *
      * @param  array $hooks Existing hooks
      *
@@ -28,29 +28,25 @@ final class Hook
         if(isset($hooks['pre_system']) && !is_array($hooks['pre_system']))
         {
             $_hook = $hooks['pre_system'];
-            $hooks['pre_system']   = [];
-            $hooks['pre_system'][] = $_hook;
+            $hooks['pre_system'] = [ $_hook ];
         }
 
         if(isset($hooks['pre_controller']) && !is_array($hooks['pre_controller']))
         {
             $_hook = $hooks['pre_controller'];
-            $hooks['pre_controller']   = [];
-            $hooks['pre_controller'][] = $_hook;
+            $hooks['pre_controller'] = [ $_hook ];
         }
 
         if(isset($hooks['post_controller_constructor']) && !is_array($hooks['post_controller_constructor']))
         {
             $_hook = $hooks['post_controller_constructor'];
-            $hooks['post_controller_constructor']   = [];
-            $hooks['post_controller_constructor'][] = $_hook;
+            $hooks['post_controller_constructor'] = [ $_hook ];
         }
 
         if(isset($hooks['post_controller']) && !is_array($hooks['post_controller']))
         {
             $_hook = $hooks['post_controller'];
-            $hooks['post_controller']   = [];
-            $hooks['post_controller'][] = $_hook;
+            $hooks['post_controller'] = [ $_hook ];
         }
 
         $hooks['pre_system'][] = function()
@@ -99,7 +95,6 @@ final class Hook
                 require_once(APPPATH . '/routes/api.php');
             }
 
-            // (NOT WORKING YET!!!)
             if( !file_exists(APPPATH . '/routes/cli.php') )
             {
                 copy(__DIR__ . '/Resources/DefaultCliRoutes.php', APPPATH.'/routes/cli.php' );
@@ -108,7 +103,7 @@ final class Hook
             if($isCli)
             {
                 require_once(APPPATH . '/routes/cli.php');
-                Route::get('/', Route::DEFAULT_CONTROLLER . '@index' );
+                Route::set('default_controller', Route::DEFAULT_CONTROLLER);
             }
 
             if( !file_exists(APPPATH . '/controllers/' .  Route::DEFAULT_CONTROLLER . '.php'))
@@ -119,7 +114,6 @@ final class Hook
             require_once( __DIR__ . '/Functions.php');
 
             Route::compileAll();
-
 
             //
             // HTTP verbs in forms fix
@@ -137,111 +131,11 @@ final class Hook
                 }
             }
 
-
             //
-            // Parsing the current url
-            //
-            // This is the same code of the CI_URI class, but since we can't load it here
-            // (because 'undefined constant' errors) we have not choice that copy the
-            // needed code:
+            // Getting the current url
             //
 
-            $uriProtocol = config_item('uri_protocol');
-
-            $removeRelativeDirectory = function($uri)
-            {
-                $uris = array();
-                $tok = strtok($uri, '/');
-                while ($tok !== FALSE)
-                {
-                    if (( ! empty($tok) OR $tok === '0') && $tok !== '..')
-                    {
-                        $uris[] = $tok;
-                    }
-                    $tok = strtok('/');
-                }
-
-                return implode('/', $uris);
-            };
-
-            $parseRequestUri = function() use($removeRelativeDirectory)
-            {
-                $uri   = parse_url('http://dummy'.$_SERVER['REQUEST_URI']);
-                $query = isset($uri['query']) ? $uri['query'] : '';
-                $uri   = isset($uri['path']) ? $uri['path'] : '';
-
-                if (isset($_SERVER['SCRIPT_NAME'][0]))
-                {
-                    if (strpos($uri, $_SERVER['SCRIPT_NAME']) === 0)
-                    {
-                        $uri = (string) substr($uri, strlen($_SERVER['SCRIPT_NAME']));
-                    }
-                    elseif (strpos($uri, dirname($_SERVER['SCRIPT_NAME'])) === 0)
-                    {
-                        $uri = (string) substr($uri, strlen(dirname($_SERVER['SCRIPT_NAME'])));
-                    }
-                }
-
-                if (trim($uri, '/') === '' && strncmp($query, '/', 1) === 0)
-                {
-                    $query = explode('?', $query, 2);
-                    $uri   = $query[0];
-                    $_SERVER['QUERY_STRING'] = isset($query[1]) ? $query[1] : '';
-                }
-                else
-                {
-                    $_SERVER['QUERY_STRING'] = $query;
-                }
-
-                parse_str($_SERVER['QUERY_STRING'], $_GET);
-
-                if ($uri === '/' OR $uri === '')
-                {
-                    $uri = '/';
-                }
-
-                $uri = $removeRelativeDirectory($uri);
-
-                return $uri;
-            };
-
-            if($uriProtocol == 'REQUEST_URI')
-            {
-                $url = $parseRequestUri();
-            }
-            elseif($uriProtocol == 'QUERY_STRING')
-            {
-                $uri = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : @getenv('QUERY_STRING');
-
-                if (trim($uri, '/') === '')
-                {
-                    $uri = '';
-                }
-                elseif (strncmp($uri, '/', 1) === 0)
-                {
-                    $uri = explode('?', $uri, 2);
-                    $_SERVER['QUERY_STRING'] = isset($uri[1]) ? $uri[1] : '';
-                    $uri = $uri[0];
-                }
-
-                parse_str($_SERVER['QUERY_STRING'], $_GET);
-
-                $url = $removeRelativeDirectory($uri);
-            }
-            elseif($uriProtocol == 'PATH_INFO')
-            {
-                $url = isset($_SERVER['PATH_INFO']) ? trim($_SERVER['PATH_INFO']) : $parseRequestUri();
-            }
-            else
-            {
-                show_error('Unsupported uri protocol', 500, 'Luthier-CI boot error');
-            }
-
-            if(empty($url))
-            {
-                $url = '/';
-            }
-
+            $url = self::getCurrentUrl();
 
             //
             // Setting the current Luthier-CI route
@@ -257,7 +151,7 @@ final class Hook
             catch(RouteNotFoundException $e)
             {
                 Route::addCompiledRoute($url);
-                $currentRoute =  Route::any($url, function(){
+                $currentRoute =  Route::{ !is_cli() ? 'any' : 'cli' }($url, function(){
                     if(!is_cli() && is_callable(Route::get404()))
                     {
                         $_404 = Route::get404();
@@ -269,6 +163,7 @@ final class Hook
                     }
                 });
                 $currentRoute->is404 = true;
+                $currentRoute->isCli = is_cli();
             };
 
             Route::setCurrentRoute($currentRoute);
@@ -282,11 +177,16 @@ final class Hook
             $path   = (!empty($route->getPrefix()) ? '/' : '') . $route->getPath();
             $pcount = 0;
 
+            if($route->is404)
+            {
+                return;
+            }
+
             //
             // Removing controller's subdirectories limitation over "/" path
             //
 
-            if($path == '/' && !$route->is404)
+            if($path == '/')
             {
                 if(!empty($route->getNamespace()) || is_string($route->getAction()))
                 {
@@ -318,19 +218,36 @@ final class Hook
                 }
             }
 
-            foreach(explode('/', implode('/', [$route->getPrefix(), $path])) as $i => $segment)
+            if(!$route->isCli)
             {
-                if(preg_match('/^\{(.*)\}$/', $segment))
+                // Full path:
+                $_path = implode('/', [$route->getPrefix(), $path]);
+
+                foreach(explode('/', $_path) as $i => $segment)
                 {
-                    $route->params[$pcount]->value =  $URI->segment($i+1);
-
-                    // Removing "sticky" route parameters
-                    if(substr($route->params[$pcount]->getName(), 0, 1) == '_')
+                    if(preg_match('/^\{(.*)\}$/', $segment))
                     {
-                        unset($params[$pcount]);
-                    }
+                        $route->params[$pcount]->value =  $URI->segment($i+1);
 
-                    $pcount++;
+                        // Removing "sticky" route parameters
+                        if(substr($route->params[$pcount]->getName(), 0, 1) == '_')
+                        {
+                            unset($params[$pcount]);
+                        }
+
+                        $pcount++;
+                    }
+                }
+            }
+            else
+            {
+                if(!empty($route->params))
+                {
+                    $_path = array_slice($_SERVER['argv'], 1);
+                    if($_path)
+                    {
+                        $params = array_slice($_path, count($_path) - count($route->params));
+                    }
                 }
             }
 
@@ -392,7 +309,124 @@ final class Hook
             }
         };
 
-
         return $hooks;
+    }
+
+
+    /**
+     * Get the current url
+     *
+     * This is the same code of the CI_URI class, but since we can't load it here
+     * (because 'undefined constant' errors) we have not choice that copy the
+     * needed code:
+     *
+     * @return string
+     * @static
+     */
+    final private static function getCurrentUrl()
+    {
+        if(is_cli())
+        {
+            $args = array_slice($_SERVER['argv'], 1);
+            return $args ? implode('/', $args) : '/';
+        }
+
+        $uriProtocol = config_item('uri_protocol');
+
+        $removeRelativeDirectory = function($uri)
+        {
+            $uris = array();
+            $tok = strtok($uri, '/');
+            while ($tok !== FALSE)
+            {
+                if (( ! empty($tok) OR $tok === '0') && $tok !== '..')
+                {
+                    $uris[] = $tok;
+                }
+                $tok = strtok('/');
+            }
+
+            return implode('/', $uris);
+        };
+
+        $parseRequestUri = function() use($removeRelativeDirectory)
+        {
+            $uri   = parse_url('http://dummy'.$_SERVER['REQUEST_URI']);
+            $query = isset($uri['query']) ? $uri['query'] : '';
+            $uri   = isset($uri['path']) ? $uri['path'] : '';
+
+            if (isset($_SERVER['SCRIPT_NAME'][0]))
+            {
+                if (strpos($uri, $_SERVER['SCRIPT_NAME']) === 0)
+                {
+                    $uri = (string) substr($uri, strlen($_SERVER['SCRIPT_NAME']));
+                }
+                elseif (strpos($uri, dirname($_SERVER['SCRIPT_NAME'])) === 0)
+                {
+                    $uri = (string) substr($uri, strlen(dirname($_SERVER['SCRIPT_NAME'])));
+                }
+            }
+
+            if (trim($uri, '/') === '' && strncmp($query, '/', 1) === 0)
+            {
+                $query = explode('?', $query, 2);
+                $uri   = $query[0];
+                $_SERVER['QUERY_STRING'] = isset($query[1]) ? $query[1] : '';
+            }
+            else
+            {
+                $_SERVER['QUERY_STRING'] = $query;
+            }
+
+            parse_str($_SERVER['QUERY_STRING'], $_GET);
+
+            if ($uri === '/' OR $uri === '')
+            {
+                $uri = '/';
+            }
+
+            $uri = $removeRelativeDirectory($uri);
+
+            return $uri;
+        };
+
+        if($uriProtocol == 'REQUEST_URI')
+        {
+            $url = $parseRequestUri();
+        }
+        elseif($uriProtocol == 'QUERY_STRING')
+        {
+            $uri = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : @getenv('QUERY_STRING');
+
+            if (trim($uri, '/') === '')
+            {
+                $uri = '';
+            }
+            elseif (strncmp($uri, '/', 1) === 0)
+            {
+                $uri = explode('?', $uri, 2);
+                $_SERVER['QUERY_STRING'] = isset($uri[1]) ? $uri[1] : '';
+                $uri = $uri[0];
+            }
+
+            parse_str($_SERVER['QUERY_STRING'], $_GET);
+
+            $url = $removeRelativeDirectory($uri);
+        }
+        elseif($uriProtocol == 'PATH_INFO')
+        {
+            $url = isset($_SERVER['PATH_INFO']) ? trim($_SERVER['PATH_INFO']) : $parseRequestUri();
+        }
+        else
+        {
+            show_error('Unsupported uri protocol', 500, 'Luthier-CI boot error');
+        }
+
+        if(empty($url))
+        {
+            $url = '/';
+        }
+
+        return $url;
     }
 }

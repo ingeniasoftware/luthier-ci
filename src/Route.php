@@ -83,7 +83,7 @@ class Route
     /**
      * Custom 404 route
      *
-     * It could be both a path to an controller or a callback
+     * It could be both a path to a controller or a callback
      *
      * @var static $_404
      *
@@ -193,6 +193,163 @@ class Route
 
 
     /**
+     * Is the current route a CLI route
+     *
+     * @var $isCli
+     *
+     * @access public
+     */
+    public $isCli = false;
+
+
+    /**
+     * Class constructor
+     *
+     * @param  string|array $methods HTTP Verbs
+     * @param  array|callable $route Route definition
+     *
+     * @return void
+     * @access public
+     */
+    public function __construct($methods, $route)
+    {
+        if($methods == 'any')
+        {
+            $methods = self::HTTP_VERBS;
+        }
+        elseif(is_string($methods))
+        {
+
+            $methods = [ strtoupper($methods) ];
+        }
+        else
+        {
+            array_shift($route);
+        }
+
+        foreach($methods as $method)
+        {
+            $this->methods[] = strtoupper($method);
+        }
+
+        // Required route attributes
+        list($path, $action) = $route;
+        $this->path = trim($path, '/') == '' ? '/' : trim($path, '/');
+
+        if(!is_callable($action) && count(explode('@', $action)) != 2)
+        {
+            show_error('Route action must be in <strong>controller@method</strong> syntax or be a valid callback');
+        }
+
+        $this->action = $action;
+        $attributes = isset($route[2]) && is_array($route[2]) ? $route[2] : NULL;
+
+        // Route group inherited attributes
+        if(!empty(self::$context['prefix']))
+        {
+            $prefixes = self::$context['prefix'];
+            foreach($prefixes as $prefix)
+            {
+                $this->prefix .= '/' .trim($prefix, '/');
+            }
+            $this->prefix = trim($this->prefix,'/');
+        }
+
+        if(!empty(self::$context['namespace']))
+        {
+            $namespaces = self::$context['namespace'];
+            foreach($namespaces as $namespace)
+            {
+                $this->namespace .= '/' .trim($namespace, '/');
+            }
+            $this->namespace = trim($this->namespace,'/');
+        }
+
+        if(!empty(self::$context['middleware']['route']))
+        {
+            $middlewares = self::$context['middleware']['route'];
+            foreach($middlewares as $middleware)
+            {
+                if(!in_array($middleware, $this->middleware))
+                {
+                    $this->middleware[] = $middleware;
+                }
+            }
+        }
+
+        // Optional route attributes
+        if($attributes !== NULL)
+        {
+            if(isset($attributes['namespace']))
+            {
+                $this->namespace = (!empty($this->namespace) ? '/' : '' ) . trim($attributes['namespace'], '/');
+            }
+
+            if(isset($attributes['prefix']))
+            {
+                $this->prefix .= (!empty($this->prefix) ? '/' : '' ) . trim($attributes['prefix'], '/');
+            }
+
+            if(isset($attributes['middleware']))
+            {
+                if(is_string($attributes['middleware']))
+                {
+                    $attributes['middleware'] = [ $attributes['middleware'] ];
+                }
+
+                $this->middleware = array_merge($this->middleware, array_unique($attributes['middleware']));
+            }
+        }
+
+        // Parsing route parameters
+        $_names   = [];
+        $fullPath = trim($this->prefix,'/') != '' ? $this->prefix . '/' . $this->path : $this->path;
+        $fullPath = trim($fullPath, '/');
+
+        foreach(explode('/', $fullPath) as  $segment)
+        {
+            if(preg_match('/^\{(.*)\}$/', $segment))
+            {
+                $param  = new RouteParam($segment);
+
+                if(in_array($param->getName(), $_names))
+                {
+                    show_error('Duplicate route parameter <strong>' . $param->getName() . '</strong> in route <strong>"' .  $this->path . '</strong>"');
+                }
+
+                $_names[] = $param->getName();
+
+                if( $param->isOptional() )
+                {
+                    $this->hasOptionalParams = true;
+                }
+                else
+                {
+                    if( $this->hasOptionalParams )
+                    {
+                        show_error('Required <strong>' . $param->getName() . '</strong> route parameter is not allowed at this position in <strong>"' . $this->path . '"</strong> route');
+                    }
+                }
+
+                $this->params[] = $param;
+            }
+        }
+
+        // Automatically set the default controller if path is "/"
+        if($path == '/' && in_array('GET', $this->methods))
+        {
+            self::$compiled['reserved']['default_controller'] = is_string($action)
+                ?
+                    ( empty($this->namespace) ? implode('/', explode('@', $action)) : self::DEFAULT_CONTROLLER )
+                :
+                    self::DEFAULT_CONTROLLER;
+        }
+
+        $this->isCli = is_cli();
+    }
+
+
+    /**
      * Method overload used to define routes
      *
      * @param  string $callback Callback name (route HTTP verb name)
@@ -205,6 +362,11 @@ class Route
      */
     public static function __callStatic($callback, array $args)
     {
+        if(is_cli() && $callback != 'cli' || !is_cli() && $callback == 'cli' || (!is_cli() && is_array($callback) && in_array('CLI', $callback)))
+        {
+            show_error('You only can define cli routes in cli context. Please use Route::cli() method in routes/cli.php file instead');
+        }
+
         if($callback == 'match')
         {
             $methods = $args[0];
@@ -223,7 +385,7 @@ class Route
 
 
     /**
-     * Creates a route group with
+     * Creates a route group
      *
      * @param  string          $prefix Group path prefix
      * @param  array|callback  $attributes Group shared attributes/Routes
@@ -282,7 +444,7 @@ class Route
 
 
     /**
-     * Defines a route middleware in global context
+     * Defines a route middleware in a global context
      *
      * @param  string|array  $middleware
      * @param  string $point (Optional) the point of execution of the middleware
@@ -338,6 +500,7 @@ class Route
                     show_error('Duplicated "<strong>'. $routeName .'</strong>" named route');
                 }
             }
+
             foreach($route->compile() as $compiled)
             {
                 foreach($compiled as $path => $action)
@@ -369,11 +532,35 @@ class Route
 
 
     /**
-     * Fetch route by path
+     * Add a compiled (CodeIgniter Format) route at boot time
      *
      * (This us used internally by Luthier-CI)
      *
-     * @param string $path Current URI path
+     * @param  string  $path
+     * @param  string  $target (Optional)
+     *
+     * @return void
+     *
+     * @access public
+     * @static
+     */
+    public static function addCompiledRoute($path, $target = null)
+    {
+        if($target === null)
+        {
+            $target = self::DEFAULT_CONTROLLER . '/index';
+        }
+
+        self::$compiled['routes'][$path] = $target;
+    }
+
+
+    /**
+     * Get route by url
+     *
+     * (This us used internally by Luthier-CI)
+     *
+     * @param string $path Current URI url
      *
      * @return Route
      *
@@ -383,18 +570,37 @@ class Route
      */
     public static function getByUrl($url, $requestMethod = null)
     {
+        if($requestMethod === null || empty($requestMethod))
+        {
+            $requestMethod = isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : (!is_cli() ? 'GET' : 'CLI');
+        }
+        else
+        {
+            $requestMethod = strtoupper($requestMethod);
+        }
+
+        // First, look for a direct match:
+        $_url = '#^' . str_replace('/', '\\/', $url) . '$#';
+
+        if(isset(self::$compiled['paths'][$_url]))
+        {
+            foreach(self::$compiled['paths'][$_url] as $route)
+            {
+                if(in_array($requestMethod, $route->methods))
+                {
+                    return $route;
+                }
+            }
+        }
+
+        // Then, loop into the array of compiled path
         foreach(self::$compiled['paths'] as $path => $routes)
         {
             if(preg_match($path, $url))
             {
-                if($requestMethod === null || empty($requestMethod))
-                {
-                    $requestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
-                }
-
                 foreach($routes as $route)
                 {
-                    if(in_array(strtolower($requestMethod), array_map(function($method){ return strtolower($method); }, $route->methods)))
+                    if(in_array($requestMethod, $route->methods))
                     {
                         return $route;
                     }
@@ -407,7 +613,7 @@ class Route
 
 
     /**
-     * Fetch route by name
+     * Get route by name
      *
      * @param  string  $name Route name
      *
@@ -517,30 +723,6 @@ class Route
 
 
     /**
-     * Add a compiled (CodeIgniter Format) route at boot time
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @param  string  $path
-     * @param  string  $target (Optional)
-     *
-     * @return void
-     *
-     * @access public
-     * @static
-     */
-    public static function addCompiledRoute($path, $target = null)
-    {
-        if($target === null)
-        {
-            $target = self::DEFAULT_CONTROLLER . (!is_cli() ? '/index' : '/run');
-        }
-
-        self::$compiled['routes'][$path] = $target;
-    }
-
-
-    /**
      * Set a default global parameter
      *
      * @param  string  $name
@@ -574,7 +756,7 @@ class Route
 
 
     /**
-     * Defines a CodeIgniter reserved or custom Luthier configuration
+     * Defines a CodeIgniter reserved route or custom Luthier configuration
      *
      * @param  string  $name
      * @param  mixed   $value
@@ -599,152 +781,6 @@ class Route
 
         self::$compiled['reserved'][$name] = $value;
     }
-
-
-    /**
-     * Class constructor
-     *
-     * @param  string|array $methods HTTP Verbs
-     * @param  array|callable $route Route definition
-     *
-     * @return void
-     * @access public
-     */
-    public function __construct($methods, $route)
-    {
-        if($methods == 'any')
-        {
-            $methods = self::HTTP_VERBS;
-        }
-        elseif(is_string($methods))
-        {
-
-            $methods = [ strtoupper($methods) ];
-        }
-        else
-        {
-            array_shift($route);
-        }
-
-        foreach($methods as $method)
-        {
-            $this->methods[] = strtoupper($method);
-        }
-
-        // Required route attributes
-        list($path, $action) = $route;
-        $this->path = trim($path, '/') == '' ? '/' : trim($path, '/');
-
-        if(!is_callable($action) && count(explode('@', $action)) != 2)
-        {
-            show_error('Route action must be in <strong>controller@method</strong> syntax or be a valid callback');
-        }
-
-        $this->action = $action;
-        $attributes = isset($route[2]) && is_array($route[2]) ? $route[2] : NULL;
-
-        // Route group-inherited attributes
-        if(!empty(self::$context['prefix']))
-        {
-            $prefixes = self::$context['prefix'];
-            foreach($prefixes as $prefix)
-            {
-                $this->prefix .= '/' .trim($prefix, '/');
-            }
-            $this->prefix = trim($this->prefix,'/');
-        }
-
-        if(!empty(self::$context['namespace']))
-        {
-            $namespaces = self::$context['namespace'];
-            foreach($namespaces as $namespace)
-            {
-                $this->namespace .= '/' .trim($namespace, '/');
-            }
-            $this->namespace = trim($this->namespace,'/');
-        }
-
-        if(!empty(self::$context['middleware']['route']))
-        {
-            $middlewares = self::$context['middleware']['route'];
-            foreach($middlewares as $middleware)
-            {
-                if(!in_array($middleware, $this->middleware))
-                {
-                    $this->middleware[] = $middleware;
-                }
-            }
-        }
-
-        // Optional route attributes
-        if($attributes !== NULL)
-        {
-            if(isset($attributes['namespace']))
-            {
-                $this->namespace = (!empty($this->namespace) ? '/' : '' ) . trim($attributes['namespace'], '/');
-            }
-
-            if(isset($attributes['prefix']))
-            {
-                $this->prefix .= (!empty($this->prefix) ? '/' : '' ) . trim($attributes['prefix'], '/');
-            }
-
-            if(isset($attributes['middleware']))
-            {
-                if(is_string($attributes['middleware']))
-                {
-                    $attributes['middleware'] = [ $attributes['middleware'] ];
-                }
-
-                $this->middleware = array_merge($this->middleware, array_unique($attributes['middleware']));
-            }
-        }
-
-        // Parsing route arguments
-        $_names   = [];
-        $fullPath = trim($this->prefix,'/') != '' ? $this->prefix . '/' . $this->path : $this->path;
-        $fullPath = trim($fullPath, '/');
-
-        foreach(explode('/', $fullPath) as  $segment)
-        {
-            if(preg_match('/^\{(.*)\}$/', $segment))
-            {
-                $param  = new RouteParam($segment);
-
-                if(in_array($param->getName(), $_names))
-                {
-                    show_error('Duplicate route parameter <strong>' . $param->getName() . '</strong> in route <strong>"' .  $this->path . '</strong>"');
-                }
-
-                $_names[] = $param->getName();
-
-                if( $param->isOptional() )
-                {
-                    $this->hasOptionalParams = true;
-                }
-                else
-                {
-                    if( $this->hasOptionalParams )
-                    {
-                        show_error('Required <strong>' . $param->getName() . '</strong> route parameter is not allowed at this position in <strong>"' . $this->path . '"</strong> route');
-                    }
-                }
-
-                $this->params[] = $param;
-            }
-        }
-
-        // Automatically set the default controller if path is "/"
-        if($path == '/' && in_array('GET', $this->methods))
-        {
-            self::$compiled['reserved']['default_controller'] = is_string($action)
-                ?
-                    ( empty($this->namespace) ? implode('/', explode('@', $action)) : self::DEFAULT_CONTROLLER )
-                :
-                    self::DEFAULT_CONTROLLER;
-        }
-    }
-
 
     /**
      * Compiles a Luthier-CI route into a CodeIgniter native route
@@ -903,7 +939,7 @@ class Route
 
 
     /**
-     * Builds the route URL with the provided parameters (if any)
+     * Build the route url with the provided parameters
      *
      * @param  string|array $params Route parameters
      *
@@ -911,7 +947,7 @@ class Route
      *
      * @access public
      */
-    public function parseUrl($params)
+    public function buildUrl($params)
     {
         $defaultParams = self::getDefaultParams();
 
