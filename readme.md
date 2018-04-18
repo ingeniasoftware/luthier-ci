@@ -127,13 +127,13 @@ The `ci()` function returns the framework instance, acting as a *virtual* contro
 
 #### Named routes
 
-You can assign names to your routes so you don't have to worry about future path changes:
+You can assign names to your routes so you don't have to worry about future url changes:
 
 ```php
 Route::get('company/about_us', 'testcontroller@index')->name('about_us');
 ```
 
-Use the `route()` function with to retrieve the compiled path:
+Use the `route()` function to retrieve the compiled url:
 
 ```php
 <a href="<?= route('about_us');?>">My link!</a>
