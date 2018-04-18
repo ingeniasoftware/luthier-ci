@@ -174,13 +174,14 @@ final class Hook
             global $params, $URI, $class, $method;
 
             $route  = Route::getCurrentRoute();
-            $path   = (!empty($route->getPrefix()) ? '/' : '') . $route->getPath();
-            $pcount = 0;
 
             if($route->is404)
             {
                 return;
             }
+
+            $path   = (!empty($route->getPrefix()) ? '/' : '') . $route->getPath();
+            $pcount = 0;
 
             //
             // Removing controller's subdirectories limitation over "/" path
@@ -258,39 +259,43 @@ final class Hook
         {
             global $params;
 
-            ci()->load->helper('url');
             ci()->route = Route::getCurrentRoute();
-            ci()->middleware = new Middleware();
 
-            if(method_exists(ci(), 'preMiddleware'))
+            if(!ci()->route->is404)
             {
-                call_user_func([ci(), 'preMiddleware']);
-            }
+                ci()->load->helper('url');
+                ci()->middleware = new Middleware();
 
-            foreach(Route::getGlobalMiddleware()['pre_controller'] as $middleware)
-            {
-                ci()->middleware->run($middleware);
-            }
-
-            // Setting "sticky" route parameters values as default for current route
-            foreach(ci()->route->params as &$param)
-            {
-                if(substr($param->getName(),0,1) == '_')
+                if(method_exists(ci(), 'preMiddleware'))
                 {
-                    Route::setDefaultParam($param->getName(), ci()->route->param($param->getName()));
-                }
-            }
-
-            foreach(ci()->route->getMiddleware() as $middleware)
-            {
-                if(is_string($middleware))
-                {
-                    $middleware = [ $middleware ];
+                    call_user_func([ci(), 'preMiddleware']);
                 }
 
-                foreach($middleware as $_middleware)
+                foreach(Route::getGlobalMiddleware()['pre_controller'] as $middleware)
                 {
-                    ci()->middleware->run($_middleware);
+                    ci()->middleware->run($middleware);
+                }
+
+                // Setting "sticky" route parameters values as default for current route
+                foreach(ci()->route->params as &$param)
+                {
+                    if(substr($param->getName(),0,1) == '_')
+                    {
+                        Route::setDefaultParam($param->getName(), ci()->route->param($param->getName()));
+                    }
+                }
+
+                foreach(ci()->route->getMiddleware() as $middleware)
+                {
+                    if(is_string($middleware))
+                    {
+                        $middleware = [ $middleware ];
+                    }
+
+                    foreach($middleware as $_middleware)
+                    {
+                        ci()->middleware->run($_middleware);
+                    }
                 }
             }
 
@@ -303,6 +308,11 @@ final class Hook
 
         $hooks['post_controller'][] = function()
         {
+            if(ci()->route->is404)
+            {
+                return;
+            }
+
             foreach(Route::getGlobalMiddleware()['post_controller'] as $middleware)
             {
                 ci()->middleware->run($middleware);
