@@ -5,24 +5,24 @@
 [![Latest Unstable Version](https://poser.pugx.org/luthier/luthier/v/unstable?format=flat-square)](https://packagist.org/packages/luthier/luthier)
 [![License](https://poser.pugx.org/luthier/luthier/license?format=flat-square)](https://packagist.org/packages/luthier/luthier)
 
-Laravel-like routing and Middleware support for CodeIgniter 3. **Luthier-CI** makes the development of CodeIgniter apps even more enjoyable and simple!  
-  
-A design goal of Luthier-CI is to have the less side effects possible and be deeply integrated to the framework, so basically your app must be working just like before the installation, no matters what libraries, hooks, helpers o third party packages you have currently.
+Laravel-like routing and Middleware support for CodeIgniter 3. **Luthier-CI** makes the development of CodeIgniter apps even more enjoyable and simple!
+
+A design goal of Luthier-CI is to have the less side effects possible and be deeply integrated to the framework, so basically your app must be working just like before the installation, no matters what libraries, hooks, helpers o third party packages are enabled.
 
 ## Features
 
-* Clean and easy instalation via hooks
+* Clean and easy installation via hooks
 * Global and per-route middleware
-* Advanced routing: prefixes, namespaces, anonymous functions as routes, route groups, named parameters, optional parameters, default parameter values and "sticky" parameters
+* Advanced routing: prefixes, namespaces, anonymous functions as routes, route groups, cli routes, named parameters, optional parameters, sticky parameters
 
 ## Requirements
 
-* PHP 5 and 7 are compatible
+* PHP >= 5.6.0 (PHP 7 compatible)
 * CodeIgniter 3.x
 
 ## Installation
 
-(**Note:** this tutorial is assuming that you have a fresh CodeIgniter installation)
+**Note:** this tutorial is assuming that you have a fresh CodeIgniter installation
 
 #### Get Luthier-CI with Composer
 
@@ -55,7 +55,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $hook = Luthier\Hook::getHooks();
 ```
 
-Set the Luthier routes:
+Set the Luthier-CI routes:
 
 ```php
 <?php
@@ -72,9 +72,10 @@ The first time that Luthier-CI runs, several files and folders are created:
 
 * `routes/web.php`: Default HTTP-Based routes
 * `routes/api.php`: AJAX routes
-* `routes/cli.php`: CLI routes (not working yet)
+* `routes/cli.php`: CLI routes (Experimental)
 * `controllers/Luthier.php`: Fake controller, needed to run route callbacks
-  
+* `middleware`: Middleware folder
+
 During the framework initialization some hooks are called: the first, `Luthier\Hook::getHooks()` returns all Luthier-CI related hooks, included the needed to boot. At this point, Luthier-CI parses and compiles all the routes defined in the first three files. Then, when the framework loads the routes, `Luthier\Route::getRoutes()` returns the actual array of routes. All after this is just the normal execution of the framework.
 
 ## Routes
@@ -84,7 +85,7 @@ During the framework initialization some hooks are called: the first, `Luthier\H
 To add routes, use the static methods of the `Route` class facade:
 
 ```php
-<?php 
+<?php
 # application/routes/web.php
 
 // This points to 'baz' method of 'bar' controller at '/foo' path under a GET request:
@@ -97,16 +98,24 @@ Route::get('blog/{slug}', 'blog@post');
 // (Luthier-CI will make all the fallback routes for you)
 Route::get('categories/{primary?}/{secondary?}/{filter?}', 'clients@list');
 
-// The (:any) and (:num) CodeIgniter route placeholders are availables to use, with this syntax:
+// The (:any) and (:num) CodeIgniter route placeholders are available to use, with this syntax:
 Route::get('cars/{num:id}/{any:registration}', 'CarCatalog@index');
 
 // Custom regex? it's possible with this syntax:
 Route::post('main/{((es|en)):_locale}/about', 'about@index');
 ```
 
+#### Cli routes (Experimental)
+
+Use the `Route::cli()` method to add command line routes. All cli routes must be inside `routes/cli.php` file and the syntax is the same:
+
+```php
+Route::cli('path','controller@method');
+```
+
 #### Callbacks as routes:
 
-It's posible to use an anonymous function as a route! here's an example:
+It's possible to use an anonymous function as a route! here's an example:
 
 ```php
 Route::get('foo', function(){
@@ -131,7 +140,7 @@ Use the `route()` function with to retrieve the compiled path:
 // <a href="http://[App Base Url]/company/about_us">Link</a>
 ```
 
-If the route have parameters, pass a second argument to the function with an array of their values:
+If the route has parameters, pass a second argument to the function with an array of their values:
 
 ```php
 <?= route('route_name', ['param1' => 'value2', 'param2' => 'value2' ... ]); ?>
@@ -142,7 +151,7 @@ If the route have parameters, pass a second argument to the function with an arr
 What if you want to define a global route parameter and make it available to all inherited routes? This can be done with help of *sticky* parameters. A sticky parameter starts with an underscore `_` and has a few singularities:
 
 * Is NOT passed in the arguments of the pointed controller's method
-* The parameter value is the same of the current route value and is setted by default if is not present, making it *sticky* (if the subsequent routes shares that parameter, of course)
+* The parameter value is the same of the current route value and is set by default if is not present, making it *sticky* (if the subsequent routes shares that parameter, of course)
 
 Here's an example:
 
@@ -219,7 +228,7 @@ Route::get('hello/world', 'testcontroller@index', ['prefix' => 'admin']);
 #### Route Groups
 
 Group routes is possible with the  `Route::group()` method. All routes
-inside the group will share the *prefix* (first argument) and, optionally, another properties (*namespace*, *middleware*, etc.)
+inside the group will share the *prefix* (first argument) and, optionally, another property (*namespace*, *middleware*, etc.)
 
 ```php
 // Prefix only
@@ -248,17 +257,17 @@ Route::set('default_controller', 'welcome/index');
 
 ## Middleware
 
-Luthier-CI adds the concept of middleware to the framework. Think on the middleware as a set of "layouts" that the user will pass thru with every request until reach to the desired resource. You can, for example, perform a user validation before enter to a controller, and redirect it to another place in case of failure. An advantage of the middleware is that you can assign it on a specific route/group or even define it as global middleware, and will be executed on all routes!  
-  
-In fact, the middleware is an extension of the controller, because the framework singleton is built at this point. So you will be able of execute all the libraries/functions that are normally available inside the controllers.
+Luthier-CI adds the concept of middleware to the framework. Think on the middleware as a set of "layouts" that the user will pass thru with every request until reach to the desired resource. You can, for example, perform a user validation before entering to a controller, and redirect it to another place in case of failure. An advantage of the middleware is that you can assign it on a specific route/group or even define it as global middleware
+
+In fact, the middleware is an extension of the controller, because the framework singleton is built at this point. So, you will be able of execute all the libraries/functions that are normally available inside the controllers.
 
 #### Middleware execution points
 
 In global context, there's two execution points available:
 
-* **pre_controller**:  middleware will be executed right after the controller constructor, *BUT* before any controller action were performed. Please notice that the controller constructor is called at this point, because the own CodeIgniter's execution sequence (wich Luthier-CI don't modify) so if you need to do some actions *before* any middleware is executed, you must define a method called *preMiddleware()* in your controller and Luthier-CI will call it first.
+* **pre_controller**:  middleware will be executed right after the controller constructor, *BUT* before any controller action were performed. Please notice that the controller constructor is called at this point, because the own CodeIgniter's execution sequence (which Luthier-CI don't modify) so if you need to do some actions *before* any middleware is executed, you must define a method called *preMiddleware()* in your controller and Luthier-CI will call it first.
 * **post_controller**: middleware will be executed exactly in the `post_controller` hook point.
-  
+
 In a route context, there's only one execution points and works as same as the **pre_controller** point in global context.
 
 #### Middleware definition
@@ -276,12 +285,12 @@ Route::group('site', ['middleware' => ['Admin']], function(){
 
 # Global middleware:
 Route::middleware('Admin', 'pre_controller');
-````
+```
 
 The middleware files must be saved in the `application/middleware` folder. If not exists, you must create it first. A middleware file is any php class with a public `run()` method, which is the entry point. It's strongly advised to name all your middleware with CamelCase and avoid name conflicts with your controllers.
-  
+
 #### Manually running middleware
-  
+
 Use the `middleware->run()` method in your controllers to run a middleware on-demand:
 
 ```php
@@ -290,19 +299,19 @@ Use the `middleware->run()` method in your controllers to run a middleware on-de
 class MyController extends CI_Controller
 {
     public function __construct()
-    {   
+    {
         parent::__construct();
         $this->middleware->run('Admin');
     }
-  
+
     // ...
 }
-````
-  
+```
+
 #### Callbacks as middleware
-  
+
 You can use callbacks in middleware definitions, and works exactly as route callbacks:
-  
+
 ```php
 Route::middleware(function(){
     ci()->load->library('twig');
@@ -310,9 +319,8 @@ Route::middleware(function(){
 ```
 
 ## Roadmap
-  
-* CLI Routes :(
-* Write a better and in-depth documentation 
+
+* Write a better and in-depth documentation
 * Probably more, feel free to make all your suggestions!
 
 ## Donate
