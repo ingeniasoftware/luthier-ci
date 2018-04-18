@@ -9,12 +9,14 @@ function route($name = null, $params = [])
 {
     if($name === null)
     {
-        return Route::getCurrentRoute();
+        $route = Route::getCurrentRoute();
+    }
+    else
+    {
+        $route = Route::getByName($name);
     }
 
-    $route = Route::getByName($name);
-
-    return $route->parseUrl($params);
+    return $route->buildUrl($params);
 }
 
 
