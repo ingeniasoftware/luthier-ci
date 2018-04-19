@@ -172,6 +172,17 @@ class Route
     public $params = [];
 
 
+
+    /**
+     * Route segment when starts the parameters
+     *
+     * @var $paramOffset
+     *
+     * @access public
+     */
+    public $paramOffset;
+
+
     /**
      * Does the route have optional parameters?
      *
@@ -306,10 +317,15 @@ class Route
         $fullPath = trim($this->prefix,'/') != '' ? $this->prefix . '/' . $this->path : $this->path;
         $fullPath = trim($fullPath, '/');
 
-        foreach(explode('/', $fullPath) as  $segment)
+        foreach(explode('/', $fullPath) as $i => $segment)
         {
             if(preg_match('/^\{(.*)\}$/', $segment))
             {
+                if($this->paramOffset === null)
+                {
+                    $this->paramOffset = $i;
+                }
+
                 $param  = new RouteParam($segment);
 
                 if(in_array($param->getName(), $_names))

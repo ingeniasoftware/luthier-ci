@@ -245,9 +245,15 @@ final class Hook
                 if(!empty($route->params))
                 {
                     $_path = array_slice($_SERVER['argv'], 1);
+
                     if($_path)
                     {
-                        $params = array_slice($_path, count($_path) - count($route->params));
+                        $params = array_slice($_path, $route->paramOffset);
+                    }
+
+                    foreach($route->params as $i => &$_param)
+                    {
+                        $_param->value = isset($params[$i]) ? $params[$i] : NULL;
                     }
                 }
             }
