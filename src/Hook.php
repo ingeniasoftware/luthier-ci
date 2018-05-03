@@ -59,7 +59,7 @@ final class Hook
 
             define('LUTHIER_CI_VERSION', '0.2.0');
 
-            $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+            $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
             $isCli  = is_cli();
             $isWeb  = !$isCli;
 
