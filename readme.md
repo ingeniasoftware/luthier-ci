@@ -1,4 +1,4 @@
-﻿# Luthier-CI
+# Luthier-CI
 
 [![Latest Stable Version](https://poser.pugx.org/luthier/luthier/v/stable?format=flat-square)](https://packagist.org/packages/luthier/luthier)
 [![Total Downloads](https://poser.pugx.org/luthier/luthier/downloads?format=flat-square)](https://packagist.org/packages/luthier/luthier)
@@ -13,7 +13,7 @@ A design goal of Luthier-CI is to have the less side effects possible and be dee
 
 * Clean and easy installation via hooks
 * Global and per-route middleware
-* Advanced routing: prefixes, namespaces, anonymous functions as routes, route groups, cli routes, named parameters, optional parameters, sticky parameters
+* Advanced routing: prefixes, namespaces, anonymous functions as routes, route groups, CLI routes, named parameters, optional parameters, sticky parameters
 
 ## Requirements
 
@@ -72,7 +72,7 @@ The first time that Luthier-CI runs, several files and folders are created:
 
 * `routes/web.php`: Default HTTP-Based routes
 * `routes/api.php`: AJAX routes
-* `routes/cli.php`: CLI routes (Experimental)
+* `routes/cli.php`: CLI routes
 * `controllers/Luthier.php`: Fake controller, needed to run route callbacks
 * `middleware`: Middleware folder
 
@@ -105,13 +105,65 @@ Route::get('cars/{num:id}/{any:registration}', 'CarCatalog@index');
 Route::post('main/{((es|en)):_locale}/about', 'about@index');
 ```
 
-#### Cli routes (Experimental)
+#### CLI routes
 
-Use the `Route::cli()` method to add command line routes. All cli routes must be inside `routes/cli.php` file and the syntax is the same:
+Use the `Route::cli()` method to add command line routes. All CLI routes must be inside `routes/cli.php` file. This is an example of a CLI route:
 
 ```php
 Route::cli('path','controller@method');
 ```
+
+Read more about CLI usage in the [documentation](https://www.codeigniter.com/user_guide/general/cli.html)
+
+##### Built-in CLI commands:
+
+Since 0.2.0 version, Luthier-CI comes with some useful ready-to-use CLI commands. They are opt-in, so you must declare it in your CLI routes first:
+
+```php
+<?php
+#application/routes/cli.php
+
+// 'luthier make' command
+Luthier\Cli::maker();
+
+// 'luthier migrate' command
+Luthier\Cli::migrations();
+
+```
+
+Due security reasons, both commands are disabled in `testing` and `production` environments.
+
+##### `luthier make`
+
+Creates a new framework file.
+
+Syntax for making a controller, model, library, helper or middleware:
+
+```
+luthier make [controller|model|library|helper|middleware] [resource name]
+```
+
+Syntax for making a migration:
+
+```
+luthier make migration [migration name] [sequential|date?]
+```
+
+Read more about migrations in the [documentation](https://www.codeigniter.com/user_guide/libraries/migration.html)
+
+##### `luthier migrate`
+
+Runs (or rollback) a migration
+
+Syntax:
+
+```
+luthier migrate [version|refresh|reverse?]
+```
+
+* `version` indicates the specific version to migrate
+* `reverse` will rollback ALL migrations
+* `refresh` will rollback and then run ALL migrations
 
 #### Callbacks as routes:
 
@@ -120,6 +172,10 @@ It's possible to use an anonymous function as a route! here's an example:
 ```php
 Route::get('foo', function(){
     ci()->load->view('some_view');
+});
+
+Route::cli('path',function(){
+    echo 'foo';
 });
 ```
 
@@ -326,3 +382,4 @@ Route::middleware(function(){
 ## Donate
 
 Enjoying Luthier-CI? Donate with [Paypal](https://paypal.me/andersalasm) and help us to make more cool stuff!
+
