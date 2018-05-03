@@ -174,7 +174,7 @@ class Route
 
 
     /**
-     * Route segment when starts the parameters
+     * Route segment where starts the parameters
      *
      * @var $paramOffset
      *
