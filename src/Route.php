@@ -315,7 +315,7 @@ class Route
         // Parsing route parameters
         $_names   = [];
         $fullPath = trim($this->prefix,'/') != '' ? $this->prefix . '/' . $this->path : $this->path;
-        $fullPath = trim($fullPath, '/');
+        $fullPath = trim($fullPath, '/') == '' ? '/' : trim($fullPath, '/');
 
         foreach(explode('/', $fullPath) as $i => $segment)
         {
@@ -352,7 +352,7 @@ class Route
         }
 
         // Automatically set the default controller if path is "/"
-        if($path == '/' && in_array('GET', $this->methods))
+        if($fullPath == '/' && in_array('GET', $this->methods))
         {
             self::$compiled['reserved']['default_controller'] = is_string($action)
                 ?
