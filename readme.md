@@ -71,7 +71,7 @@ The first time that Luthier-CI runs, several files and folders are created:
 * `controllers/Luthier.php`: Fake controller, necessary to use some routes
 * `middleware`: Middleware folder
 
-
+**Important**: Make sure that your `application` folder has write permission!
 
 ## Usage
 
@@ -188,6 +188,7 @@ class Test_middleware
 ## Donate
 
 If you love our work, you can support us via [Paypal](https://paypal.me/andersalasm) or [Patreon](https://patreon.com/ingeniasoftware) 
+
 
 
 
