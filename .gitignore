@@ -1,5 +1,6 @@
 application/*
 !application/luthier
 !application/middleware
-
 /vendor/
+/docs/en/manifest.json
+/docs/es/manifest.json
