@@ -2,7 +2,7 @@
     <img src="https://ingenia.me/images/luthier-ci/logo.png" width="100" />
 </p>
 
-**Luthier-CI** is a plugin for CodeIgniter 3 that makes the development of APIs (and websites in general) more easy! For full documentation, visit the project [official website](https://luthier-ci.ingenia.me/en/docs) (disponible en [español](https://luthier-ci.ingenia.me/en/help/docs))
+**Luthier-CI** is a plugin for CodeIgniter 3 that makes the development of APIs (and websites in general) more easy! For full documentation, visit the project [official website](https://luthier-ci.ingenia.me/en/docs) (disponible en [español](https://luthier-ci.ingenia.me/en/docs))
 
 ## Features
 
@@ -188,6 +188,7 @@ class Test_middleware
 ## Donate
 
 If you love our work, you can support us via [Paypal](https://paypal.me/andersalasm) or [Patreon](https://patreon.com/ingeniasoftware) 
+
 
 
 
