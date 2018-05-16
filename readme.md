@@ -122,7 +122,7 @@ To retrieve a named route, use the `route()` function:
 
 ```php
 <a href="<?= route('about_us');?>">My link!</a>
-// <a href="http://[App Base Url]/company/about_us">Link</a>
+// <a href="http://example.com/company/about_us">Link</a>
 ```
 
 If the route has parameters, pass a second argument to the function with an array of their values:
