@@ -22,6 +22,8 @@ class Route
     /**
      * Luthier routes
      *
+     * (This us used internally by Luthier-CI)
+     *
      * @var static $routes
      *
      * @access private
@@ -31,6 +33,8 @@ class Route
 
     /**
      * Luthier routing context
+     *
+     * (This us used internally by Luthier-CI)
      *
      * @var static $context
      *
@@ -55,6 +59,8 @@ class Route
 
     /**
      * Compiled routes
+     *
+     * (This us used internally by Luthier-CI)
      *
      * @var static $compiled
      *
@@ -84,6 +90,7 @@ class Route
      * Custom 404 route
      *
      * It could be both a path to a controller or a callback
+     *
      *
      * @var static $_404
      *
@@ -806,6 +813,36 @@ class Route
         }
 
         self::$compiled['reserved'][$name] = $value;
+    }
+
+
+    /**
+     * Defines all auth-related routes/middleware
+     *
+     * @return vpid
+     *
+     * @access public
+     * @static
+     */
+    public static function auth()
+    {
+        //
+        // Auth routes (Login, logout, etc.)
+        //
+        self::match(['get', 'post'], 'login', 'AuthController@login')->name('login');
+        self::post('logout', 'AuthController@logout')->name('logout');
+        self::match(['get', 'post'], 'signup', 'AuthController@signup')->name('signup');
+        self::group('password-reset', function(){
+            self::match(['get','post'], '/', 'AuthController@password_reset')->name('password_reset');
+            self::get('{token}', 'AuthController@password_reset_form')->name('password_reset_form');
+        });
+
+        //
+        // User area
+        //
+        self::group('dashboard', ['middleware' => ['Auth_middleware'], 'namespace' => 'UserArea'], function(){
+           self::get('/', 'DashboardController@index')->name('dashboard');
+        });
     }
 
     /**
