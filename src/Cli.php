@@ -58,6 +58,10 @@ class Cli
                     self::makeMigration($name, $type);
                 });
 
+                Route::cli('auth', function(){
+                    self::makeAuth();
+                });
+
             });
 
         });
@@ -103,7 +107,7 @@ class Cli
      * @access private
      * @static
      */
-    private static function recursiveMkdir($folders, $base)
+    private static function rmkdir($folders, $base)
     {
         $target = APPPATH . $base;
 
@@ -114,6 +118,42 @@ class Cli
             if(!file_exists($target))
             {
                 mkdir($target);
+            }
+        }
+    }
+
+    private static function rcopy($source, $target)
+    {
+        foreach(scandir($source) as $res)
+        {
+            if($res == '.' || $res == '..')
+            {
+                continue;
+            }
+
+            $_source = $source . '/' . $res;
+            $_target = $target . '/' . $res;
+
+            if(is_dir($_source))
+            {
+                if(!file_exists($_target))
+                {
+                    mkdir($_target);
+                }
+
+                self::rcopy($_source, $_target);
+            }
+            else
+            {
+                if(!file_exists($_target))
+                {
+                    copy($_source, $_target);
+                    echo "CREATED: $_target\n";
+                }
+                else
+                {
+                    echo "WARNING: $_target file already exists, skipping!\n";
+                }
             }
         }
     }
@@ -144,7 +184,7 @@ class Cli
 
         if(!empty($dir))
         {
-            self::recursiveMkdir($dir,'controllers');
+            self::rmkdir($dir,'controllers');
         }
 
         if(file_exists($path))
@@ -180,7 +220,7 @@ CONTROLLER;
 
         file_put_contents($path, $file);
 
-        echo "\nCreated:\n" . realpath($path) . "\n";
+        echo "\nCREATED:\n" . realpath($path) . "\n";
     }
 
 
@@ -209,7 +249,7 @@ CONTROLLER;
 
         if(!empty($dir))
         {
-            self::recursiveMkdir($dir,'models');
+            self::rmkdir($dir,'models');
         }
 
         if(file_exists($path))
@@ -230,7 +270,7 @@ MODEL;
 
         file_put_contents($path, $file);
 
-        echo "\nCreated:\n" . realpath($path) . "\n";
+        echo "\nCREATED:\n" . realpath($path) . "\n";
     }
 
 
@@ -259,7 +299,7 @@ MODEL;
 
         if(!empty($dir))
         {
-            self::recursiveMkdir($dir,'helpers');
+            self::rmkdir($dir,'helpers');
         }
 
         if(file_exists($path))
@@ -277,7 +317,7 @@ HELPER;
 
         file_put_contents($path, $file);
 
-        echo "\nCreated:\n" . realpath($path) . "\n";
+        echo "\nCREATED:\n" . realpath($path) . "\n";
     }
 
 
@@ -296,7 +336,7 @@ HELPER;
 
         if(!empty($dir))
         {
-            self::recursiveMkdir($dir,'middleware');
+            self::rmkdir($dir,'middleware');
         }
 
         if(file_exists($path))
@@ -326,7 +366,7 @@ MIDDLEWARE;
 
         file_put_contents($path, $file);
 
-        echo "\nCreated:\n" . realpath($path) . "\n";
+        echo "\nCREATED:\n" . realpath($path) . "\n";
     }
 
 
@@ -355,7 +395,7 @@ MIDDLEWARE;
 
         if(!empty($dir))
         {
-            self::recursiveMkdir($dir,'libraries');
+            self::rmkdir($dir,'libraries');
         }
 
         if(file_exists($path))
@@ -376,7 +416,7 @@ LIBRARY;
 
         file_put_contents($path, $file);
 
-        echo "\nCreated:\n" . realpath($path) . "\n";
+        echo "\nCREATED:\n" . realpath($path) . "\n";
     }
 
 
@@ -458,7 +498,13 @@ MIGRATION;
 
         file_put_contents($path, $file);
 
-        echo "\nCreated:\n" . realpath($path) . "\n";
+        echo "\nCREATED:\n" . realpath($path) . "\n";
+    }
+
+    
+    private static function makeAuth()
+    {
+        self::rcopy(__DIR__ . '/Resources/Auth', APPPATH);
     }
 
 
@@ -519,7 +565,7 @@ MIGRATION;
 
         if($old == $current)
         {
-            echo "Nothing to migrate \n";
+            echo "Nothing to migrate. \n";
         }
         else
         {
@@ -534,14 +580,14 @@ MIGRATION;
                 {
                     if( $current >=  $name)
                     {
-                        echo 'Migrated: ' . basename($migrations[$name]) . "\n";
+                        echo 'MIGRATED: ' . basename($migrations[$name]) . "\n";
                     }
                 }
                 else
                 {
                     if( $current <= $name)
                     {
-                        echo 'Reversed: ' . basename($migrations[$name]) . "\n";
+                        echo 'REVERSED: ' . basename($migrations[$name]) . "\n";
                     }
                 }
             }
