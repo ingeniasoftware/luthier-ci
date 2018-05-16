@@ -180,7 +180,7 @@ class Test_middleware
 {
     public function run()
     {
-        // Este es el punto de entrada del middleware
+        // (Entry point)
     }
 }
 ```
@@ -188,6 +188,7 @@ class Test_middleware
 ## Donate
 
 If you love our work, you can support us via [Paypal](https://paypal.me/andersalasm) or [Patreon](https://patreon.com/ingeniasoftware) 
+
 
 
 
