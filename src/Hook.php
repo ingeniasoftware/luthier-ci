@@ -123,12 +123,19 @@ final class Hook
             // named "_method"
             //
 
-            if(isset($_SERVER['REQUEST_METHOD']) && strtolower($_SERVER['REQUEST_METHOD']) == 'post')
+
+            if(isset($_SERVER['REQUEST_METHOD']))
             {
-                if(isset($_POST['_method']))
+                if(strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['_method']))
                 {
                     $_SERVER['RQUEST_METHOD'] = $_POST['_method'];
                 }
+
+                $requestMethod = $_SERVER['REQUEST_METHOD'];
+            }
+            else
+            {
+                $requestMethod = 'CLI';
             }
 
             //
@@ -165,6 +172,8 @@ final class Hook
                 $currentRoute->is404 = true;
                 $currentRoute->isCli = is_cli();
             };
+
+            $currentRoute->method = $requestMethod;
 
             Route::setCurrentRoute($currentRoute);
         };

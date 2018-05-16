@@ -214,6 +214,16 @@ class Route
 
 
     /**
+     * Current request method
+     *
+     * @var $method
+     *
+     * @access public
+     */
+    public $method;
+
+
+    /**
      * Class constructor
      *
      * @param  string|array $methods HTTP Verbs
