@@ -3,7 +3,8 @@
     "description": "Improved routing and middleware support for CodeIgniter framework",
     "type": "library",
     "require": {
-        "php": ">=5.6.0"
+        "php": ">=5.6.0",
+        "maximebf/debugbar": "~1.0"
     },
     "keywords": [
         "codeigniter",
@@ -11,9 +12,7 @@
         "middleware"
     ],
     "homepage": "https://ingenia.me",
-    "require-dev": {
-        "php": ">=5.6.0"
-    },
+    "require-dev": {},
     "license": "MIT",
     "authors": [
         {
