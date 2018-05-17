@@ -6,7 +6,9 @@
  * This routes only will be available under a CLI environment
  */
 
+// To enable Luthier-CI built-in cli commands
+// uncomment the followings lines:
 
-// To enable Luthier-CI built-in cli commands (controller/model maker)
-// uncomment the following line:
 // Luthier\Cli::maker();
+// Luthier\Cli::migrations();
+

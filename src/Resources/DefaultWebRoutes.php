@@ -18,15 +18,9 @@
  *      -> $route['blog/(:any)'] = 'blog/post/$1'
  */
 
-
 Route::get('/', function(){
-
-    // In fact, THIS is your 'default_controller' route, because is defined as a GET route
-    // under the root '/' path, so Luthier set as it for you
-
-    ci()->load->view('welcome_message');
+   luthier_info();
 });
-
 
 Route::set('404_override', function(){
     show_404();
