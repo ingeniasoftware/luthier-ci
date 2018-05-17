@@ -20,11 +20,39 @@ function route($name = null, $params = [])
 }
 
 
+
+/**
+ * Check if route exists
+ *
+ * @param  string $name Route name
+ *
+ * @return mixed
+ */
+function route_exists($name)
+{
+    return isset(Route::$compiled['names'][$name]);
+}
+
+
 /**
  * Alias of get_instance() function
  */
- function ci()
- {
-     $CI = &get_instance();
-     return $CI;
- }
+function ci()
+{
+    $CI = &get_instance();
+    return $CI;
+}
+
+
+ /**
+  * Returns a screen with information about Luthier
+  *
+  * @return mixed
+  */
+function luthier_info()
+{
+    ob_start();
+    require LUTHIER_CI_DIR . '/Resources/Global/views/welcome.php';
+    $luthierInfo = ob_get_clean();
+    ci()->output->set_output($luthierInfo);
+}
