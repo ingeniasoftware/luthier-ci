@@ -7,7 +7,4 @@
  * @licence MIT
  */
 
-class Route extends \Luthier\Route
-{
-    // ...
-}
+class Route extends Luthier\RouteBuilder {}

@@ -11,6 +11,7 @@
  */
 
 namespace Luthier;
+use Luthier\RouteBuilder as Route;
 
 class Cli
 {

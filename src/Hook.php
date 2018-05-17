@@ -10,9 +10,14 @@
 namespace Luthier;
 
 use Luthier\Exception\RouteNotFoundException;
+use Luthier\RouteBuilder as Route;
+use Luthier\Debug;
+use Luthier\Auth\AuthDispatcher;
 
 final class Hook
 {
+    private static $contentType;
+
     /**
      * Defines all required hooks to boot Luthier-CI
      *
@@ -57,7 +62,8 @@ final class Hook
             // Defining some constants, creating and loading required files, etc.
             //
 
-            define('LUTHIER_CI_VERSION', '0.2.0');
+            define('LUTHIER_CI_VERSION', '0.3.0');
+            define('LUTHIER_CI_DIR', __DIR__);
 
             $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
             $isCli  = is_cli();
@@ -113,6 +119,27 @@ final class Hook
 
             require_once( __DIR__ . '/Functions.php');
 
+
+            //
+            // Special debug bar routes (assets)
+            //
+
+            if( ENVIRONMENT != 'production' && !$isCli && !$isAjax )
+            {
+                Debug::getDebugBarRoutes();
+            }
+
+            //
+            // Instance of global Authentication dispatcher (listener)
+            //
+
+            Route::middleware(new AuthDispatcher());
+
+
+            //
+            // Compile all routes
+            //
+
             Route::compileAll();
 
             //
@@ -122,7 +149,6 @@ final class Hook
             // this allows us to use any HTTP Verb if the form contains a hidden field
             // named "_method"
             //
-
 
             if(isset($_SERVER['REQUEST_METHOD']))
             {
@@ -173,6 +199,7 @@ final class Hook
                 $currentRoute->isCli = is_cli();
             };
 
+
             $currentRoute->method = $requestMethod;
 
             Route::setCurrentRoute($currentRoute);
@@ -208,7 +235,6 @@ final class Hook
                     if(file_exists($_controller))
                     {
                         require_once $_controller;
-
                         list($class, $method) = explode('@', $route->getAction());
                     }
                     else
@@ -332,6 +358,24 @@ final class Hook
             {
                 ci()->middleware->run($middleware);
             }
+
+        };
+
+
+        $hooks['display_override'][] = function()
+        {
+            $output = ci()->output->get_output();
+
+            //
+            // Injecting DebugBar
+            //
+            if(ENVIRONMENT != 'production' && !ci()->input->is_ajax_request() && !is_cli())
+            {
+                $output = str_ireplace('</head>', '<link rel="stylesheet" href="'. route('debug_bar.css_assets') .'" /></head>', $output);
+                $output = str_ireplace('</body>', '<script src="'. route('debug_bar.js_assets') .'"></script>' . Debug::getDebugBar()->getJavascriptRenderer()->render() .'</body>', $output);
+            }
+
+            ci()->output->_display($output);
         };
 
         return $hooks;
