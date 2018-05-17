@@ -23,18 +23,21 @@ class Middleware
      */
     final public function run($middleware, ...$args)
     {
-        if(is_array($middleware))
+        if(is_callable($middleware))
+        {
+            call_user_func_array($middleware, $args);
+        }
+        else if(is_object($middleware) && method_exists($middleware,'run'))
+        {
+            $middleware->run($args);
+        }
+        else if(is_array($middleware))
         {
             foreach($middleware as $run)
             {
                 $this->run($run, $args);
             }
             return;
-        }
-
-        if(is_callable($middleware))
-        {
-            call_user_func_array($middleware, $args);
         }
         else
         {
