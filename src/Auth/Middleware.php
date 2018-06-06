@@ -1,0 +1,112 @@
+<?php
+
+/**
+ * Authentication Middleware
+ *
+ * All authentication-related middleware MUST inherit this abstract class. It provides
+ * a coherent authentication logic that can be easily implemented.
+ *
+ * @autor Anderson Salas <anderson@ingenia.me>
+ * @licence MIT
+ */
+
+namespace Luthier\Auth;
+
+use Luthier\MiddlewareInterface;
+use Luthier\Auth\UserInterface;
+use Luthier\Auth\UserProviderInterface;
+use Luthier\Auth\Exception\UserNotFoundException;
+use Luthier\Auth\Exception\InactiveUserException;
+use Luthier\Auth\Exception\UnverifiedUserException;
+use Luthier\Route;
+use Luthier\RouteBuilder;
+use Luthier\Debug;
+
+abstract class Middleware implements MiddlewareInterface
+{
+    final public function run($userProvider)
+    {
+        Debug::log('>>> USING CONTROLLER-BASED AUTH', 'info', 'auth');
+        Debug::log('Controller: '   . get_class(ci()), 'info', 'auth');
+        Debug::log('UserProvider: ' . get_class($userProvider), 'info', 'auth');
+        Debug::log('Middleware: '   . get_class(ci()->getMiddleware()), 'info', 'auth');
+
+        $this->preLogin(ci()->route);
+
+        if(ci()->route->getName() == config_item('auth_login_route') && ci()->route->method == 'POST')
+        {
+
+            $username = ci()->input->post(config_item('auth_form_username_field'));
+            $password = ci()->input->post(config_item('auth_form_password_field'));
+
+            Debug::logFlash('>>> LOGIN ATTEMPT INTERCEPTED', 'info', 'auth');
+            Debug::logFlash('Username: ' . $username, 'info', 'auth');
+            Debug::logFlash('Password: ' . $password . ' [hash: ' . $userProvider->hashPassword($password) . ']', 'info', 'auth');
+
+            try
+            {
+                $user = $userProvider->loadUserByUsername($username, $password);
+                        $userProvider->checkUserIsActive($user);
+
+                if(
+                    config_item('simpleauth_enable_email_verification')  === TRUE &&
+                    config_item('simpleauth_enforce_email_verification') === TRUE
+                )
+                {
+                    $userProvider->checkUserIsVerified($user);
+                }
+            }
+            catch(UserNotFoundException $e)
+            {
+                Debug::logFlash('FAILED: ' . $e->getMessage(), 'error', 'auth');
+
+                ci()->session->set_flashdata('_auth_messages', [ 'danger' =>  $e->getMessage() ]);
+
+                $this->onLoginFailed($username);
+                return;
+            }
+            catch(InactiveUserException $e)
+            {
+                Debug::logFlash('FAILED: ' . $e->getMessage(), 'error', 'auth');
+
+                ci()->session->set_flashdata('_auth_messages', [ 'danger' =>  $e->getMessage() ]);
+
+                $this->onLoginInactiveUser($user);
+                return;
+            }
+            catch(UnverifiedUserException $e)
+            {
+                Debug::logFlash('FAILED: ' . $e->getMessage(), 'error', 'auth');
+
+                ci()->session->set_flashdata('_auth_messages', [ 'danger' =>  $e->getMessage() ]);
+
+                $this->onLoginUnverifiedUser($user);
+                return;
+            }
+
+            if(!$user instanceof UserInterface)
+            {
+                show_error('Returned user MUST be an instance of UserInterface');
+            }
+
+            $this->onLoginSuccess($user);
+        }
+
+        if(ci()->route->getName() == config_item('auth_logout_route'))
+        {
+            $this->onLogout();
+        }
+    }
+
+    abstract public function preLogin(Route $route);
+
+    abstract public function onLoginSuccess(UserInterface $user);
+
+    abstract public function onLoginFailed($username);
+
+    abstract public function onLoginInactiveUser(UserInterface $user);
+
+    abstract public function onLoginUnverifiedUser(UserInterface $user);
+
+    abstract public function onLogout();
+}

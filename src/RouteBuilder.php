@@ -13,7 +13,7 @@ use Luthier\Exception\RouteNotFoundException;
 
 class RouteBuilder
 {
-    const DEFAULT_CONTROLLER = 'Luthier';
+    const DEFAULT_CONTROLLER = 'LuthierController';
 
     const HTTP_VERBS = ['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS','TRACE'];
 
@@ -62,7 +62,7 @@ class RouteBuilder
      *
      * @var static $compiled
      *
-     * @access private
+     * @access public
      */
     public static $compiled = [
         'routes'   => [],
@@ -279,29 +279,6 @@ class RouteBuilder
 
 
     /**
-     * Add a compiled (CodeIgniter Format) route at boot time
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @param  string  $path
-     * @param  string  $target (Optional)
-     *
-     * @return void
-     *
-     * @access public
-     * @static
-     */
-    public static function addCompiledRoute($path, $target = null)
-    {
-        if($target === null)
-        {
-            $target = self::DEFAULT_CONTROLLER . '/index';
-        }
-
-        self::$compiled['routes'][$path] = $target;
-    }
-
-    /**
      * Defines a CodeIgniter reserved route or custom Luthier configuration
      *
      * @param  string  $name
@@ -343,20 +320,19 @@ class RouteBuilder
         // Auth routes (Login, logout, etc.)
         //
 
-        self::match(['get', 'post'], 'login', 'AuthController@login')->name('login');
-        self::post('logout', 'AuthController@logout')->name('logout');
-        self::match(['get', 'post'], 'signup', 'AuthController@signup')->name('signup');
+        self::match(['get', 'post'], 'login', 'SimpleAuthController@login')->name('login');
+
+        self::post('logout', 'SimpleAuthController@logout')->name('logout');
+
+        self::get('email_verification/{token}', 'SimpleAuthController@emailVerification')->name('email_verification');
+
+        self::match(['get', 'post'], 'signup', 'SimpleAuthController@signup')->name('signup');
+
+        self::match(['get', 'post'], 'confirm_password', 'SimpleAuthController@confirmPassword')->name('confirm_password');
+
         self::group('password-reset', function(){
-            self::match(['get','post'], '/', 'AuthController@passwordReset')->name('password_reset');
-            self::get('{token}', 'AuthController@passwordResetForm')->name('password_reset_form');
-        });
-
-        //
-        // User area
-        //
-
-        self::group('dashboard', ['namespace' => 'user_area'], function(){
-           self::get('/', 'DashboardController@index')->name('dashboard');
+            self::match(['get','post'], '/', 'SimpleAuthController@passwordReset')->name('password_reset');
+            self::match(['get','post'], '{token}', 'SimpleAuthController@passwordResetForm')->name('password_reset_form');
         });
     }
 
