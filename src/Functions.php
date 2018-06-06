@@ -20,7 +20,6 @@ function route($name = null, $params = [])
 }
 
 
-
 /**
  * Check if route exists
  *
@@ -44,15 +43,38 @@ function ci()
 }
 
 
- /**
-  * Returns a screen with information about Luthier
-  *
-  * @return mixed
-  */
+/**
+ * Returns a screen with information about Luthier
+ *
+ * @return mixed
+ */
 function luthier_info()
 {
     ob_start();
-    require LUTHIER_CI_DIR . '/Resources/Global/views/welcome.php';
+
+    require LUTHIER_CI_DIR . '/Resources/About.php';
     $luthierInfo = ob_get_clean();
+
     ci()->output->set_output($luthierInfo);
+}
+
+
+
+/**
+ * Trigger the custom Luthier-CI 404 page, with fallback to
+ * show_404() function.
+ *
+ * @return mixed
+ */
+function trigger_404()
+{
+    $_404 = Route::get404();
+
+    if(is_null($_404) || !is_callable($_404))
+    {
+        show_404();
+    }
+
+    call_user_func($_404);
+    exit;
 }
