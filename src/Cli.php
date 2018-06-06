@@ -11,7 +11,9 @@
  */
 
 namespace Luthier;
+
 use Luthier\RouteBuilder as Route;
+use Luthier\Utils;
 
 class Cli
 {
@@ -98,67 +100,6 @@ class Cli
     }
 
 
-    /**
-     * Recursive mkdir helper
-     *
-     * @param  string   $dir path
-     *
-     * @return void
-     *
-     * @access private
-     * @static
-     */
-    private static function rmkdir($folders, $base)
-    {
-        $target = APPPATH . $base;
-
-        foreach($folders as $folder)
-        {
-            $target .= '/' . $folder;
-
-            if(!file_exists($target))
-            {
-                mkdir($target);
-            }
-        }
-    }
-
-    private static function rcopy($source, $target)
-    {
-        foreach(scandir($source) as $res)
-        {
-            if($res == '.' || $res == '..')
-            {
-                continue;
-            }
-
-            $_source = $source . '/' . $res;
-            $_target = $target . '/' . $res;
-
-            if(is_dir($_source))
-            {
-                if(!file_exists($_target))
-                {
-                    mkdir($_target);
-                }
-
-                self::rcopy($_source, $_target);
-            }
-            else
-            {
-                if(!file_exists($_target))
-                {
-                    copy($_source, $_target);
-                    echo "CREATED: $_target\n";
-                }
-                else
-                {
-                    echo "WARNING: $_target file already exists, skipping!\n";
-                }
-            }
-        }
-    }
-
 
     /**
      * Creates a controller
@@ -180,12 +121,12 @@ class Cli
             $name = array_pop($dir);
         }
 
-        $name = ucfirst($name);
+        $name = ucfirst($name) . 'Controller';
         $path = APPPATH . 'controllers/' . ( empty($dir) ? $name : implode('/', $dir) . '/' . $name ) . '.php';
 
         if(!empty($dir))
         {
-            self::rmkdir($dir,'controllers');
+            Utils::rmkdir($dir,'controllers');
         }
 
         if(file_exists($path))
@@ -250,7 +191,7 @@ CONTROLLER;
 
         if(!empty($dir))
         {
-            self::rmkdir($dir,'models');
+            Utils::rmkdir($dir,'models');
         }
 
         if(file_exists($path))
@@ -300,7 +241,7 @@ MODEL;
 
         if(!empty($dir))
         {
-            self::rmkdir($dir,'helpers');
+            Utils::rmkdir($dir,'helpers');
         }
 
         if(file_exists($path))
@@ -332,12 +273,12 @@ HELPER;
             $name = array_pop($dir);
         }
 
-        $name = ucfirst($name) . '_middleware';
+        $name = ucfirst($name) . 'Middleware';
         $path = APPPATH . 'middleware/' . ( empty($dir) ? $name : implode('/', $dir) . '/' . $name ) . '.php';
 
         if(!empty($dir))
         {
-            self::rmkdir($dir,'middleware');
+            Utils::rmkdir($dir,'middleware');
         }
 
         if(file_exists($path))
@@ -350,7 +291,7 @@ HELPER;
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class $name
+class $name implements Luthier\MiddlewareInterface
 {
 
     /**
@@ -358,7 +299,7 @@ class $name
      *
      * @return void
      */
-    public function run()
+    public function run(\$args = [])
     {
 
     }
@@ -396,7 +337,7 @@ MIDDLEWARE;
 
         if(!empty($dir))
         {
-            self::rmkdir($dir,'libraries');
+            Utils::rmkdir($dir,'libraries');
         }
 
         if(file_exists($path))
@@ -502,11 +443,12 @@ MIGRATION;
         echo "\nCREATED:\n" . realpath($path) . "\n";
     }
 
-    
+
     private static function makeAuth()
     {
-        self::rcopy(__DIR__ . '/Resources/Auth', APPPATH);
+        Utils::rcopy(__DIR__ . '/Resources/SimpleAuth/Framework', APPPATH);
     }
+
 
 
     /**
