@@ -1,28 +1,70 @@
 <?php
 
+/**
+ * Debug class
+ *
+ * This is a wrapper for the PHP DebugBar library
+ *
+ * @autor Anderson Salas <anderson@ingenia.me>
+ * @licence MIT
+ */
 
 namespace Luthier;
 
 use DebugBar\StandardDebugBar as DebugBar;
 use Luthier\RouteBuilder as Route;
+use Luthier\Utils;
 
 class Debug
 {
     private static $debugBar;
 
-    public static function getDebugBar()
+
+    /**
+     * Creates an instance of PHP DebugBar
+     *
+     * @return void
+     *
+     * @access public
+     * @static
+     */
+    public static function init()
     {
-        if(self::$debugBar === null)
+        if(ENVIRONMENT == 'production')
         {
-            self::$debugBar = new DebugBar();
+            return;
         }
 
+        self::$debugBar = new DebugBar();
+        self::setDebugBarRoutes();
+    }
+
+
+    /**
+     * Returns the current PHP DebugBar instance
+     *
+     * @return DebugBar
+     *
+     * @access public
+     * @static
+     */
+    public static function getDebugBar()
+    {
         return self::$debugBar;
     }
 
-    public static function getDebugBarRoutes()
+
+    /**
+     * Sets the special PHP DebugBar routes
+     *
+     * @return void
+     *
+     * @access private
+     * @static
+     */
+    private static function setDebugBarRoutes()
     {
-        Route::get('_debug_gbar/css', function(){
+        Route::any('_debug_bar/css', function(){
 
             ob_start();
             Debug::getDebugBar()->getJavascriptRenderer()->dumpCssAssets();
@@ -81,15 +123,19 @@ class Debug
                 }
             ";
             $css = ob_get_clean();
+
             $css = str_ireplace("url('../fonts/fontawesome-webfont", "url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont", $css);
 
             ci()->output
                 ->set_content_type('text/css')
-                ->set_output($css);
+                ->set_output($css)
+                ->_display();
+
+                exit;
 
         })->name('debug_bar.css_assets');
 
-        Route::get('_debug_gbar/js', function(){
+        Route::any('_debug_bar/js', function(){
 
             ob_start();
             Debug::getDebugBar()->getJavascriptRenderer()->dumpJsAssets();
@@ -97,8 +143,114 @@ class Debug
 
             ci()->output
                 ->set_content_type('text/javascript')
-                ->set_output($js);
+                ->set_output($js)
+                ->_display();
+
+                exit;
 
         })->name('debug_bar.js_assets');
     }
+
+
+    /**
+     * Injects the PHP DebugBar assets in the output returned by the get_output()
+     * CodeIgniter's CI_OUTPUT method.
+     *
+     * @param  mixed $output (Passed by reference)
+     *
+     * @return mixed
+     *
+     * @access public
+     * @static
+     */
+    public static function prepareOutput(&$output)
+    {
+        if(ENVIRONMENT != 'production' && !ci()->input->is_ajax_request() && !is_cli() && self::$debugBar !== null)
+        {
+            $head = '<link rel="stylesheet" href="'. route('debug_bar.css_assets') .'" />';
+
+            $body = '<script src="'. route('debug_bar.js_assets') .'"></script>'
+                . Debug::getDebugBar()->getJavascriptRenderer()->render();
+
+            $output = str_ireplace('</head>', $head . '</head>', $output);
+            $output = str_ireplace('</body>', $body . '</body>', $output);
+        }
+    }
+
+
+    /**
+     * Log message in a DataCollector
+     *
+     * @param  mixed        $message
+     * @param  mixed        $type (Optional)
+     * @param  mixed        $collector (Optional)
+     *
+     * @return mixed
+     *
+     * @access public
+     * @static
+     */
+    public static function log($message, $type = 'info', $collector = 'messages')
+    {
+        if(ENVIRONMENT == 'production' || self::$debugBar === null)
+        {
+            return;
+        }
+
+        if($message instanceof \Exception)
+        {
+            self::getDebugBar()->getCollector('exceptions')->addException($message);
+            return;
+        }
+
+        self::getDebugBar()->getCollector($collector)->addMessage($message, $type, is_string($message));
+    }
+
+
+    /**
+     * Log message in the session's flash storage
+     *
+     * @param  mixed        $message
+     * @param  mixed        $type (Optional)
+     * @param  mixed        $collector (Optional)
+     *
+     * @return mixed
+     *
+     * @access public
+     * @static
+     */
+    public static function logFlash($message, $type = 'info', $collector = 'messages')
+    {
+        if(ENVIRONMENT == 'production' || self::$debugBar === null)
+        {
+            return;
+        }
+
+        $messages   = ci()->session->flashdata('_debug_bar_flash');
+        $messages[] = [ $message, $type, $collector ];
+        
+        ci()->session->set_flashdata('_debug_bar_flash', $messages);
+    }
+
+
+    /**
+     * Add a Data Collector to the current PHP DebugBar instance
+     *
+     * @param  mixed        $dataCollector
+     *
+     * @return mixed
+     *
+     * @access public
+     * @static
+     */
+    public static function addCollector($dataCollector)
+    {
+        if(ENVIRONMENT == 'production' || self::$debugBar === null)
+        {
+            return;
+        }
+
+        self::getDebugBar()->addCollector($dataCollector);
+    }
+
 }
