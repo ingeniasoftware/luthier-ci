@@ -7,4 +7,7 @@
  * @licence MIT
  */
 
-class Auth extends Luthier\Auth {}
+class Auth extends Luthier\Auth
+{
+    
+}
