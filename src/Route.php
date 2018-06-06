@@ -209,7 +209,7 @@ class Route
             $prefixes = RouteBuilder::getContext('prefix');
             foreach($prefixes as $prefix)
             {
-                $this->prefix .= '/' .trim($prefix, '/');
+                $this->prefix .= trim($prefix,'/') != '' ? '/' .trim($prefix, '/') : '';
             }
             $this->prefix = trim($this->prefix,'/');
         }
@@ -219,7 +219,7 @@ class Route
             $namespaces = RouteBuilder::getContext('namespace');
             foreach($namespaces as $namespace)
             {
-                $this->namespace .= '/' .trim($namespace, '/');
+                $this->namespace .= trim($namespace, '/') != '' ? '/' .trim($namespace, '/') : '';
             }
             $this->namespace = trim($this->namespace,'/');
         }
