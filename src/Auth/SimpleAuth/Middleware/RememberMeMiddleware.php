@@ -25,6 +25,10 @@ class RememberMeMiddleware implements MiddlewareInterface
         {
             $this->restoreAuthFromCookie();
         }
+        elseif($action == 'destroy')
+        {
+            $this->destroyAuthCookie();
+        }
         else
         {
             show_error('Unknown RememberMeMiddleware "' . $action . '" action');
@@ -118,5 +122,11 @@ class RememberMeMiddleware implements MiddlewareInterface
         );
 
         */
+    }
+
+    private function destroyAuthCookie()
+    {
+        ci()->load->helper('cookie');      
+        delete_cookie(config_item('simpleauth_remember_me_cookie'));
     }
 }
