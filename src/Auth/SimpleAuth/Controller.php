@@ -107,47 +107,18 @@ class Controller extends \CI_Controller implements AuthControllerInterface
     /**
      * Returns an array with fillable user fields
      *
-     * This is necessary because sometimes you need to include some extra fields in
-     * singup form that doesn't correspond to any column of user's table in database.
-     *
-     * (In other words, this is the equivalent of the $fillable property of Eloquent ORM
-     *  models, but only for auth proposes)
-     *
      * @return array
      *
      * @access public
      */
     public function getUserFields()
     {
-        return [
-            'first_name',
-            'last_name',
-            'username',
-            'gender',
-            'email',
-            'password',
-            'role' => 'user'
-        ];
+        return [];
     }
 
 
     /**
      * Returns an array of the sign up fields.
-     *
-     * This allows to make a flexible user registration form without overriding the
-     * signup() method
-     *
-     * The syntax is the following:
-     *
-     * [
-     *      [field name] => [
-     *          [field type],
-     *          [field label],
-     *          [HTML5 validation] (In key => value array format),
-     *          [CI Validation] (array of validation rules),
-     *          [CI Validation Messages] (array, optional)
-     *      ]
-     * ]
      *
      * @return mixed
      *
@@ -155,59 +126,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
      */
     public function getSignupFields()
     {
-        return [
-            'first_name' => [
-                'text',
-                'First Name',
-                ['required' => true],
-                ['required', 'max_length[45]'],
-                null
-            ],
-            'last_name' => [
-                'text',
-                'Last Name',
-                ['required' => 'required'],
-                ['required', 'max_length[45]'],
-            ],
-            'username' => [
-                'text',
-                'Username',
-                ['required' => true, 'max_length' => 22],
-                ['required', 'min_length[3]', 'max_length[22]', 'is_unique[' . config_item('simpleauth_users_table') . '.username' . ']'],
-            ],
-            'email' => [
-                'email',
-                'Email',
-                ['required' => true],
-                ['required', 'valid_email', 'max_length[255]', 'is_unique[' . config_item('simpleauth_users_table') . '.' . config_item('simpleauth_username_col') .']'],
-            ],
-            'gender' => [
-                'radio' => [ 'm' => 'Male', 'f' => 'Female'],
-                'Gender',
-                ['required' => true],
-                ['required', 'max_length[45]'],
-            ],
-            'password' => [
-                'password',
-                'Password',
-                ['required' => true],
-                ['required', 'min_length[8]', 'matches[password_repeat]'],
-                ['matches' => 'The passwords does not match.'],
-            ],
-            'password_repeat' => [
-                'password',
-                'Repeat Password',
-                ['required' => true],
-                ['required']
-            ],
-            'tos_agreement' => [
-                'checkbox' => [ 'accept' => 'I accept the Terms and Conditions of Service'],
-                'Conditions agreement',
-                ['required' => true],
-                ['required'],
-                ['required' => 'You must accept the Terms and Conditions of Service']
-            ],
-        ];
+        return [];
     }
 
 
