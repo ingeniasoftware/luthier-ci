@@ -248,7 +248,7 @@ final class Hook
         Debug::log('>>> RAW ROUTING:', 'info', 'routing');
         Debug::log(Route::$compiled['routes'], 'info', 'routing');
 
-        $currentRoute->method = $requestMethod;
+        $currentRoute->requestMethod = $requestMethod;
 
         Route::setCurrentRoute($currentRoute);
     }
