@@ -306,15 +306,18 @@ class RouteBuilder
     }
 
 
+
     /**
      * Defines all auth-related routes/middleware
      *
-     * @return void
+     * @param  bool  $secureLogout (Optional) Enable/disable logout route only over POST requests
+     *
+     * @return mixed
      *
      * @access public
      * @static
      */
-    public static function auth()
+    public static function auth($secureLogout = true)
     {
         //
         // Auth routes (Login, logout, etc.)
@@ -322,7 +325,7 @@ class RouteBuilder
 
         self::match(['get', 'post'], 'login', 'SimpleAuthController@login')->name('login');
 
-        self::post('logout', 'SimpleAuthController@logout')->name('logout');
+        self::match($secureLogout === true ? ['post'] : ['get','post'], 'logout', 'SimpleAuthController@logout')->name('logout');
 
         self::get('email_verification/{token}', 'SimpleAuthController@emailVerification')->name('email_verification');
 
