@@ -26,14 +26,11 @@ abstract class Middleware implements MiddlewareInterface
 {
     final public function run($userProvider)
     {
-        Debug::log('>>> USING CONTROLLER-BASED AUTH', 'info', 'auth');
-        Debug::log('Controller: '   . get_class(ci()), 'info', 'auth');
-        Debug::log('UserProvider: ' . get_class($userProvider), 'info', 'auth');
-        Debug::log('Middleware: '   . get_class(ci()->getMiddleware()), 'info', 'auth');
+        Debug::log('>>> USING CONTROLLER-BASED AUTH [' . get_class(ci()) . ',' . get_class($userProvider) . ',' . get_class(ci()->getMiddleware()) . ' ]' , 'info', 'auth');
 
         $this->preLogin(ci()->route);
 
-        if(ci()->route->getName() == config_item('auth_login_route') && ci()->route->method == 'POST')
+        if(ci()->route->getName() == config_item('auth_login_route') && ci()->route->requestMethod == 'POST')
         {
 
             $username = ci()->input->post(config_item('auth_form_username_field'));
