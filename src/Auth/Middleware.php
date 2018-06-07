@@ -55,27 +55,27 @@ abstract class Middleware implements MiddlewareInterface
             }
             catch(UserNotFoundException $e)
             {
-                Debug::logFlash('FAILED: ' . $e->getMessage(), 'error', 'auth');
+                Debug::logFlash('FAILED: ' . UserNotFoundException::class, 'error', 'auth');
 
-                ci()->session->set_flashdata('_auth_messages', [ 'danger' =>  $e->getMessage() ]);
+                ci()->session->set_flashdata('_auth_messages', [ 'danger' =>  'ERR_LOGIN_INVALID_CREDENTIALS' ]);
 
                 $this->onLoginFailed($username);
                 return;
             }
             catch(InactiveUserException $e)
             {
-                Debug::logFlash('FAILED: ' . $e->getMessage(), 'error', 'auth');
+                Debug::logFlash('FAILED: ' . InactiveUserException::class, 'error', 'auth');
 
-                ci()->session->set_flashdata('_auth_messages', [ 'danger' =>  $e->getMessage() ]);
+                ci()->session->set_flashdata('_auth_messages', [ 'danger' =>  'ERR_LOGIN_INACTIVE_USER' ]);
 
                 $this->onLoginInactiveUser($user);
                 return;
             }
             catch(UnverifiedUserException $e)
             {
-                Debug::logFlash('FAILED: ' . $e->getMessage(), 'error', 'auth');
+                Debug::logFlash('FAILED: ' . UnverifiedUserException::class, 'error', 'auth');
 
-                ci()->session->set_flashdata('_auth_messages', [ 'danger' =>  $e->getMessage() ]);
+                ci()->session->set_flashdata('_auth_messages', [ 'danger' =>  'ERR_LOGIN_UNVERIFIED_USER' ]);
 
                 $this->onLoginUnverifiedUser($user);
                 return;
