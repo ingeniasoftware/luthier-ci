@@ -17,6 +17,36 @@ use Luthier\Debug;
 
 class Controller extends \CI_Controller implements AuthControllerInterface
 {
+    private static $lang;
+
+    /**
+     * Internal translation function
+     *
+     * @param  mixed        $index
+     *
+     * @return mixed
+     *
+     * @access private
+     * @static
+     */
+    final private static function lang($index)
+    {
+        $langFile = LUTHIER_CI_DIR . '/Resources/SimpleAuth/Translations/' . config_item('language') . '.php';
+
+        if(!file_exists($langFile))
+        {
+            $langFile = LUTHIER_CI_DIR . '/Resources/SimpleAuth/Translations/english.php';
+        }
+
+        if(self::$lang === null)
+        {
+            self::$lang =  require_once $langFile;
+        }
+
+        return isset(self::$lang[$index]) ? self::$lang[$index] : $index;
+    }
+
+
     public function __construct()
     {
         parent::__construct();
@@ -51,12 +81,20 @@ class Controller extends \CI_Controller implements AuthControllerInterface
      */
     private function loadView($view, $data = [])
     {
+        $lang = function($index)
+        {
+            return self::lang($index);
+        };
+
+        $data['lang'] = $lang;
+
         if(file_exists(VIEWPATH . '/simpleauth/' . $view . '.php'))
         {
             return $this->load->view('simpleauth/' . $view, $data);
         }
 
         $this->copyAssets(config_item('simpleauth_skin'));
+
         $assetsPath = base_url(config_item('simpleauth_assets_dir'));
 
         ob_start();
@@ -270,7 +308,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
 
                 $this->db->insert(config_item('simpleauth_users_table'), $user);
 
-                $title = 'Sign up success!';
+                $title = self::lang('signup_success');
 
                 if($emailVerificationEnabled)
                 {
@@ -303,23 +341,27 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                     $this->email->subject('[' . config_item('simpleauth_email_name') . '] Verify your email address');
 
                     $emailBody = $this->parser->parse_string(
-                        config_item('simpleauth_email_verification_message'),
+                        config_item('simpleauth_email_verification_message') !== null
+                            ? config_item('simpleauth_email_verification_message')
+                            : self::lang('email_verification_message')
+                        ,
                         [
                             'first_name'       => $user[config_item('simpleauth_email_first_name_field')],
                             'verification_url' => $emailVerificationUrl,
                         ]
                     );
 
+
                     Debug::log("Confirmation email:\n$emailBody", 'info','auth');
 
                     $this->email->message($emailBody);
                     $this->email->send();
 
-                    $message = 'We have sent you an email with the instructions to activate your account. If you can\'t find it, please check your spam folder';
+                    $message = self::lang('signup_success_confirmation_notice');
                 }
                 else
                 {
-                    $message = 'You can log in to the user area';
+                    $message = self::lang('signup_success_notice');
                 }
 
                 return $this->showMessage($title, $message);
@@ -355,8 +397,8 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         if( empty($email) )
         {
             return $this->showMessage(
-                'Email verification error',
-                'The token is not valid or already used'
+                self::lang('email_verification_failed'),
+                self::lang('email_verification_failed_message')
             );
         }
 
@@ -382,8 +424,8 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         if( empty($verificationToken) || empty($user) )
         {
             return $this->showMessage(
-                'Email verification error',
-                'The token is not valid or already used'
+                self::lang('email_verification_failed'),
+                self::lang('email_verification_failed_message')
             );
         }
 
@@ -408,8 +450,8 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         );
 
         return $this->showMessage(
-            'Success!',
-            'Your account email is now verified. <a href=" ' . route('login') . '">Login</a>'
+            self::lang('email_verification_success'),
+            str_ireplace('{login_url}', route('login'), self::lang('email_verification_success_message'))
         );
     }
 
@@ -431,7 +473,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         {
 
             $this->form_validation->set_rules(
-                'email', 'Email',
+                'email', self::lang('password_reset_email_field'),
                 [
                     'required', 'valid_email'
                 ]
@@ -487,7 +529,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                             [
                                 'email' => $this->input->post('email'),
                                 'id !=' => null // <--Some MySQL modes doesn't allow update/delete queries without
-                                                 // a primary key or unique index
+                                                // a primary key or unique index
                             ]
                         );
 
@@ -512,7 +554,10 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                         $this->email->subject('[' . config_item('simpleauth_email_name') . '] Password reset');
 
                         $emailBody = $this->parser->parse_string(
-                            config_item('simpleauth_password_reset_message'),
+                            config_item('simpleauth_password_reset_message') !== null
+                                    ? config_item('simpleauth_password_reset_message')
+                                    : self::lang('email_password_reset_message')
+                            ,
                             [
                                 'first_name'         => $user->{config_item('simpleauth_email_first_name_field')},
                                 'password_reset_url' => $emailPasswordResetUrl,
@@ -535,7 +580,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                 }
             }
 
-            $messages['success'] = 'If the email address exists, instructions will be sent there';
+            $messages['success'] = self::lang('password_reset_result_notice');
         }
 
         $validationErrors = $this->form_validation->error_array();
@@ -567,8 +612,8 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         if( empty($email) )
         {
             return $this->showMessage(
-                'Error',
-                'The password reset token is not valid or already used'
+                self::lang('password_reset_token_error'),
+                self::lang('password_reset_token_error_message')
             );
         }
 
@@ -593,8 +638,8 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         if( empty($verificationToken) || empty($user) )
         {
             return $this->showMessage(
-                'Email verification error',
-                'The token is not valid or already used'
+                self::lang('password_reset_token_error'),
+                self::lang('password_reset_token_error_message')
             );
         }
 
@@ -604,16 +649,16 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         if($_POST)
         {
             $this->form_validation->set_rules(
-                'new_password', 'New password',
+                'new_password', self::lang('password_reset_new_pwd'),
                 [
                     'required', 'min_length[8]', 'matches[repeat_password]'
                 ],
                 [
-                    'matches' => 'The new passwords does not match.'
+                    'matches' => self::lang('password_reset_validation_password')
                 ]
             );
             $this->form_validation->set_rules(
-                'repeat_password', 'Repeat password',
+                'repeat_password', self::lang('password_reset_repeat_pwd'),
                 [
                     'required'
                 ]
@@ -643,8 +688,8 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                 );
 
                 return $this->showMessage(
-                    'Password changed successfully',
-                    'Go to <a href=" ' . route('login') . '">Login</a> page'
+                    self::lang('password_reset_success'),
+                    str_ireplace('{login_url}', route('login'), self::lang('password_reset_success_message'))
                 );
             }
         }
@@ -666,12 +711,12 @@ class Controller extends \CI_Controller implements AuthControllerInterface
     {
         if(Auth::isGuest())
         {
-            return redirect( route('auth_login_route') );
+            return redirect( route( config_item('auth_login_route')) );
         }
 
         if(Auth::session('fully_authenticated') === TRUE)
         {
-            return redirect( route('auth_login_route_redirect') );
+            return redirect( route( config_item('auth_login_route_redirect') ) );
         }
 
         $messages = [];
@@ -682,7 +727,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         if($_POST)
         {
             $this->form_validation->set_rules(
-                'current_password', 'Current Password',
+                'current_password', self::lang('password_prompt_pwd_field'),
                 [
                     'required', ['current_password', function($password){
 
@@ -693,8 +738,8 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                     }]
                 ],
                 [
-                    'required'         => 'Please enter your password',
-                    'current_password' => 'The password is incorrect'
+                    'required'         => self::lang('password_prompt_validation_required'),
+                    'current_password' => self::lang('password_prompt_validation_password')
                 ]
             );
 

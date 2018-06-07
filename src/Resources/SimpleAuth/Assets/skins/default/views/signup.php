@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>Sign Up</title>
+        <title><?= $lang('signup') ;?></title>
         <link rel="stylesheet" href="<?= $assetsPath ;?>/styles.css"  />
     </head>
     <body class="signup">
@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col-md-4 col-md-offset-4 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">  
                     <form method="post">
-                        <h3 class="text-center">Sign up</h3>
+                        <h3 class="text-center"><?= $lang('signup') ;?></h3>
 
                         <?php if( config_item('csrf_protection') === TRUE) { ?>
 
@@ -114,7 +114,7 @@
 
                         <?php } ?>
 
-                        <button type="submit" class="btn btn-primary btn-block">Continue</button>
+                        <button type="submit" class="btn btn-primary btn-block"><?= $lang('signup_btn') ;?></button>
                     </form>
                 </div>
             </div>

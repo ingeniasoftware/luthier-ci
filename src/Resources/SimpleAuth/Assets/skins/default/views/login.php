@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>Login</title>
+        <title><?= $lang('login') ;?></title>
         <link rel="stylesheet" href="<?= $assetsPath ;?>/styles.css"  />
     </head>
     <body class="login">
@@ -13,10 +13,10 @@
                     <form method="post">
                         <div class="panel panel-default login-box">
                             <div class="panel-body">
-                                <h3 class="text-center">Login</h3>
+                                <h3 class="text-center"><?= $lang('login') ;?></h3>
 
                                 <?php foreach( $messages as $type => $message){ ?>
-                                    <div class="alert alert-<?= $type ;?>"><?= $message ;?></div>
+                                    <div class="alert alert-<?= $type ;?>"><?= $lang($message) ;?></div>
                                 <?php } ?>
 
                                 <?php if( config_item('csrf_protection') === TRUE) { ?>
@@ -33,28 +33,33 @@
                                 <?php } ?>
 
                                 <div class="form-group">
-                                    <input type="email" name="email" placeholder="Email" class="form-control" required />
+                                    <input type="email" name="<?= config_item('auth_form_username_field'); ?>" placeholder="<?= ucwords(config_item('auth_form_username_field')); ?>" class="form-control" required />
                                 </div>
+
                                 <div class="form-group">
-                                    <input type="password" name="password" placeholder="Password" class="form-control" required />
+                                    <input type="password" name="<?= config_item('auth_form_password_field'); ?>" placeholder="<?= ucwords(config_item('auth_form_password_field')); ?>" class="form-control" required />
                                 </div>
+
                                 <?php if( config_item('simpleauth_enable_remember_me') == true){ ?>
                                 <div class="form-group">
                                     <label>
-                                        <input type="checkbox" name="remember_me" id="" /> Remember me
+                                        <input type="checkbox" name="<?= config_item('simpleauth_remember_me_field');?>" /> <?= $lang('remember_me') ;?>
                                     </label>
                                 </div>
                                 <?php } ?>
-                                <button type="submit" class="btn btn-primary btn-block">Enter</button>
+
+                                <button type="submit" class="btn btn-primary btn-block"><?= $lang('enter') ;?></button>
+
                                 <hr />
+
                                 <div class="form-group text-center">
                                     <a href="<?= route('password_reset') ;?>">
-                                        Forgotten password?
+                                        <?= $lang('forgotten_password_link') ;?>
                                     </a>
                                 </div>
                                 <div class="form-group text-center">
                                     <a href="<?= route('signup') ;?>">
-                                        Not user? Register now
+                                        <?= $lang('register_link') ;?>
                                     </a>
                                 </div>
                             </div>

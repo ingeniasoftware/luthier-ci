@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>Confirm your password</title>
+        <title><?= $lang('password_prompt') ;?></title>
         <link rel="stylesheet" href="<?= $assetsPath ;?>/styles.css"  />
     </head>
     <body>
@@ -12,7 +12,7 @@
                 <div class="col-md-4 col-md-offset-4 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
                     <form method="post">
 
-                        <h3 class="text-center">Please confirm your password</h3>
+                        <h3 class="text-center"><?= $lang('password_prompt') ;?></h3>
 
                         <?php foreach( $messages as $type => $message){ ?>
                             <div class="alert alert-<?= $type ;?>"><?= $message ;?></div>
@@ -38,7 +38,7 @@
                             <?php } ;?>
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-block">Continue</button>
+                        <button type="submit" class="btn btn-primary btn-block"><?= $lang('password_prompt_btn');?></button>
 
                     </form>
                 </div>

@@ -33,7 +33,7 @@ class UserProvider implements UserProviderInterface
 
         if(empty($user) || ($password !== null && !$this->verifyPassword($password, $user[0]->{config_item('simpleauth_password_col')})))
         {
-            throw new UserNotFoundException('Invalid login credentials');
+            throw new UserNotFoundException();
         }
 
         $userClass = $this->getUserClass();
@@ -49,7 +49,7 @@ class UserProvider implements UserProviderInterface
     {
         if($user->getInstance()->{config_item('simpleauth_active_col')} == 0)
         {
-            throw new InactiveUserException("Your user has been disabled by an administrator");
+            throw new InactiveUserException();
         }
     }
 
@@ -58,7 +58,7 @@ class UserProvider implements UserProviderInterface
     {
         if($user->getInstance()->{config_item('simpleauth_verified_col')} == 0)
         {
-            throw new UnverifiedUserException("You must verify your email address first");
+            throw new UnverifiedUserException();
         }
     }
 

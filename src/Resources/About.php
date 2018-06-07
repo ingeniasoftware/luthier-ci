@@ -54,12 +54,37 @@
                 <a href="https://luthier-ci.ingenia.me/es/docs">Documentation (Español)</a> &middot;
                 <a href="https://forum.codeigniter.com/thread-70497.html">CodeIgniter forum post</a>
             </p>
+
             <?php if(route_exists('login')){ ?>
             <p>
                 Auth:
+
+                <?php if( Auth::isGuest() ){ ?>
+
                 <a href="<?= route('login') ;?>">Login</a>
                 &middot;
                 <a href="<?= route('signup') ;?>">Sign up</a>
+
+                <?php } else {  ?>
+
+                <form method="post" action="<?= route('logout') ;?>">
+                    <?php if( config_item('csrf_protection') === TRUE) { ?>
+
+                        <?php
+                            $csrf = array(
+                                'name' => ci()->security->get_csrf_token_name(),
+                                'hash' => ci()->security->get_csrf_hash()
+                            );
+                        ?>
+
+                        <input type="hidden" name="<?= $csrf['name'] ;?>" value="<?= $csrf['hash'] ;?>" />
+
+                    <?php } ?>
+
+                    <input type="submit" value="Log out" />
+                </form>
+
+                <?php }?>
             </p>
             <?php } ?>
         </div>
