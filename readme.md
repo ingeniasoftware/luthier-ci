@@ -9,7 +9,7 @@
 * Easy installation via hooks
 * Laravel-like routing: prefixes, namespaces, anonymous functions as routes, route groups, CLI routes, named parameters, optional parameters, etc.
 * Middleware support 
-* Authentication library (With a ready-to-use SimpleAuth template)
+* Authentication library with SimpleAuth template
 * PHP DebugBar integration (experimental)
 
 ## Requirements
@@ -170,15 +170,15 @@ Route::group('site', ['middleware' => ['Admin']], function(){
 Route::middleware('Admin', 'pre_controller');
 ```
 
-The middleware files must be saved in the `application/middleware` folder. If not exists, you must create it first. A middleware file is any php class with a public `run()` method, which is the entry point. It's strongly advised to name all your middleware with CamelCase and avoid name conflicts with your controllers.
+The middleware files must be saved in the `application/middleware` folder. If not exists, you must create it first. A middleware file is any php class that implements the `Luthier\MiddlewareInterface` interface and with a public `run()` method, which is the entry point. It's strongly advised to name all your middleware with CamelCase and avoid name conflicts with your controllers.
 
 This is an example of a middleware:
 
 ```php
 <?php
-# application/middleware/Test_middleware.php
+# application/middleware/TestMiddleware.php
 
-class Test_middleware
+class TestMiddleware
 {
     public function run()
     {
@@ -189,7 +189,7 @@ class Test_middleware
 
 ## Donate
 
-If you love our work, you can support us via [Paypal](https://paypal.me/andersalasm) or [Patreon](https://patreon.com/ingenia). 
+If you love our work,  consider support us on [Patreon](https://patreon.com/ingenia).
 
 
 
