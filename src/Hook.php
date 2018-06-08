@@ -21,19 +21,17 @@ use Luthier\Utils;
 
 final class Hook
 {
-
     /**
      * Get all Luthier-CI hooks
      *
-     * @param  mixed   $config (Optional)
-     * @param  mixed   $hooks (Optional)  (Passed by reference)
+     * @param  mixed  $config (Optional) Array of configuration options
      *
      * @return mixed
      *
      * @access public
      * @static
      */
-    public static function getHooks($config = null, &$hooks = [])
+    public static function getHooks($config = null)
     {
         if(empty($config))
         {
@@ -41,6 +39,8 @@ final class Hook
                 'modules' => [],
             ];
         }
+
+        $hooks = [];
 
         $hooks['pre_system'][] = function() use($config)
         {
