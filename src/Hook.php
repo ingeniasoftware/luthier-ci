@@ -97,7 +97,11 @@ final class Hook
         $isWeb  = !is_cli();
 
         require_once __DIR__ . '/Facades/Route.php' ;
-        require_once __DIR__ . '/Facades/Auth.php' ;
+
+        if(in_array('auth', $config['modules']))
+        {
+            require_once __DIR__ . '/Facades/Auth.php' ;
+        }
 
         if( !file_exists(APPPATH . '/routes') )
         {
