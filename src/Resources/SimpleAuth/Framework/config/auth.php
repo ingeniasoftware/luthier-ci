@@ -66,41 +66,6 @@ $config['simpleauth_enforce_email_verification'] = FALSE;
 
 $config['simpleauth_enable_brute_force_protection'] = TRUE;
 
-//
-// Email configuration
-//
-
-$config['simpleauth_email_configuration'] = null;
-
-$config['simpleauth_email_address'] = 'noreply@example.com';
-
-$config['simpleauth_email_name']    = 'Example';
-
-// Please note: you must configure your email settings in order to use HTML in messages.
-// The {first_name} value will be taken of the $config['simpleauth_email_first_name_field']
-// field and must exists in your sign up form.
-
-$config['simpleauth_email_verification_message'] = <<<MESSAGE
-    <p>Hi {first_name}!</p>
-
-    <p>Please verify your email address by clicking the following link:</p>
-
-    <a href="{verification_url}">Verify my email</a>
-
-    <p>If not works, copy and paste in your browser:<br>
-    {verification_url}</p>
-MESSAGE;
-
-$config['simpleauth_password_reset_message'] = <<<MESSAGE
-    <p>Hi {first_name}!</p>
-
-    <p>To reset your password, follow this link:</p>
-
-    <a href="{password_reset_url}">Reset my password</a>
-
-    <p>If not works, copy and paste in your browser:<br>
-    {password_reset_url}</p>
-MESSAGE;
 
 //
 // General configuration
@@ -118,6 +83,24 @@ $config['simpleauth_email_field']  = 'email';
 $config['simpleauth_email_first_name_field']  = 'first_name';
 
 $config['simpleauth_remember_me_field'] = 'remember_me';
+
+//
+// Email configuration
+//
+
+$config['simpleauth_email_configuration'] = null;
+
+$config['simpleauth_email_address'] = 'noreply@example.com';
+
+$config['simpleauth_email_name']    = 'Example';
+
+// Please note: you must configure your email settings in order to use HTML in messages.
+// {first_name}, {verification_url} and {password_reset_url} are provided and parsed
+// automatically by Luthier-CI ( "first_name" will be taken of 'simpleauth_email_first_name_field' value)
+
+$config['simpleauth_email_verification_message'] = NULL;
+
+$config['simpleauth_password_reset_message'] = NULL;
 
 //
 // Database configuration
