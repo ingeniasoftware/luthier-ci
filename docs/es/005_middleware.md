@@ -11,7 +11,9 @@
 4. [Asignar un middleware](#assign-a-middleware)
   1. [Middleware global](#global-middleware)
   2. [Middleware de ruta](#route-middleware)
-  3. [Llamando a un middleware desde un controlador](#calling-a-middleware-from-a-controller)
+5. [Ejecutar un middleware](#run-a-middleware)
+  1. [Parámetros de middleware](#middleware-parameters)
+  2. [Middleware externo](#external-middleware)
 
 ### <a name="introduction"></a> Introducción
 
@@ -61,15 +63,15 @@ class TestController extends CI_Controller
 
 ### <a name="create-a-middleware"></a> Crear un middleware
 
-Todo el middleware debe guardarse en la carpeta `application/middleware`. Un middleware es cualquier clase PHP con un método público llamado `run()`.
+Todo el middleware debe guardarse en la carpeta `application/middleware`. Un middleware es cualquier clase PHP que implemente la interfaz `Luthier\MiddlewareInterface`, con un método público llamado `run()`.
 
 Ejemplo:
 
 ```php
 <?php
-# application/middleware/Test_middleware.php
+# application/middleware/TestMiddleware.php
 
-class Test_middleware
+class TestMiddleware implements Luthier\MiddlewareInterface
 {
     public function run()
     {
@@ -78,13 +80,20 @@ class Test_middleware
 }
 ```
 
+<div class="alert alert-warning">
+    <i class="fa fa-warning" aria-hidden="true"></i>
+    <strong>Implementar la interfaz <code>MiddlewareInterface</code> será obligatorio</strong>
+    <br />
+    A partir de la versión 0.3.0 el uso de clases de Middleware que no implementen la interfaz <code>Luthier\MiddlewareInterface</code> está OBSOLETO y dejará de funcionar en la próxima versión
+</div>
+
 Para poder asignar un middleware en tu aplicación es necesario que tanto el nombre de la clase como el nombre el archivo sean exactamente iguales. Además, debes tener cuidado de no usar el mismo nombre de algún otro recurso del framework, como un controlador, modelo, librería, etc.
 
 <div class="alert alert-success">
     <i class="fa fa-check" aria-hidden="true"></i>
-    <strong>Añade el sufijo _middleware</strong>
+    <strong>Añade el sufijo <em>Middleware</em></strong>
     <br />
-    Una forma de evitar conflictos es añadiendo el sufijo _middleware al nombre del middleware.
+    Una forma de evitar conflictos es añadiendo el sufijo <em>Middleware</em> al nombre del middleware.
 </div>
 
 <div class="alert alert-success">
@@ -121,7 +130,7 @@ Route::middleware(function(){
 En el contexto de un **grupo de rutas**, el middleware es otra propiedad más, así que va en el tercer argumento del método `group()`:
 
 ```php
-Route::group('site', ['middleware' => ['Admin']], function(){
+Route::group('site', ['middleware' => ['AuthMiddleware']], function(){
 
 });
 ```
@@ -129,7 +138,7 @@ Route::group('site', ['middleware' => ['Admin']], function(){
 Por último, en el contexto de una **ruta individual**, el middleware es también otra propiedad más, así que va en el tercer argumento:
 
 ```php
-Route::put('foo/bar','controller@method', ['middleware' => ['Test']]);
+Route::put('foo/bar','controller@method', ['middleware' => ['TestMiddleware']]);
 ```
 
 <div class="alert alert-warning">
@@ -139,16 +148,9 @@ Route::put('foo/bar','controller@method', ['middleware' => ['Test']]);
     Cuando asignas un middleware a rutas y grupos de rutas, el punto de ejecución SIEMPRE es <code>pre_controller</code>
 </div>
 
-<div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>No admiten funciones anónimos</strong>
-    <br />
-    El middleware asignado en rutas y grupos de rutas no admite el uso de funciones anónimas
-</div>
+### <a name="run-a-middleware"></a> Ejecutar un middleware
 
-#### <a name="calling-a-middleware-from-a-controller"></a> Llamando a un middleware desde un controlador
-
-Aunque quizás no sea la forma más generalizada de usarlo, puedes llamar a un middleware desde un controlador, para ello usa el método `run()` de la propiedad `middleware`:
+Para ejecutar un middleware desde un controlador usa el método `run()` de la propiedad `middleware`:
 
 ```php
 <?php
@@ -160,7 +162,40 @@ class TestController extends CI_Controller
 {
     public function __construct()
     {
-        $this->middleware->run('Auth_middleware');
+        $this->middleware->run('AuthMiddleware');
+    }
+}
+```
+
+
+#### <a name="middleware-parameters"></a> Parámetros de middleware
+
+El método `run()` de la propiedad `middleware` admite un segundo argumento con los parámetros del middleware:
+
+```php
+// $args puede ser cualquier tipo de variable:
+
+$args = ['foo' => 'bar'];
+$this->middleware->run('AuthMiddleware', $args);
+````
+
+#### <a name="external-middleware"></a> Middleware externo
+
+Es posible ejecutar middleware a partir de una clase externa, siempre y cuando posea un método público llamado `run()`
+
+```php
+<?php
+# application/controllers/TestController.php
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+use Vendor\CustomMiddleware;
+
+class TestController extends CI_Controller
+{
+    public function __construct()
+    {
+        $this->middleware->run(new CustomMiddleware());
     }
 }
 ```
