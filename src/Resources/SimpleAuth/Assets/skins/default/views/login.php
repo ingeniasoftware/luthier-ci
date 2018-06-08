@@ -50,18 +50,27 @@
 
                                 <button type="submit" class="btn btn-primary btn-block"><?= $lang('enter') ;?></button>
 
-                                <hr />
+                                <?php if( config_item('simpleauth_enable_password_reset') === TRUE || config_item('simpleauth_enable_signup') === TRUE){ ?>
+                                    <hr />
+                                <?php } ?>
 
-                                <div class="form-group text-center">
-                                    <a href="<?= route('password_reset') ;?>">
-                                        <?= $lang('forgotten_password_link') ;?>
-                                    </a>
-                                </div>
-                                <div class="form-group text-center">
-                                    <a href="<?= route('signup') ;?>">
-                                        <?= $lang('register_link') ;?>
-                                    </a>
-                                </div>
+
+                                <?php if(config_item('simpleauth_enable_password_reset') === TRUE){ ?>
+                                    <div class="form-group text-center">
+                                        <a href="<?= route('password_reset') ;?>">
+                                            <?= $lang('forgotten_password_link') ;?>
+                                        </a>
+                                    </div>
+                                <?php } ?>
+
+                                <?php if(config_item('simpleauth_enable_signup') === TRUE){ ?>
+                                    <div class="form-group text-center">
+                                        <a href="<?= route('signup') ;?>">
+                                            <?= $lang('register_link') ;?>
+                                        </a>
+                                    </div>
+                                <?php } ?>
+
                             </div>
                         </div>
                     </form>
