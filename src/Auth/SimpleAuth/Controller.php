@@ -234,6 +234,11 @@ class Controller extends \CI_Controller implements AuthControllerInterface
      */
     public function signup()
     {
+        if(config_item('simpleauth_enable_signup') !== true)
+        {
+            return redirect( route(config_item('auth_login_route')) );
+        }
+
         // Loading required libraries
 
         $this->load->database();
@@ -465,6 +470,11 @@ class Controller extends \CI_Controller implements AuthControllerInterface
      */
     public function passwordReset()
     {
+        if(config_item('simpleauth_enable_password_reset') !== true)
+        {
+            return redirect( route(config_item('auth_login_route')) );
+        }
+
         $messages = [];
 
         $this->load->library('form_validation');
