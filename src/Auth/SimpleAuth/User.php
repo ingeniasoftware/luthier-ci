@@ -11,7 +11,7 @@ namespace Luthier\Auth\SimpleAuth;
 
 use Luthier\Auth\UserInterface;
 
-abstract class User implements UserInterface
+class User implements UserInterface
 {
     private $user;
 
@@ -24,6 +24,25 @@ abstract class User implements UserInterface
         $this->user        = $instance;
         $this->roles       = $roles;
         $this->permissions = $permissions;
+    }
+
+
+    /**
+     * This allow us to fetch user object properties directly because, well, because it's
+     * a cool way.
+     *
+     * @param  mixed  $name
+     *
+     * @return mixed
+     *
+     * @access public
+     */
+    public function __get($name)
+    {
+        if(isset($this->getInstance()->{$name}))
+        {
+            return $this->getInstance()->{$name};
+        }
     }
 
     public function getInstance()

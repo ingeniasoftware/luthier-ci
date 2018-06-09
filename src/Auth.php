@@ -289,7 +289,7 @@ class Auth
             $userInstance = new $userClass((object) $sessionUser['instance'], $sessionUser['roles'], $sessionUser['permissions']);
         }
 
-        return $userInstance->getInstance();
+        return $userInstance;
     }
 
 
