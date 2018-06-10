@@ -122,6 +122,14 @@ class Auth
             return false;
         }
 
+        $user  = self::user();
+        $roles = $user->getRoles();
+
+        if(!is_array($roles))
+        {
+            show_error('The getRoles()  method  of ' . get_class($user) . ' class method must return an array', 500, 'Auth error');
+        }
+
         return in_array($role, $user->getRoles());
     }
 
@@ -140,6 +148,31 @@ class Auth
     {
         if(self::isGuest())
         {
+            return false;
+        }
+
+        $user        = self::user();
+        $permissions = $user->getPermissions();
+
+        if(!is_array($permissions))
+        {
+            show_error('The getPermissions()  method  of ' . get_class($user) . ' class must return an array', 500, 'Auth error');
+        }
+
+
+        if(substr($permission,-2) != '.*')
+        {
+            return in_array($permission, $permissions);
+        }
+        else
+        {
+            foreach($permissions as $_permission)
+            {
+                if(preg_match('/^' . substr($permission, 0, -2) . '/', $_permission))
+                {
+                    return true;
+                }
+            }
             return false;
         }
     }

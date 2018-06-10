@@ -17,6 +17,8 @@ use Luthier\Auth\Exception\UnverifiedUserException;
 
 class UserProvider implements UserProviderInterface
 {
+    private static $fetchedPermissions = [];
+
     public function getUserClass()
     {
         return 'User';
@@ -38,12 +40,63 @@ class UserProvider implements UserProviderInterface
 
         $userClass = $this->getUserClass();
 
-        return new $userClass(
-                /*     User     */    $user[0],
-                /*    Roles     */  [ $user[0]->{config_item('simpleauth_role_col')} ],
-                /* Permissions  */  []
-            );
+        $roles = [ $user[0]->{config_item('simpleauth_role_col')} ];
+
+        $permissions = [];
+
+        if(config_item('simpleauth_enable_acl') === true)
+        {
+            $databaseUserPermissions = ci()->db->get_where(
+                  config_item('simpleauth_users_acl_table'),
+                [ 'user_id' => $user[0]->id ]
+            )->result();
+
+            if(!empty($databaseUserPermissions))
+            {
+                foreach($databaseUserPermissions as $permission)
+                {
+                    $permissionName = '';
+                    $this->walkUpPermission($permission->category_id, $permissionName);
+                    $permissions[$permission->category_id] = implode('.', array_reverse( explode( '.', $permissionName ) ) );
+                }
+            }
+        }
+
+        return new $userClass($user[0], $roles, $permissions);
     }
+
+    final private function walkUpPermission($id, &$permissionName)
+    {
+        if(!isset(self::$fetchedPermissions[$id]))
+        {
+            $permission = ci()->db->get_where(
+                config_item('simpleauth_users_acl_categories_table'),
+                [
+                    'id' => $id,
+                ]
+            )->result();
+
+            if(empty($permission))
+            {
+                return;
+            }
+
+            $permission =  $permission[0];
+            self::$fetchedPermissions[$permission->id] = $permission;
+        }
+        else
+        {
+            $permission = self::$fetchedPermissions[$id];
+        }
+
+        $permissionName .= (!empty($permissionName) ? '.' : '') . $permission->name;
+
+        if($permission->parent_id !== null)
+        {
+            $this->walkUpPermission( $permission->parent_id , $permissionName);
+        }
+    }
+
 
     final public function checkUserIsActive(UserInterface $user)
     {
@@ -73,5 +126,6 @@ class UserProvider implements UserProviderInterface
     {
         return password_verify($password, $hash);
     }
+
 
 }
