@@ -78,3 +78,28 @@ function trigger_404()
     call_user_func($_404);
     exit;
 }
+
+
+/**
+ * Redirect to named route
+ *
+ * @param  string   $routeName
+ * @param  array    $params (Optional)
+ * @param  array    $messages (Optional) Session flash messages to be stored
+ *
+ * @return mixed
+ */
+function route_redirect($routeName, $params = [], $messages = [])
+{
+    if(!empty($messages) && is_array($messages))
+    {
+        ci()->load->library('session');
+
+        foreach($messages as $_name => $_value)
+        {
+            ci()->session->set_flashdata($_name, $_value);
+        }
+    }
+
+    redirect(route($routeName, $params));
+}
