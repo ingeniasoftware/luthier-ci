@@ -24,10 +24,9 @@ class Migration_create_email_verifications_table extends CI_Migration
                     'type'       => 'VARCHAR',
                     'constraint' => 255,
                 ],
-            'created_at' =>
-                [
-                    'type' => 'DATETIME',
-                ],
+
+            'created_at DATETIME default CURRENT_TIMESTAMP',
+            
         ]);
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->create_table('email_verifications');

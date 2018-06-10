@@ -71,10 +71,9 @@ class Migration_create_users_table extends CI_Migration
                     'unsigned'   => TRUE,
                     'default'    => 0,
                 ],
-            'created_at' =>
-                [
-                    'type' => 'DATETIME',
-                ],
+
+            'created_at DATETIME default CURRENT_TIMESTAMP',
+            
             'updated_at' =>
                 [
                     'type' => 'DATETIME',

@@ -30,10 +30,9 @@ class Migration_create_password_resets_table extends CI_Migration
                     'constraint'     => 1,
                     'default'        => 1,
                 ],
-            'created_at' =>
-                [
-                    'type' => 'DATETIME',
-                ],
+
+            'created_at DATETIME default CURRENT_TIMESTAMP',
+
         ]);
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->create_table('password_resets');
