@@ -33,12 +33,6 @@ class Middleware extends AuthMiddleware
                 ->where('created_at <=', date('Y-m-d H:i:s', time()))
                 ->count_all_results(config_item('simpleauth_login_attempts_table'));
 
-
-            //var_dump(ci()->db);
-            //var_dump($loginAttemptCount); die;
-            Debug::logFlash(ci()->db->queries, 'info','auth');
-            Debug::logFlash($loginAttemptCount, 'info','auth');
-
             if($loginAttemptCount >= 4)
             {
                 ci()->session->set_flashdata('_auth_messages', [ 'danger' =>  'ERR_LOGIN_ATTEMPT_BLOCKED' ]);
