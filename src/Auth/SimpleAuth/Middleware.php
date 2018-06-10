@@ -80,8 +80,7 @@ class Middleware extends AuthMiddleware
                 config_item('simpleauth_login_attempts_table'),
                 [
                     'username'   => $username,
-                    'ip'         => $_SERVER['REMOTE_ADDR'],
-                    'created_at' => date('Y-m-d H:i:s'),
+                    'ip'         => $_SERVER['REMOTE_ADDR']
                 ]
             );
         }

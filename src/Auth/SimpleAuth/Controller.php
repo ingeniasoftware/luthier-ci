@@ -327,7 +327,6 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                         [
                             'email'      => $user['email'],
                             'token'      => $emailVerificationKey,
-                            'created_at' => date('Y-m-d H:i:s'),
                         ]
                     );
 
@@ -548,7 +547,6 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                             [
                                 'email'      => $this->input->post('email'),
                                 'token'      => $emailPasswordResetKey,
-                                'created_at' => date('Y-m-d H:i:s'),
                             ]
                         );
 
