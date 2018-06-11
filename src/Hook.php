@@ -390,7 +390,7 @@ final class Hook
             {
                 ci()->load->config('auth');
                 Auth::init();
-                Auth::session('validated', false);
+                Auth::user(true);
             }
 
             //

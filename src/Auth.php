@@ -288,15 +288,18 @@ class Auth
     }
 
 
+
     /**
      * Get the current authenticated user
+     *
+     * @param  bool $refresh (Optional) Forces user refresh
      *
      * @return mixed
      *
      * @access public
      * @static
      */
-    public static function user()
+    public static function user($refresh = false)
     {
         $sessionUser = self::session('user');
 
@@ -309,7 +312,7 @@ class Auth
         $userProvider = self::loadUserProvider($sessionUser['class']);
         $userClass    = $sessionUser['class'];
 
-        if(self::session('validated') === false)
+        if(self::session('validated') === false || $refresh === true)
         {
             Debug::log('There is a stored user in session. Attempting to validate...', 'info','auth');
 
@@ -403,6 +406,7 @@ class Auth
 
         return $user;
     }
+
 
     public static function messages()
     {
