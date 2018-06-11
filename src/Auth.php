@@ -115,14 +115,19 @@ class Auth
      * @access public
      * @static
      */
-    public static function isRole($role)
+    public static function isRole($user, $role = null)
     {
         if(self::isGuest())
         {
             return false;
         }
 
-        $user  = self::user();
+        if($role === null)
+        {
+            $role = $user;
+            $user = self::user();
+        }
+
         $roles = $user->getRoles();
 
         if(!is_array($roles))
@@ -144,21 +149,25 @@ class Auth
      * @access public
      * @static
      */
-    public static function isGranted($permission)
+    public static function isGranted($user, $permission = null)
     {
         if(self::isGuest())
         {
             return false;
         }
 
-        $user        = self::user();
+        if($permission === null)
+        {
+            $permission = $user;
+            $user = self::user();
+        }
+
         $permissions = $user->getPermissions();
 
         if(!is_array($permissions))
         {
             show_error('The getPermissions()  method  of ' . get_class($user) . ' class must return an array', 500, 'Auth error');
         }
-
 
         if(substr($permission,-2) != '.*')
         {
