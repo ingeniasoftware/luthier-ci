@@ -319,7 +319,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
 
                     $emailVerificationKey = bin2hex( $this->encryption->create_key(16) );
                     $emailVerificationUrl = route('email_verification', [ 'token' => $emailVerificationKey])
-                        . '?email=' . $user[config_item('simpleauth_email_field')];
+                        . '?email=' . $user[config_item('simpleauth_email_col')];
 
                     $this->db->insert(
                         config_item('simpleauth_users_email_verification_table'),
@@ -340,7 +340,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                     }
 
                     $this->email->from(config_item('simpleauth_email_address'), config_item('simpleauth_email_name'));
-                    $this->email->to($user[config_item('simpleauth_email_field')]);
+                    $this->email->to($user[config_item('simpleauth_email_col')]);
                     $this->email->subject('[' . config_item('simpleauth_email_name') . '] Verify your email address');
 
                     $emailBody = $this->parser->parse_string(
@@ -349,7 +349,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                             : self::lang('email_verification_message')
                         ,
                         [
-                            'first_name'       => $user[config_item('simpleauth_email_first_name_field')],
+                            'first_name'       => $user[config_item('simpleauth_email_first_name_col')],
                             'verification_url' => $emailVerificationUrl,
                         ]
                     );
@@ -566,7 +566,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                                     : self::lang('email_password_reset_message')
                             ,
                             [
-                                'first_name'         => $user->{config_item('simpleauth_email_first_name_field')},
+                                'first_name'         => $user->{config_item('simpleauth_email_first_name_col')},
                                 'password_reset_url' => $emailPasswordResetUrl,
                             ]
                         );

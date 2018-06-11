@@ -69,20 +69,12 @@ $config['simpleauth_enable_brute_force_protection'] = TRUE;
 $config['simpleauth_enable_acl'] = TRUE ;
 
 //
-// General configuration
+// Views configuration
 //
-
-$config['simpleauth_user_provider'] = 'User';
 
 $config['simpleauth_skin'] = 'default';
 
 $config['simpleauth_assets_dir'] = 'assets/auth';
-
-$config['simpleauth_email_field']  = 'email';
-
-$config['simpleauth_email_first_name_field'] = 'first_name';
-
-$config['simpleauth_remember_me_field'] = 'remember_me';
 
 //
 // ACL Configuration
@@ -92,14 +84,13 @@ $config['simpleauth_acl_map'] = [
 
     // If you are worried about performance, you can fill this array with $key => $value
     // pairs of known permissions/permissions groups ids, reducing drastically the
-    // amount of database queries
+    // amount of executed database queries
     //
     // Example
     //    [ permission full name ]       [ permission id ]
     //    'general.blog.read'        =>         1
     //    'general.blog.edit'        =>         2
     //    'general.blog.delete'      =>         3
-
 ];
 
 //
@@ -117,8 +108,18 @@ $config['simpleauth_email_verification_message'] = NULL;
 $config['simpleauth_password_reset_message'] = NULL;
 
 //
+// Remember me configuration
+//
+
+$config['simpleauth_remember_me_field'] = 'remember_me';
+
+$config['simpleauth_remember_me_cookie'] = 'remember_me';
+
+//
 // Database configuration
 //
+
+$config['simpleauth_user_provider'] = 'User';
 
 $config['simpleauth_users_table']  = 'users';
 
@@ -136,6 +137,10 @@ $config['simpleauth_id_col'] = 'id';
 
 $config['simpleauth_username_col'] = 'email';
 
+$config['simpleauth_email_col']  = 'email';
+
+$config['simpleauth_email_first_name_col'] = 'first_name';
+
 $config['simpleauth_password_col'] = 'password';
 
 $config['simpleauth_role_col'] = 'role';
@@ -145,9 +150,3 @@ $config['simpleauth_active_col'] = 'active';
 $config['simpleauth_verified_col'] = 'verified';
 
 $config['simpleauth_remember_me_col'] = 'remember_token';
-
-//
-// Sessions & Cookies configuration
-//
-
-$config['simpleauth_remember_me_cookie'] = 'remember_me';
