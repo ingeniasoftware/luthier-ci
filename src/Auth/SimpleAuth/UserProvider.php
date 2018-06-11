@@ -11,14 +11,13 @@ namespace Luthier\Auth\SimpleAuth;
 
 use Luthier\Auth\UserInterface;
 use Luthier\Auth\UserProviderInterface;
+use Luthier\Auth\SimpleAuth\Library;
 use Luthier\Auth\Exception\UserNotFoundException;
 use Luthier\Auth\Exception\InactiveUserException;
 use Luthier\Auth\Exception\UnverifiedUserException;
 
 class UserProvider implements UserProviderInterface
 {
-    private static $fetchedPermissions = [];
-
     public function getUserClass()
     {
         return 'User';
@@ -56,47 +55,14 @@ class UserProvider implements UserProviderInterface
                 foreach($databaseUserPermissions as $permission)
                 {
                     $permissionName = '';
-                    $this->walkUpPermission($permission->category_id, $permissionName);
-                    $permissions[$permission->category_id] = implode('.', array_reverse( explode( '.', $permissionName ) ) );
+                    Library::walkUpPermission($permission->category_id, $permissionName);
+                    $permissions[$permission->category_id] = $permissionName;
                 }
             }
         }
 
         return new $userClass($user[0], $roles, $permissions);
     }
-
-    final private function walkUpPermission($id, &$permissionName)
-    {
-        if(!isset(self::$fetchedPermissions[$id]))
-        {
-            $permission = ci()->db->get_where(
-                config_item('simpleauth_users_acl_categories_table'),
-                [
-                    'id' => $id,
-                ]
-            )->result();
-
-            if(empty($permission))
-            {
-                return;
-            }
-
-            $permission =  $permission[0];
-            self::$fetchedPermissions[$permission->id] = $permission;
-        }
-        else
-        {
-            $permission = self::$fetchedPermissions[$id];
-        }
-
-        $permissionName .= (!empty($permissionName) ? '.' : '') . $permission->name;
-
-        if($permission->parent_id !== null)
-        {
-            $this->walkUpPermission( $permission->parent_id , $permissionName);
-        }
-    }
-
 
     final public function checkUserIsActive(UserInterface $user)
     {
