@@ -189,8 +189,195 @@ class Library
         {
             $currentUrl = route();
 
-            redirect( route('confirm_password') . '?redirect_to=' . $currentUrl );
+            redirect( route($route) . '?redirect_to=' . $currentUrl );
             exit;
+        }
+    }
+
+
+    public function searchUser($search)
+    {
+        if(is_int($search))
+        {
+            ci()->load->database();
+
+            $user = ci()->db->get_where( config_item('simpleauth_users_table'), [ config_item('simpleauth_id_col') => $search ])
+                ->result();
+
+            return !empty($user) ? $user[0] : null;
+        }
+        else if( is_string($search) )
+        {
+            ci()->load->database();
+
+            $user = ci()->db->get_where( config_item('simpleauth_users_table'), [ config_item('simpleauth_username_col') => $search ])
+                ->result();
+
+            return !empty($user) ? $user[0] : null;
+        }
+        else if( is_array($search) )
+        {
+            ci()->load->database();
+
+            $user = ci()->db->get_where( config_item('simpleauth_users_table'), $search )
+                ->result();
+
+            return !empty($user) ? $user[0] : null;
+        }
+        else
+        {
+            show_error('Unknown user search criteria', 500, 'SimpleAuth error');
+        }
+    }
+
+
+    public function updateUser($search, $values = null)
+    {
+        if($values === null)
+        {
+            $user   = Auth::user();
+            $values = $search;
+        }
+        else
+        {
+            $user = $this->searchUser($search);
+
+            if($user === null)
+            {
+                throw new UserNotFoundException();
+            }
+        }
+
+        if(!is_array($values))
+        {
+            show_error('The new values must be provided as an associative array', 500, 'SimpleAuth error');
+        }
+
+        ci()->load->database();
+
+        ci()->db->update(
+            config_item('simpleauth_users_table'),
+            $values,
+            [
+                config_item('simpleauth_id_col') => $user->{config_item('simpleauth_id_col')}
+            ]
+        );
+    }
+
+
+    final public function permissionExists($permission)
+    {
+        if(config_item('simpleauth_enable_acl') !== true)
+        {
+            return false;
+        }
+
+        try
+        {
+            $id = self::walkDownPermission($permission);
+        }
+        catch(PermissionNotFoundException $e)
+        {
+
+            return false;
+        }
+
+        self::$foundedPermissions[$id] = $permission;
+
+        return true;
+    }
+
+
+    final public function grantPermission($username, $permission = null)
+    {
+        if(config_item('simpleauth_enable_acl') !== true)
+        {
+            return false;
+        }
+
+        if($permission === null)
+        {
+            $permission = $username;
+            $user = Auth::user(true);
+        }
+        else
+        {
+            $userProvider = Auth::loadUserProvider(config_item('simpleauth_user_provider'));
+
+            try
+            {
+                $user = $userProvider->loadUserByUsername($username);
+            }
+            catch(UserNotFoundException $e)
+            {
+                return false;
+            }
+        }
+
+        if($this->permissionExists($permission) && !Auth::isGranted($user, $permission))
+        {
+            $id = self::walkDownPermission($permission);
+
+            ci()->load->database();
+            ci()->db->insert(
+                config_item('simpleauth_users_acl_table'),
+                [
+                    'user_id'     => $user->{config_item('simpleauth_id_col')},
+                    'category_id' => $id,
+                ],
+                [
+                    config_item('simpleauth_username_col') => $user->getUsername()
+                ]
+            );
+
+            Auth::session('validated',false);
+            return true;
+        }
+
+        return false;
+    }
+
+
+    final public function revokePermission($username, $permission = null)
+    {
+        if(config_item('simpleauth_enable_acl') !== true)
+        {
+            return false;
+        }
+
+        if($permission === null)
+        {
+            $permission = $username;
+            $user = Auth::user(true);
+        }
+        else
+        {
+            $userProvider = Auth::loadUserProvider(config_item('simpleauth_user_provider'));
+
+            try
+            {
+                $user = $userProvider->loadUserByUsername($username);
+            }
+            catch(UserNotFoundException $e)
+            {
+                return false;
+            }
+        }
+
+        if($this->permissionExists($permission) && Auth::isGranted($user, $permission))
+        {
+            $id = self::walkDownPermission($permission);
+
+            ci()->load->database();
+            ci()->db->delete(
+                config_item('simpleauth_users_acl_table'),
+                [
+                    'user_id'     => $user->{config_item('simpleauth_id_col')},
+                    'category_id' => $id,
+                ]
+            );
+            Auth::session('validated',false);
+            return true;
         }
     }
 }

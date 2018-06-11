@@ -68,7 +68,6 @@ $config['simpleauth_enable_brute_force_protection'] = TRUE;
 
 $config['simpleauth_enable_acl'] = TRUE ;
 
-
 //
 // General configuration
 //
@@ -84,6 +83,24 @@ $config['simpleauth_email_field']  = 'email';
 $config['simpleauth_email_first_name_field'] = 'first_name';
 
 $config['simpleauth_remember_me_field'] = 'remember_me';
+
+//
+// ACL Configuration
+//
+
+$config['simpleauth_acl_map'] = [
+
+    // If you are worried about performance, you can fill this array with $key => $value
+    // pairs of known permissions/permissions groups ids, reducing drastically the
+    // amount of database queries
+    //
+    // Example
+    //    [ permission full name ]       [ permission id ]
+    //    'general.blog.read'        =>         1
+    //    'general.blog.edit'        =>         2
+    //    'general.blog.delete'      =>         3
+
+];
 
 //
 // Email configuration
@@ -114,6 +131,8 @@ $config['simpleauth_login_attempts_table']  = 'login_attempts';
 $config['simpleauth_users_acl_table']  = 'user_permissions';
 
 $config['simpleauth_users_acl_categories_table']  = 'user_permissions_categories';
+
+$config['simpleauth_id_col'] = 'id';
 
 $config['simpleauth_username_col'] = 'email';
 
