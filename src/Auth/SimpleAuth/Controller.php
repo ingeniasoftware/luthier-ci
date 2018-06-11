@@ -168,7 +168,6 @@ class Controller extends \CI_Controller implements AuthControllerInterface
     }
 
 
-
     /**
      * Returns the User Provider's name used by authentication process for this controller
      *
@@ -176,7 +175,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
      *
      * @access public
      */
-    public function getUserProvider()
+    final public function getUserProvider()
     {
         return config_item('simpleauth_user_provider');
     }
@@ -191,7 +190,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
      *
      * @access public
      */
-    public function getMiddleware()
+    final public function getMiddleware()
     {
         return new SimpleAuthMiddleware();
     }
