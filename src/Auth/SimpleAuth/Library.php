@@ -264,6 +264,18 @@ class Library
         );
     }
 
+    public function createUser($user)
+    {
+        // Automatic password hash
+        if(isset($user[config_item('simpleauth_password_col')]))
+        {
+            $user[config_item('simpleauth_password_col')] = Auth::loadUserProvider( config_item('simpleauth_user_provider') )
+                ->hashPassword($user[config_item('simpleauth_password_col')]);
+        }
+
+        ci()->db->insert(config_item('simpleauth_users_table'), $user);
+    }
+
 
     final public function permissionExists($permission)
     {

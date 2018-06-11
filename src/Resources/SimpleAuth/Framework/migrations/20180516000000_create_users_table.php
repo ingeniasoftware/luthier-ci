@@ -4,6 +4,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Migration_create_users_table extends CI_Migration
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->config('auth');
+        $this->load->library('simple_auth');
+    }
+
     public function up()
     {
         $this->dbforge->add_field([
@@ -82,6 +89,25 @@ class Migration_create_users_table extends CI_Migration
         ]);
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->create_table('users');
+
+        //
+        // Create default users
+        // (Edit this with your values)
+        //
+
+        $this->simple_auth->createUser(
+            [
+                'first_name' => 'Admin',
+                'last_name'  => 'Admin',
+                'username'   => 'admin',
+                'email'      => 'admin@admin.com',
+                'password'   => 'admin',
+                'gender'     => 'm',
+                'role'       => 'admin',
+                'verified'   => 1
+            ]
+        );
+
     }
 
     public function down()
