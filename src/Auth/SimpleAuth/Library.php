@@ -178,9 +178,9 @@ class Library
     }
 
 
-    public function promptPassword()
+    public function promptPassword($route = 'confirm_password')
     {
-        if(Auth::isGuest() || !route_exists('confirm_password'))
+        if( Auth::isGuest() || !route_exists($route) )
         {
             return;
         }
