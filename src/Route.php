@@ -474,7 +474,7 @@ class Route
      *
      * @param  string|array $params Route parameters
      *
-     * @return sting
+     * @return string
      *
      * @access public
      */
@@ -619,7 +619,7 @@ class Route
     /**
      * Get route action
      *
-     * @return string|callback
+     * @return string|callable
      *
      * @access public
      */
@@ -632,7 +632,7 @@ class Route
     /**
      * Set route action
      *
-     * @param  string|callback   $action
+     * @param  string|callable   $action
      *
      * @return void
      *

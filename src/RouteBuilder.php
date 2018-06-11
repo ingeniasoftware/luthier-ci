@@ -135,8 +135,8 @@ class RouteBuilder
      * Creates a route group
      *
      * @param  string          $prefix Group path prefix
-     * @param  array|callback  $attributes Group shared attributes/Routes
-     * @param  callback        $routes (Optional) Routes
+     * @param  array|callable  $attributes Group shared attributes/Routes
+     * @param  callable        $routes (Optional) Routes
      *
      * @return void
      *
@@ -472,7 +472,7 @@ class RouteBuilder
      *
      * (This us used internally by Luthier-CI)
      *
-     * @return string|callback
+     * @return string|callable
      *
      * @access public
      * @static
