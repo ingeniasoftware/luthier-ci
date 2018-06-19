@@ -247,12 +247,12 @@ final class Hook
             $currentRoute->isCli = is_cli();
         };
 
+        $currentRoute->requestMethod = $requestMethod;
+
         Debug::log('>>> CURRENT ROUTE:', 'info', 'routing');
         Debug::log($currentRoute, 'info', 'routing');
         Debug::log('>>> RAW ROUTING:', 'info', 'routing');
         Debug::log(Route::$compiled['routes'], 'info', 'routing');
-
-        $currentRoute->requestMethod = $requestMethod;
 
         Route::setCurrentRoute($currentRoute);
     }
