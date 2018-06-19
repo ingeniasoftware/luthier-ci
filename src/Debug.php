@@ -72,7 +72,6 @@ class Debug
             //
             // Some CSS tweaks
             //
-
             echo "
                 div.phpdebugbar-header, a.phpdebugbar-restore-btn
                 {
@@ -167,10 +166,24 @@ class Debug
     {
         if(ENVIRONMENT != 'production' && !ci()->input->is_ajax_request() && !is_cli() && self::$debugBar !== null)
         {
-            $head = '<link rel="stylesheet" href="'. route('debug_bar.css_assets') .'" />';
+            $head  = "<script>
+                function asset_retry(node, type)
+                {
+                    if(type == 'css')
+                    {
+                        node.href = node.href + '?retry=' + (Math.random() * 100);
+                    }
+                    else
+                    {
+                        node.src = node.href + '?retry=' + (Math.random() * 100);
+                    }
+                    phpdebugbar.restoreState();
+                }
+            </script>" ;
+            $head .= '<link rel="stylesheet" href="'. route('debug_bar.css_assets') .'" onerror="asset_retry(this, \'css\')" />';
 
-            $body = '<script src="'. route('debug_bar.js_assets') .'"></script>'
-                . Debug::getDebugBar()->getJavascriptRenderer()->render();
+            $body  = '<script src="'. route('debug_bar.js_assets') .'" onerror="asset_retry(this, \'js\')"></script>';
+            $body .=  Debug::getDebugBar()->getJavascriptRenderer()->render();
 
             $output = str_ireplace('</head>', $head . '</head>', $output);
             $output = str_ireplace('</body>', $body . '</body>', $output);
