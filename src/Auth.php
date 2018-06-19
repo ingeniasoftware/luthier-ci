@@ -204,7 +204,7 @@ class Auth
             'user'       =>
                 [
                     'class'       => get_class($user),
-                    'instance'    => $user->getInstance(),
+                    'entity'      => $user->getEntity(),
                     'username'    => $user->getUsername(),
                     'roles'       => $user->getRoles(),
                     'permissions' => $user->getPermissions(),
@@ -331,7 +331,7 @@ class Auth
         }
         else
         {
-            $userInstance = new $userClass((object) $sessionUser['instance'], $sessionUser['roles'], $sessionUser['permissions']);
+            $userInstance = new $userClass((object) $sessionUser['entity'], $sessionUser['roles'], $sessionUser['permissions']);
         }
 
         return $userInstance;

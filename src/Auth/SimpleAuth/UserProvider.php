@@ -66,7 +66,7 @@ class UserProvider implements UserProviderInterface
 
     final public function checkUserIsActive(UserInterface $user)
     {
-        if($user->getInstance()->{config_item('simpleauth_active_col')} == 0)
+        if($user->getEntity()->{config_item('simpleauth_active_col')} == 0)
         {
             throw new InactiveUserException();
         }
@@ -75,7 +75,15 @@ class UserProvider implements UserProviderInterface
 
     final public function checkUserIsVerified(UserInterface $user)
     {
-        if($user->getInstance()->{config_item('simpleauth_verified_col')} == 0)
+        $enableCheck = config_item('simpleauth_enable_email_verification')  === TRUE &&
+                       config_item('simpleauth_enforce_email_verification') === TRUE;
+
+        if(!$enableCheck)
+        {
+            return;
+        }
+
+        if($user->getEntity()->{config_item('simpleauth_verified_col')} == 0)
         {
             throw new UnverifiedUserException();
         }

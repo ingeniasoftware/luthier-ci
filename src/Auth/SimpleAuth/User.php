@@ -19,9 +19,9 @@ class User implements UserInterface
 
     private $permissions;
 
-    public function __construct($instance, $roles, $permissions)
+    public function __construct($entity, $roles, $permissions)
     {
-        $this->user        = $instance;
+        $this->user        = $entity;
         $this->roles       = $roles;
         $this->permissions = $permissions;
     }
@@ -39,13 +39,13 @@ class User implements UserInterface
      */
     public function __get($name)
     {
-        if(isset($this->getInstance()->{$name}))
+        if(isset($this->getEntity()->{$name}))
         {
-            return $this->getInstance()->{$name};
+            return $this->getEntity()->{$name};
         }
     }
 
-    public function getInstance()
+    public function getEntity()
     {
         return $this->user;
     }

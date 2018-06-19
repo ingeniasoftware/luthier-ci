@@ -11,9 +11,9 @@ namespace Luthier\Auth;
 
 interface UserInterface
 {
-    public function __construct($instance, $roles, $permissions);
+    public function __construct($entity, $roles, $permissions);
 
-    public function getInstance();
+    public function getEntity();
 
     public function getUsername();
 
