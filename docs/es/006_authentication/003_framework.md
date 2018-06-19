@@ -1097,8 +1097,8 @@ class MyAuthMiddleware extends Luthier\Auth\Middleware
 
 Cada método corresponde a un evento de autenticación, explicado a continuación:
 
-* **preLogin**: Evento activado cuando el usuario visita la ruta de inicio de sesión, indiferentemente de si inicia sesión o no.
-* **onLoginSuccess**: Evento activado inmediatamente después de un inisio de sesión exitoso, y antes de la redirección que le sigue.
+* **preLogin**: Evento activado cuando el usuario visita la ruta de inicio de sesión, independientemente si inicia sesión o no.
+* **onLoginSuccess**: Evento activado inmediatamente después de un inicio de sesión exitoso, y antes de la redirección que le sigue.
 * **onLoginFailed**: Evento activado después de un intento de sesión fallido, y antes de la redirección que le sigue.
 * **onLoginInactiveUser**: Este evento se activa si es lanzada una excepción `InactiveUserException` dentro del Proveedor de usuario, correspondiente a un error por inicio de sesión de un usuario inactivo.
 * **onLoginUnverifiedUser**: Este evento se activa si es lanzada una excepción `UnverifiedUserException` dentro del Proveedor de usuario, correspondiente a un error por inicio de sesión de un usuario no verificado.
