@@ -19,6 +19,24 @@ class Auth
 {
     private static $providers = [];
 
+
+    /**
+     * Returns the current auth session name
+     *
+     * @return mixed
+     *
+     * @access private
+     * @static
+     */
+    private static function getSessionName()
+    {
+        return config_item('auth_session_var') !== null
+            ?
+                config_item('auth_session_var')
+            :
+                'auth';
+    }
+
     /**
      * Loads an User class and his attached User Provider class used for authentication process.
      *
@@ -224,7 +242,7 @@ class Auth
             $storedSessionUser[$name] = $value;
         }
 
-        ci()->session->set_userdata(config_item('auth_session_var'),$storedSessionUser);
+        ci()->session->set_userdata( self::getSessionName() ,$storedSessionUser);
     }
 
 
@@ -238,14 +256,9 @@ class Auth
      */
     public static function init()
     {
-        if(config_item('auth_session_var') === null)
+        if(ci()->session->userdata( self::getSessionName() ) === null)
         {
-            return;
-        }
-
-        if(ci()->session->userdata(config_item('auth_session_var')) === null)
-        {
-            ci()->session->set_userdata(config_item('auth_session_var'), [
+            ci()->session->set_userdata( self::getSessionName() , [
                 'user'        => null,
                 'validated'   => false,
                 'fully_authenticated' => false
@@ -267,7 +280,7 @@ class Auth
      */
     public static function session($name = null, $value = null)
     {
-        $authSession  = ci()->session->userdata(config_item('auth_session_var'));
+        $authSession  = ci()->session->userdata( self::getSessionName() );
 
         if($name === null)
         {
@@ -282,7 +295,7 @@ class Auth
             else
             {
                 $authSession[$name] = $value;
-                ci()->session->set_userdata(config_item('auth_session_var'), $authSession);
+                ci()->session->set_userdata( self::getSessionName() , $authSession);
             }
         }
     }
@@ -348,7 +361,7 @@ class Auth
      */
     public static function destroy()
     {
-        ci()->session->unset_userdata(config_item('auth_session_var'));
+        ci()->session->unset_userdata( self::getSessionName() );
         self::init();
     }
 
