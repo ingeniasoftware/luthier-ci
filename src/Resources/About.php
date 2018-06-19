@@ -61,28 +61,31 @@
 
                 <?php if( Auth::isGuest() ){ ?>
 
-                <a href="<?= route('login') ;?>">Login</a>
-                &middot;
-                <a href="<?= route('signup') ;?>">Sign up</a>
+                    <a href="<?= route('login') ;?>">Login</a>
+
+                    <?php if(route_exists('signup')){ ?>
+                        &middot;
+                        <a href="<?= route('signup') ;?>">Sign up</a>
+                    <?php }?>
 
                 <?php } else {  ?>
 
-                <form method="post" action="<?= route('logout') ;?>">
-                    <?php if( config_item('csrf_protection') === TRUE) { ?>
+                    <form method="post" action="<?= route('logout') ;?>">
+                        <?php if( config_item('csrf_protection') === TRUE) { ?>
 
-                        <?php
-                            $csrf = array(
-                                'name' => ci()->security->get_csrf_token_name(),
-                                'hash' => ci()->security->get_csrf_hash()
-                            );
-                        ?>
+                            <?php
+                                $csrf = array(
+                                    'name' => ci()->security->get_csrf_token_name(),
+                                    'hash' => ci()->security->get_csrf_hash()
+                                );
+                            ?>
 
-                        <input type="hidden" name="<?= $csrf['name'] ;?>" value="<?= $csrf['hash'] ;?>" />
+                            <input type="hidden" name="<?= $csrf['name'] ;?>" value="<?= $csrf['hash'] ;?>" />
 
-                    <?php } ?>
+                        <?php } ?>
 
-                    <input type="submit" value="Log out" />
-                </form>
+                        <input type="submit" value="Log out" />
+                    </form>
 
                 <?php }?>
             </p>
