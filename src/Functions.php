@@ -3,7 +3,7 @@
 /**
  * Get route by name
  *
- * @return \Luthier\Core\Route
+ * @return Route
  */
 function route($name = null, $params = [])
 {

@@ -3,7 +3,7 @@
 /**
  * Auth class
  *
- * The Luthier-CI Standard Authentication class.
+ * The Luthier-CI Authentication Framework main class.
  *
  * @autor Anderson Salas <anderson@ingenia.me>
  * @licence MIT
