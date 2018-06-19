@@ -51,7 +51,7 @@ class Auth
             return self::$providers[$userProviderClass];
         }
 
-        if( substr($userProviderClass,0,-8) != 'Provider')
+        if( substr($userProviderClass,-8) != 'Provider')
         {
             $userProviderClass .= 'Provider';
         }
