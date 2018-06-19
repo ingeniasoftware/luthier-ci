@@ -25,6 +25,15 @@ class Route
 
 
     /**
+     * Route full path
+     *
+     * @var $fullPath
+     *
+     * @access private
+     */
+    private $fullPath;
+
+    /**
      * Route name
      *
      * @var $name
@@ -265,6 +274,8 @@ class Route
         $fullPath = trim($this->prefix,'/') != '' ? $this->prefix . '/' . $this->path : $this->path;
         $fullPath = trim($fullPath, '/') == '' ? '/' : trim($fullPath, '/');
 
+        $this->fullPath = $fullPath;
+
         foreach(explode('/', $fullPath) as $i => $segment)
         {
             if(preg_match('/^\{(.*)\}$/', $segment))
@@ -346,13 +357,8 @@ class Route
 
         foreach($methods as $verb)
         {
-            $path   = $this->path;
+            $path   = $this->fullPath;
             $target = null;
-
-            if(!empty($this->prefix))
-            {
-                $path = trim($this->prefix . '/' . $path,'/');
-            }
 
             if(is_callable($this->action))
             {
