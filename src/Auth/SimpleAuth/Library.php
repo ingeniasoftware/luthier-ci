@@ -231,21 +231,17 @@ class Library
     }
 
 
-    public function updateUser($search, $values = null)
+    public function updateUser($user, $values = null)
     {
         if($values === null)
         {
+            $values = $user;
             $user   = Auth::user();
-            $values = $search;
         }
-        else
-        {
-            $user = $this->searchUser($search);
 
-            if($user === null)
-            {
-                throw new UserNotFoundException();
-            }
+        if(!is_int($search) && !is_string($search))
+        {
+            show_error('The $user argument must be an integer or a string', 500, 'SimpleAuth error');
         }
 
         if(!is_array($values))
@@ -259,7 +255,7 @@ class Library
             config_item('simpleauth_users_table'),
             $values,
             [
-                config_item('simpleauth_id_col') => $user->{config_item('simpleauth_id_col')}
+                config_item('simpleauth_id_col') => $user->{config_item( is_int($user) ? 'simpleauth_id_col' : 'simpleauth_username_col')}
             ]
         );
     }

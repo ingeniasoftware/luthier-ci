@@ -373,21 +373,28 @@ class Auth
       *
       * @param  string  $username
       * @param  string  $password
-      * @param  UserProviderInterface $userProvider
+      * @param  string|UserProviderInterface $userProvider
       *
-      * @return Luthier\Auth\UserInterface
+      * @return UserInterface
       *
       * @access public
       * @static
       */
-    final public static function attempt($username, $password, UserProviderInterface $userProvider)
+    final public static function attempt($username, $password, $userProvider)
     {
-        $user = $userProvider->loadUserByUsername($username, $password);
-
-        if(!$user instanceof UserInterface)
+        if(!is_string($userProvider) && !$userProvider instanceof UserProviderInterface)
         {
-            show_error('Returned user MUST be an instance of UserInterface');
+            throw new Exception("Invalid user provider. Must be a string or an instance of UserProviderInterface");
         }
+
+        if(is_string($userProvider))
+        {
+            $userProvider = self::loadUserProvider($userProvider);
+        }
+
+        $user = $userProvider->loadUserByUsername($username, $password);
+                $userProvider->checkUserIsActive($user);
+                $userProvider->checkUserIsVerified($user);
 
         return $user;
     }
@@ -401,15 +408,25 @@ class Auth
      * exists.
      *
      * @param  string  $username
-     * @param  UserProviderInterface $userProvider
+     * @param  string|UserProviderInterface $userProvider
      *
-     * @return Luthier\Auth\UserInterface
+     * @return UserInterface
      *
      * @access public
      * @static
      */
-    final public static function bypass($username, UserProviderInterface $userProvider)
+    final public static function bypass($username, $userProvider)
     {
+        if(!is_string($userProvider) && !$userProvider instanceof UserProviderInterface)
+        {
+            throw new Exception("Invalid user provider. Must be a string or an instance of UserProviderInterface");
+        }
+
+        if(is_string($userProvider))
+        {
+            $userProvider = self::loadUserProvider($userProvider);
+        }
+
         $user = $userProvider->loadUserByUsername($username, null);
 
         if(!$user instanceof UserInterface)
@@ -417,13 +434,29 @@ class Auth
             show_error('Returned user MUST be an instance of UserInterface');
         }
 
+        $userProvider->checkUserIsActive($user);
+        $userProvider->checkUserIsVerified($user);
+
         return $user;
     }
 
 
+    /**
+     * Returns an array with the current authentication messages (useful for validations, etc)
+     *
+     * @return mixed
+     *
+     * @access public
+     * @static
+     */
     public static function messages()
     {
         $messages = ci()->session->flashdata('_auth_messages');
-        return !empty($messages) ? $messages : [];
+
+        return !empty($messages)
+            ?
+                $messages
+            :
+                 [];
     }
 }

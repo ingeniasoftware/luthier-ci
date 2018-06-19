@@ -388,7 +388,10 @@ final class Hook
 
             if(in_array('auth', $config['modules']))
             {
-                ci()->load->config('auth');
+                if(file_exists(APPPATH . '/config/auth.php'))
+                {
+                    ci()->load->config('auth');
+                }
                 Auth::init();
                 Auth::user(true);
             }

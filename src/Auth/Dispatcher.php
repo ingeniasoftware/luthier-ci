@@ -14,6 +14,7 @@ namespace Luthier\Auth;
 use Luthier\Auth\ControllerInterface as AuthControllerInterface;
 use Luthier\Auth\Middleware as AuthMiddlewareInterface;
 use Luthier\Auth;
+use Luthier\Middleware;
 use Luthier\MiddlewareInterface;
 use Luthier\Debug;
 
@@ -28,7 +29,12 @@ class Dispatcher implements MiddlewareInterface
 
         $authMiddleware = ci()->getMiddleware();
 
-        if(!is_object($authMiddleware) || !$authMiddleware instanceof AuthMiddlewareInterface)
+        if(is_string($authMiddleware))
+        {
+            $authMiddleware = Middleware::load($authMiddleware);
+        }
+
+        if(!$authMiddleware instanceof AuthMiddlewareInterface)
         {
             show_error('The auth middleware must inherit the Luthier\Auth\Middleware class');
         }
