@@ -123,7 +123,7 @@ Debug::logFlash('Hey! this will be available in the next request','info');
     <i class="fa fa-warning" aria-hidden="true"></i>
     <strong>Requiere que existan datos en el buffer de salida</strong>
     <br />
-    Luthier-CI "inyecta" el código de PHP Debug Bar en el buffer de salida ANTES de ser procesado y enviado al navegador por librería <code>output</code> de CodeIgniter. Por lo tanto, es necesario haber utilizado al menos una vez la función <code>$this->load->view()</code> o definido explícitamente el buffer de salida sobre el cual trabajar. Las sentencias <code>echo</code> NO producen ningún buffer de salida interno. Además, detener la ejecución del script con <code>die</code> o <code>exit</code> evitará que se muestre PHP Debug Bar.
+    Luthier-CI agrega el código de PHP Debug Bar en el buffer de salida ANTES de ser procesado y enviado al navegador por librería <code>output</code> de CodeIgniter. Por lo tanto, es necesario haber utilizado al menos una vez la función <code>$this->load->view()</code> o haber definido explícitamente un buffer de salida sobre el cual trabajar. Las sentencias <code>echo</code> NO producen ningún buffer de salida interno. Además, detener la ejecución del script con las funciones <code>die</code> o <code>exit</code> evitará que se muestre PHP Debug Bar.
 </div>
 
 ### <a name="add-your-own-data-collectors"></a> Añadir tus propios recolectores de datos
