@@ -9,11 +9,11 @@
 2. [Puntos de ejecución de middleware](#middleware-execution-points)
 3. [Crear un middleware](#create-a-middleware)
 4. [Asignar un middleware](#assign-a-middleware)
-  1. [Middleware global](#global-middleware)
-  2. [Middleware de ruta](#route-middleware)
+   1. [Middleware global](#global-middleware)
+   2. [Middleware de ruta](#route-middleware)
 5. [Ejecutar un middleware](#run-a-middleware)
-  1. [Parámetros de middleware](#middleware-parameters)
-  2. [Middleware externo](#external-middleware)
+   1. [Parámetros de middleware](#middleware-parameters)
+   2. [Middleware externo](#external-middleware)
 
 ### <a name="introduction"></a> Introducción
 

@@ -7,9 +7,9 @@
 
 1. [Requisitos](#requirements)
 2. [Instalación](#installation)
-  1. [Obtener Luthier-CI](#get-luthier-ci)
-  2. [Habilitar el autoload de Composer y los hooks](#enable-composer-autoload-and-hooks)
-  3. [Conectar Luthier-CI con tu aplicación](#connect-luthier-ci-with-your-application)
+   1. [Obtener Luthier-CI](#get-luthier-ci)
+   2. [Habilitar el autoload de Composer y los hooks](#enable-composer-autoload-and-hooks)
+   3. [Conectar Luthier-CI con tu aplicación](#connect-luthier-ci-with-your-application)
 3. [Inicialización](#initialization)
 
 ### <a name="requirements"></a> Requisitos
