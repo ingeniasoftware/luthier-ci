@@ -1,5 +1,5 @@
 [//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] ...)
+[//]: # ([meta_description] ¡Con **SimpleAuth** puedes añadir un inicio de sesión y registro de usuarios a tu aplicación en menos de 5 minutos!)
 
 # SimpleAuth
 

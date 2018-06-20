@@ -1,5 +1,5 @@
 [//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] ...)
+[//]: # ([meta_description] El Framework de Autenticación de Luthier-CI es una estructura sobre la cual se construyen sistemas de autenticación de usuario en CodeIgniter)
 
 # Framework de Autenticación de Luthier-CI
 
@@ -1104,3 +1104,4 @@ Cada método corresponde a un evento de autenticación, explicado a continuació
 * **onLoginUnverifiedUser**: Este evento se activa si es lanzada una excepción `UnverifiedUserException` dentro del Proveedor de usuario, correspondiente a un error por inicio de sesión de un usuario no verificado.
 * **onLogout**: Evento activado inmediatamente después de que el usuario cierra sesión.
 
+¡Felicidades! acabas de completar tu primera implementación de la Autenticación basada en controladores.
