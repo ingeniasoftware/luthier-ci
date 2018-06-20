@@ -270,7 +270,7 @@ class ShopCategory extends CI_Controller
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class ShopCategory extends CI_Controller
+class ShopProduct extends CI_Controller
 {
     // Same here:
     public function details($id)
