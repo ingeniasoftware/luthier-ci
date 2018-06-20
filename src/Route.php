@@ -595,6 +595,19 @@ class Route
 
 
     /**
+     * Get route full path
+     *
+     * @return mixed
+     *
+     * @access public
+     */
+    public function getFullPath()
+    {
+        return $this->fullPath;
+    }
+
+
+    /**
      * Set route path
      *
      * @param  string  $path

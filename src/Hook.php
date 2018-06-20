@@ -50,6 +50,7 @@ final class Hook
         $hooks['pre_controller'][] = function()
         {
             global $params, $URI, $class, $method;
+
             self::preControllerHook($params, $URI, $class, $method);
         };
 
@@ -281,7 +282,7 @@ final class Hook
             return;
         }
 
-        $path   = (!empty($route->getPrefix()) ? '/' : '') . $route->getPath();
+        $path   = $route->getFullPath();
         $pcount = 0;
 
         //
@@ -321,13 +322,12 @@ final class Hook
 
         if(!$route->isCli)
         {
-            // Full path:
-            $_path = implode('/', [$route->getPrefix(), $path]);
-
-            foreach(explode('/', $_path) as $i => $segment)
+            foreach(explode('/', $path) as $i => $segment)
             {
                 if(preg_match('/^\{(.*)\}$/', $segment))
                 {
+                    $segment = preg_replace('/\((.*)\):/', '', $segment);
+
                     $route->params[$pcount]->value =  $URI->segment($i+1);
 
                     // Removing "sticky" route parameters
@@ -344,16 +344,16 @@ final class Hook
         {
             if(!empty($route->params))
             {
-                $_path = array_slice($_SERVER['argv'], 1);
+                $argv = array_slice($_SERVER['argv'], 1);
 
-                if($_path)
+                if($argv)
                 {
-                    $params = array_slice($_path, $route->paramOffset);
+                    $params = array_slice($argv, $route->paramOffset);
                 }
 
-                foreach($route->params as $i => &$_param)
+                foreach($route->params as $i => &$param)
                 {
-                    $_param->value = isset($params[$i]) ? $params[$i] : NULL;
+                    $param->value = isset($params[$i]) ? $params[$i] : NULL;
                 }
             }
         }
