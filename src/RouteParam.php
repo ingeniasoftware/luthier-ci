@@ -132,7 +132,7 @@ final class RouteParam
 
         if(preg_match('/{\((.*)\):[a-zA-Z0-9-_]*(\?}|})/', $segment, $matches))
         {
-            $this->placeholder  = '(' . $matches[1] . ')';
+            $this->placeholder = $matches[1];
             $this->regex = $matches[1];
             $name = preg_replace('/\((.*)\):/', '', $segment, 1);
         }
