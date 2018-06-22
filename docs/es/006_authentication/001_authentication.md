@@ -1,5 +1,5 @@
 [//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] Luthier-CI aborda el problema usando un modelo de autenticación inspirado en Symfony, con el que se busca la mayor flexibilidad posible para que el desarrollador pueda comenzar a trabajar rápidamente)
+[//]: # ([meta_description] Luthier-CI incluye poderosas herramientas de autenticación de usuarios, inspiradas en Symfony, para que te preocupes por lo que realmente importa de tu aplicación)
 
 # Autenticación
 
