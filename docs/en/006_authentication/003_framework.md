@@ -955,7 +955,7 @@ The implementation of the remaining methods depends on you, but we give you an i
 
 #### <a name="the-login-form"></a> The login form
 
-Our `login ()` method refers to a view called `auth/login.php`. Let's create it:
+Our `login()` method refers to a view called `auth/login.php`. Let's create it:
 
 ```html
 <!doctype html>
@@ -988,7 +988,7 @@ When accessing the url `/login` the login form that we have created must appear:
 </p>
 
 
-You can obtain an arrangement with the errors that occurred during the authentication process and use it in your views to inform the user. Use the `Auth :: messages ()` method, as you will see below:
+You can obtain an arrangement with the errors that occurred during the authentication process and use it in your views to inform the user. Use the `Auth::messages()` method, as you will see below:
 
 ```php
 <!doctype html>
