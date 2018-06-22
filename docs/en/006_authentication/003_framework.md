@@ -1099,7 +1099,7 @@ Each method corresponds to an authentication event, explained below:
 * **preLogin**: Event activated when the user visits the login path, regardless of whether he or she logs in or not.
 * **onLoginSuccess**: Event activated immediately after a successful login session, and before the redirect that follows.
 * **onLoginFailed**: Event activated after a failed session attempt, and before the redirect that follows.
-* **onLoginInactiveUser**: This event is triggered if an `InactiveUserException` exception is thrown within the User Provider, corresponding to an inaccurate user login error.
+* **onLoginInactiveUser**: This event is triggered if an `InactiveUserException` exception is thrown within the User Provider, corresponding to an inactive user login error.
 * **onLoginUnverifiedUser**: This event is triggered if an `UnverifiedUserException` exception is thrown inside the User Provider, corresponding to an error by login of an unverified user.
 * **onLogout**: Event activated immediately after the user closes session.
 

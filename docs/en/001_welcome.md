@@ -7,7 +7,7 @@
 
 Luthier-CI is a plugin for **CodeIgniter 3** that makes the development of APIs (and websites in general) more easy. It was made to integrate as best as possible with the framework, so everything that already exists in your application should continue to work without problems after installing Luthier-CI.
 
-This documentation assumes that you have basic knowledge about CodeIgniter. If you have never used CodeIgniter, a good starting point is your [official documentation](https://www.codeigniter.com/user_guide)
+This documentation assumes that you have basic knowledge about CodeIgniter. If you have never used CodeIgniter, a good starting point is their [official documentation](https://www.codeigniter.com/user_guide)
 
 Luthier-CI is free software and is available under a MIT license.
 
