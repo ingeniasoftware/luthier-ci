@@ -284,9 +284,9 @@ The passwords of each one are still exactly the same, the difference is that now
 
 The following methods to implement are responsible for generating and validating password hashes in the User Provider:
 
-* `hashPassword ()`: *[string]* receives a password in plain text and returns its hash
+* `hashPassword()`: *[string]* receives a password in plain text and returns its hash
 
-* `verifyPassword ()`: *[bool]* receives a password in plain text and password hash, validating that they match
+* `verifyPassword()`: *[bool]* receives a password in plain text and password hash, validating that they match
 
 The logic and implementation is at the discretion of the developer. In our case, we will use the `blowfish` algorithm, leaving the code like this:
 
@@ -689,7 +689,7 @@ What is the use of being able to log in if the authenticated user doesn't persis
 
 #### <a name="storing-an-user-in-the-session"></a> Storing a user in the session
 
-To store a user in the session, use the static method `store ()`:
+To store a user in the session, use the static method `store()`:
 
 ```php
 $alice = $myUserProvider->loadUserByUsername('alice@brown.com');
@@ -723,7 +723,7 @@ $alice->getRoles();
 $alice->getPermissions();
 ```
 
-You can check if a user is anonymous (or invited) using the static method `isGuest ()`:
+You can check if a user is anonymous (or invited) using the static method `isGuest()`:
 
 ```php
 if( Auth::isGuest() )
