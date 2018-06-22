@@ -134,5 +134,3 @@ Es posible añadir tus propios recolectores de datos y almacenar mensajes en ell
 # use Luthier\Debug;
 Debug::addCollector(new MyCollector());
 ```
-
-Consulta la [documentación de PHP DebugBar](http://phpdebugbar.com/docs/data-collectors.html#creating-collectors) relacionada a los recolectores de datos para saber más sobre su creación y uso.

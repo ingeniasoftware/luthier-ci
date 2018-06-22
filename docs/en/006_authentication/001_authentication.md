@@ -1,4 +1,4 @@
-﻿[//]: # ([author] Julio Cedeño)
+[//]: # ([author] Julio Cedeño)
 [//]: # ([meta_description] Luthier-CI includes powerful user authentication tools, inspired by Symfony, so you can worry about what really matters about your application)
 
 # Authentication

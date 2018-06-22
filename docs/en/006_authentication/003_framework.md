@@ -1,9 +1,9 @@
-﻿[//]: # ([author] Julio Cedeño)
+[//]: # ([author] Julio Cedeño)
 [//]: # ([meta_description] The Luthier-CI Authentication Framework is a structure on which user authentication systems are built in CodeIgniter)
 
 # Luthier-CI Authentication Framework
 
-### Content
+### Contents
 
 1. [Introduction](#introduction)
 2. [Creation of User Providers](#creation-of-user-providers)

@@ -1,9 +1,9 @@
-﻿[//]: # ([author] Julio Cedeño)
+[//]: # ([author] Julio Cedeño)
 [//]: # ([meta_description] With SimpleAuth you can add a login and user registration to your application in less than 5 minutes!)
 
 # SimpleAuth
 
-### Content
+### Contents
 
 1. [Introduction](#introduction)
 2. [Installation](#installation)
