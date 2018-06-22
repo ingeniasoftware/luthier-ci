@@ -7,9 +7,9 @@
 
 1. [Requirements](#requirements)
 2. [Installation](#installation)
-  1. [Get Luthier-CI](#get-luthier-ci)
-  2. [Enable Composer autoload and hooks](#enable-composer-autoload-and-hooks)
-  3. [Connect Luthier-CI with your application](#connect-luthier-ci-with-your-application)
+   1. [Get Luthier-CI](#get-luthier-ci)
+   2. [Enable Composer autoload and hooks](#enable-composer-autoload-and-hooks)
+   3. [Connect Luthier-CI with your application](#connect-luthier-ci-with-your-application)
 3. [Initialization](#initialization)
 
 ### <a name="requirements"></a> Requirements
@@ -96,4 +96,3 @@ During the initialization of the framework the hooks are called: `Luthier\Hook::
     <br />
     If you get errors during the creation of the Luthier-CI base files, it may be due to insufficient permissions. Make sure that the <code>application</code> folder has write permission
 </div>
-

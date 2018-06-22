@@ -8,16 +8,16 @@
 1. [Introduction](#introduction)
 2. [Route types](#route-types)
 3. [Syntax](#syntax)
-  1. [Namespaces](#namespaces)
-  2. [Prefixes](#prefixes)
-  3. [Named routes](#named-routes)
-  4. [Callbacks as routes](#callbacks-as-routes)
-  5. [Groups](#groups)
-  6. [Default controller](#default-controller)
+   1. [Namespaces](#namespaces)
+   2. [Prefixes](#prefixes)
+   3. [Named routes](#named-routes)
+   4. [Callbacks as routes](#callbacks-as-routes)
+   5. [Groups](#groups)
+   6. [Default controller](#default-controller)
 4. [Parameters](#parameters)
-  1. [Optional parameters](#optional-parameters)
-  2. [Parameter regex](#parameter-regex)
-  3. ["Sticky" parameters](#sticky-parameters)
+   1. [Optional parameters](#optional-parameters)
+   2. [Parameter regex](#parameter-regex)
+   3. ["Sticky" parameters](#sticky-parameters)
 
 ### <a name="introduction"></a> Introduction
 
@@ -296,4 +296,3 @@ class ShopCategory extends CI_Controller
     }
 }
 ```
-
