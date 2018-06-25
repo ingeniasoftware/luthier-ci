@@ -2,7 +2,7 @@
     <img src="https://ingenia.me/images/luthier-ci/logo.png" width="100" />
 </p>
 
-**Luthier-CI** is an awesome set of core improvements for CodeIgniter 3 that makes the development of APIs (and websites in general) more easy! For full documentation, visit the project [official website](https://luthier-ci.ingenia.me/en/docs) (disponible en [español](https://luthier-ci.ingenia.me/en/docs))
+**Luthier-CI** is an awesome set of core improvements for CodeIgniter 3 that makes the development of APIs (and websites in general) more easy! For full documentation, visit the project [official website](https://luthier.ingenia.me/ci/en/docs) (disponible en [español](https://luthier.ingenia.me/ci/es/docs))
 
 ## Features
 
