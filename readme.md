@@ -2,7 +2,7 @@
     <img src="https://ingenia.me/images/luthier-ci/logo.png" width="100" />
 </p>
 
-**Luthier-CI** is an awesome set of core improvements for CodeIgniter 3 that makes the development of APIs (and websites in general) more easy! For full documentation, visit the project [official website](https://luthier.ingenia.me/ci/en/docs) (disponible en [español](https://luthier.ingenia.me/ci/es/docs))
+**Luthier CI** is an awesome set of core improvements for CodeIgniter 3 that makes the development of APIs (and websites in general) more easy! For full documentation, visit the project [official website](https://luthier.ingenia.me/ci/en/docs) (disponible en [español](https://luthier.ingenia.me/ci/es/docs))
 
 ## Features
 
@@ -19,7 +19,7 @@
 
 ## Installation
 
-#### Step 1: Get Luthier-CI with Composer
+#### Step 1: Get Luthier CI with Composer
 
 ```
 composer require luthier/luthier
@@ -35,7 +35,7 @@ $config['enable_hooks'] = TRUE;
 $config['composer_autoload'] = TRUE;
 ```
 
-#### Step 3: Connect Luthier-CI with CodeIgniter
+#### Step 3: Connect Luthier CI with CodeIgniter
 
 Set the hooks:
 
@@ -50,7 +50,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $hook = Luthier\Hook::getHooks();
 ```
 
-Set the Luthier-CI routes:
+Set the Luthier CI routes:
 
 ```php
 <?php
@@ -65,7 +65,7 @@ $route = Luthier\Route::getRoutes();
 
 ## Initialization
 
-The first time that Luthier-CI runs, several files and folders are created:
+The first time that Luthier CI runs, several files and folders are created:
 
 * `routes/web.php`: Default HTTP-Based routes
 * `routes/api.php`: AJAX routes
@@ -90,7 +90,7 @@ Route::get('foo', 'bar@baz');
 Route::get('blog/{slug}', 'blog@post');
 
 // To make a parameter optional, add a ? just before closing the curly brackets
-// (Luthier-CI will make all the fallback routes for you)
+// (Luthier CI will make all the fallback routes for you)
 Route::get('categories/{primary?}/{secondary?}/{filter?}', 'clients@list');
 
 // The (:any) and (:num) CodeIgniter route placeholders are available to use, with this syntax:
