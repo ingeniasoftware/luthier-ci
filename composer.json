@@ -1,31 +1,31 @@
 {
-    "name": "luthier/luthier-ci",
-    "description": "Improved routing and middleware support for CodeIgniter framework",
-    "type": "library",
-    "require": {
-        "php": ">=5.6.0",
-        "maximebf/debugbar": "~1.0"
-    },
-    "keywords": [
-        "codeigniter",
-        "routing",
-        "middleware"
-    ],
-    "homepage": "https://ingenia.me",
-    "require-dev": {},
-    "license": "MIT",
+    "name"       : "luthier/luthier",
+    "type"       : "library",
+    "description": "Improved routing and middleware support for CodeIgniter",
+    "license"    : "MIT",
+    "homepage"   : "https://luthier.ingenia.me/ci/en/",
     "authors": [
         {
-            "name": "Anderson Salas",
-            "email": "anderson@ingenia.me",
+            "name"    : "Anderson Salas",
+            "email"   : "anderson@ingenia.me",
             "homepage": "https://ingenia.me",
-            "role" : "Lead developer"
+            "role"    : "Lead developer"
         }
     ],
+    "keywords": [
+        "codeigniter", "routing", "middleware", "luthier"
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php"              : ">=5.6.0",
+        "maximebf/debugbar": "~1.0"
+    },
+    "require-dev": {
+
+    },
     "support": {
         "email": "anderson@ingenia.me"
     },
-    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
             "Luthier\\": "src/"
