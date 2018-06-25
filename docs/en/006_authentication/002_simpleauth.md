@@ -36,10 +36,10 @@
 
 ### <a name="introduction"></a> Introduction
 
-With **SimpleAuth** you can add a login and user registration to your application in less than 5 minutes! SimpleAuth consists of a controller (`SimpleAuthController`), a middleware (`SimpleAuthMiddleware`), a library (`Simple_auth`) and other elements built from the **Authentication Framework of Luthier-CI**.
+With **SimpleAuth** you can add a login and user registration to your application in less than 5 minutes! SimpleAuth consists of a controller (`SimpleAuthController`), a middleware (`SimpleAuthMiddleware`), a library (`Simple_auth`) and other elements built from the **Luthier CI Authentication Framework**.
 ### <a name="installation"></a> Installation
 
-As the installation is done through the `make` command of the [Built-in CLI Tools of Luthier-CI](../cli#built-in-cli-tools), be sure to define these commands in your routing file `cli .php`:
+As the installation is done through the `make` command of the [Built-in CLI Tools of Luthier CI](../cli#built-in-cli-tools), be sure to define these commands in your routing file `cli .php`:
 
 ```php
 <?php
@@ -278,7 +278,7 @@ Route::group('dashboard', ['middleware' => ['SimpleAuthMiddleware']], function()
 
 ### <a name="simpleauth-library"></a> SimpleAuth Library
 
-The SimpleAuth library is a *wrapper* of the `Auth` class of the Luthier-CI Authentication Framework, in the format of a native CodeIgniter library, so all its methods are available to you with a syntax that you should already know.
+The SimpleAuth library is a *wrapper* of the `Auth` class of the Luthier CI Authentication Framework, in the format of a native CodeIgniter library, so all its methods are available to you with a syntax that you should already know.
 
 To start using the SimpleAuth Library, you must load it into the framework:
 
@@ -558,7 +558,7 @@ The SimpleAuth configuration is located in the `application/config/auth.php` fil
 * **auth_route_auto_redirect**: *[array]* Routes that will activate an automatic redirection to the `auth_login_route_redirect` path in case the user is already authenticated.
 * **auth_form_username_field**: *[string]* Name of the field of the login form corresponding to the username/email to authenticate.
 * **auth_form_username_field**: *[string]* Name of the field of the login form corresponding to the user password to be authenticated.
-* **auth_session_var**: *[string]* Name of the session variable used by the Luthier-CI Authentication module.
+* **auth_session_var**: *[string]* Name of the session variable used by the Luthier CI Authentication module.
 
 #### <a name="enabling-disabling-features"></a> Enabling/Disabling features
 

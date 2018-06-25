@@ -1,5 +1,5 @@
 [//]: # ([author] Anderson Salas, translated by Julio Cedeño)
-[//]: # ([meta_description] Explore the concept of Middleware that Luthier-CI introduces into your CodeIgniter applications and learn to use it with practical examples)
+[//]: # ([meta_description] Explore the concept of Middleware that Luthier CI introduces into your CodeIgniter applications and learn to use it with practical examples)
 
 # Middleware
 
@@ -34,7 +34,7 @@ Two execution points are available:
     <i class="fa fa-warning" aria-hidden="true"></i>
     <strong>The controller constructor always executed first</strong>
     <br />
-    This is the behavior of CodeIgniter and Luthier-CI does not modify it.
+    This is the behavior of CodeIgniter and Luthier CI does not modify it.
 </div>
 
 It's possible that at some point you need to execute code before the middleware, the way to do it is by defining a public method in your controller called `preMiddleware`:
@@ -99,7 +99,7 @@ In order to assign a middleware in your application it's necessary that both the
     <i class="fa fa-check" aria-hidden="true"></i>
     <strong>Create a middleware from the command line</strong>
     <br />
-    If you have activated the built-in CLI tools of Luthier-CI, use the <code>luthier make middleware [name]</code> command to create a new middleware
+    If you have activated the built-in CLI tools of Luthier CI, use the <code>luthier make middleware [name]</code> command to create a new middleware
 </div>
 
 ### <a name="assign-a-middleware"></a> Assign a middleware
@@ -134,7 +134,7 @@ Route::group('site', ['middleware' => ['AuthMiddleware']], function(){
 });
 ```
 
-Finally, in the **individual route** context, middleware is also another property, so it goes in the third argument:
+Finally, in the **individual route** context, middleware is also another property, so it goes in the second argument:
 
 ```php
 Route::put('foo/bar','controller@method', ['middleware' => ['TestMiddleware']]);

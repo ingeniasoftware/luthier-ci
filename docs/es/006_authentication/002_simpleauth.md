@@ -36,11 +36,11 @@
 
 ### <a name="introduction"></a> Introducción
 
-¡Con **SimpleAuth** puedes añadir un inicio de sesión y registro de usuarios a tu aplicación en menos de 5 minutos! SimpleAuth se compone de un controlador (`SimpleAuthController`) un middleware (`SimpleAuthMiddleware`) una librería (`Simple_auth`) y otros elementos construídos a partir del **Framework de Autenticación de Luthier-CI**.
+¡Con **SimpleAuth** puedes añadir un inicio de sesión y registro de usuarios a tu aplicación en menos de 5 minutos! SimpleAuth se compone de un controlador (`SimpleAuthController`) un middleware (`SimpleAuthMiddleware`) una librería (`Simple_auth`) y otros elementos construídos a partir del **Framework de Autenticación de Luthier CI**.
 
 ### <a name="installation"></a> Instalación
 
-Como la instalación se realiza a través del comando `make` de las [Herramientas CLI Incorporadas de Luthier-CI](../cli#built-in-cli-tools), asegúrate de definir dichos comandos en tu archivo de rutas `cli.php`:
+Como la instalación se realiza a través del comando `make` de las [Herramientas CLI Incorporadas de Luthier CI](../cli#built-in-cli-tools), asegúrate de definir dichos comandos en tu archivo de rutas `cli.php`:
 
 ```php
 <?php
@@ -279,7 +279,7 @@ Route::group('dashboard', ['middleware' => ['SimpleAuthMiddleware']], function()
 
 ### <a name="simpleauth-library"></a> Librería de SimpleAuth
 
-La librería de SimpleAuth es un *wrapper* de la clase `Auth` del Framework de Autenticación de Luthier-CI, en el formato de una librería nativa de CodeIgniter, por lo que todos sus métodos están disponibles para ti con una sintaxis que ya conoces.
+La librería de SimpleAuth es un *wrapper* de la clase `Auth` del Framework de Autenticación de Luthier CI, en el formato de una librería nativa de CodeIgniter, por lo que todos sus métodos están disponibles para ti con una sintaxis que ya conoces.
 
 Para comenzar a usar la Librería de SimpleAuth, debes cargarla en el framework:
 
@@ -559,7 +559,7 @@ La configuración de SimpleAuth se encuentra en el archivo `application/config/a
 * **auth_route_auto_redirect**: *[array]* Rutas que activarán una redirección automática a la ruta `auth_login_route_redirect` en caso de que el usuario ya esté autenticado.
 * **auth_form_username_field**: *[string]* Nombre del campo del formulario de inicio de sesión correspondiente al nombre de usuario/email a autenticar.
 * **auth_form_username_field**: *[string]* Nombre del campo del formulario de inicio de sesión correspondiente a la contraseña de usuario a autenticar.
-* **auth_session_var**: *[string]* Nombre de la variable de sesión utilizada por el módulo de Autenticación de Luthier-CI.
+* **auth_session_var**: *[string]* Nombre de la variable de sesión utilizada por el módulo de Autenticación de Luthier CI.
 
 #### <a name="enabling-disabling-features"></a> Activación/desactivación de características
 

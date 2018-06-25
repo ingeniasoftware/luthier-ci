@@ -384,7 +384,7 @@ class Auth
     {
         if(!is_string($userProvider) && !$userProvider instanceof UserProviderInterface)
         {
-            throw new Exception("Invalid user provider. Must be a string or an instance of UserProviderInterface");
+            throw new \Exception("Invalid user provider. Must be a string or an instance of UserProviderInterface");
         }
 
         if(is_string($userProvider))
@@ -419,7 +419,7 @@ class Auth
     {
         if(!is_string($userProvider) && !$userProvider instanceof UserProviderInterface)
         {
-            throw new Exception("Invalid user provider. Must be a string or an instance of UserProviderInterface");
+            throw new \Exception("Invalid user provider. Must be a string or an instance of UserProviderInterface");
         }
 
         if(is_string($userProvider))

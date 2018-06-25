@@ -1,5 +1,5 @@
 [//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] Luthier-CI incluye poderosas herramientas de autenticación de usuarios, inspiradas en Symfony, para que te preocupes por lo que realmente importa de tu aplicación)
+[//]: # ([meta_description] Luthier CI incluye poderosas herramientas de autenticación de usuarios, inspiradas en Symfony, para que te preocupes por lo que realmente importa de tu aplicación)
 
 # Autenticación
 
@@ -7,11 +7,11 @@
 
 CodeIgniter incluye todas las herramientas necesarias para construir un sistema de autenticación de usuario. Desafortunadamente, carece de una interfaz o librería integrada que sea fácil de implementar, mantener y escalar.
 
-Luthier-CI aborda el problema usando un modelo de autenticación inspirado en Symfony, con el que se busca la mayor flexibilidad posible para que el desarrollador pueda comenzar a trabajar rápidamente, sin necesidad de reinventar la rueda.
+Luthier CI aborda el problema usando un modelo de autenticación inspirado en Symfony, con el que se busca la mayor flexibilidad posible para que el desarrollador pueda comenzar a trabajar rápidamente, sin necesidad de reinventar la rueda.
 
 ### Activación
 
-Al ser un módulo opcional, la funciones de autenticación de Luthier-CI deben activarse primero. Para hacerlo, ve al archivo `application/config/hooks.php` y reemplaza:
+Al ser un módulo opcional, la funciones de autenticación de Luthier CI deben activarse primero. Para hacerlo, ve al archivo `application/config/hooks.php` y reemplaza:
 
 ```php
 <?php
@@ -43,7 +43,7 @@ $hook = Luthier\Hook::getHooks(
 
 ### Herramientas de autenticación disponibles
 
-La autenticación de Luthier-CI viene en dos sabores: **SimpleAuth** y el **Framework de Autenticación de Luthier-CI**.
+La autenticación de Luthier CI viene en dos sabores: **SimpleAuth** y el **Framework de Autenticación de Luthier CI**.
 
 #### SimpleAuth: la forma más rápida y divertida
 
@@ -62,9 +62,9 @@ Algunas de sus características:
 * Definición automática de rutas (Con el método `Route::auth()`)
 * Múltiples plantillas disponibles para elegir, traducidas a varios idiomas
 
-#### Framework de Autenticación de Luthier-CI: para usuarios avanzados
+#### Framework de Autenticación de Luthier CI: para usuarios avanzados
 
-El **Framework de Autenticación de Luthier-CI** es un conjunto de clases e interfaces que definen el proceso de autenticación de usuario de forma abstracta. Con él, podrás realizar las siguientes tareas:
+El **Framework de Autenticación de Luthier CI** es un conjunto de clases e interfaces que definen el proceso de autenticación de usuario de forma abstracta. Con él, podrás realizar las siguientes tareas:
 
 * Carga de **Proveedores de usuario**
 * Inicio de sesión mediante usuario y contraseña

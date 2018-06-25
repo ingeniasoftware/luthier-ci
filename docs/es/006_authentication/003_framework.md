@@ -1,7 +1,7 @@
 [//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] El Framework de Autenticación de Luthier-CI es una estructura sobre la cual se construyen sistemas de autenticación de usuario en CodeIgniter)
+[//]: # ([meta_description] El Framework de Autenticación de Luthier CI es una estructura sobre la cual se construyen sistemas de autenticación de usuario en CodeIgniter)
 
-# Framework de Autenticación de Luthier-CI
+# Framework de Autenticación de Luthier CI
 
 ### Contenido
 
@@ -31,7 +31,7 @@
 
 ### <a name="introduction"></a> Introducción
 
-El **Framework de Autenticación de Luthier-CI** es una estructura sobre la cual se construyen sistemas de autenticación de usuario en CodeIgniter. Ofrece respuestas a dos grandes dilemas: de dónde se obtienen los usuarios y cómo se dispone de ellos en tu aplicación.
+El **Framework de Autenticación de Luthier CI** es una estructura sobre la cual se construyen sistemas de autenticación de usuario en CodeIgniter. Ofrece respuestas a dos grandes dilemas: de dónde se obtienen los usuarios y cómo se dispone de ellos en tu aplicación.
 
 Durante el proceso son utilizados los **Proveedores de usuario**. Un Proveedor de usuario es una clase que se encarga de obtener de algún lugar al usuario que se pretende autenticar, funcionando como un intermediario entre CodeIgniter y, por ejemplo, una base de datos, una API o incluso un arreglo de usuarios cargado en la memoria.
 
@@ -91,7 +91,7 @@ class MyUserProvider implements UserProviderInterface
 ```
 
 
-El siguiente paso es crear la clase `MyUser`. Los archivos de instancia de usuario se guardan en la carpeta `application/security/providers`. Para que Luthier-CI pueda usarlas, tanto el nombre de la clase como el nombre del archivo deben coincidir con el nombre devuelto en en método `getUserClass()`.
+El siguiente paso es crear la clase `MyUser`. Los archivos de instancia de usuario se guardan en la carpeta `application/security/providers`. Para que Luthier CI pueda usarlas, tanto el nombre de la clase como el nombre del archivo deben coincidir con el nombre devuelto en en método `getUserClass()`.
 
 Las instancias de usuario deben implementar la interfaz `Luthier\Auth\UserInterface`, que define los siguientes métodos:
 
@@ -361,7 +361,7 @@ class MyUserProvider implements UserProviderInterface
 }
 ```
 
-Seguramente habrás notado que el argumento `$password` del método `loadUserByUsername()` se debe definir como opcional. Esto es así debido a que al inicio de cada solicitud, Luthier-CI intenta volver a cargar el último usuario autenticado con su Proveedor de usuario, y esto sólo es posible si se permite la obtención de usuarios a partir de un dato relativamente seguro de almacenar en la sesión, como su *id* o *username*.
+Seguramente habrás notado que el argumento `$password` del método `loadUserByUsername()` se debe definir como opcional. Esto es así debido a que al inicio de cada solicitud, Luthier CI intenta volver a cargar el último usuario autenticado con su Proveedor de usuario, y esto sólo es posible si se permite la obtención de usuarios a partir de un dato relativamente seguro de almacenar en la sesión, como su *id* o *username*.
 
 Por lo tanto, debemos modificar un poco nuestro código para garantizar que el Proveedor de usuario aún siga siendo capaz de obtener usuarios incluso si ninguna contraseña es suministrada:
 
@@ -798,7 +798,7 @@ Auth::isGranted('general.read', $user);
 
 ### <a name="controller-based-authentication"></a> Autenticación basada en controladores
 
-Hasta ahora has visto los elementos del Framework de Autenticación de Luthier-CI trabajando por separado. ¡La buena noticia es que puedes hacerlos trabajar juntos! y todo gracias a una metodología a la que llamamos **Autenticación basada en controladores**.
+Hasta ahora has visto los elementos del Framework de Autenticación de Luthier CI trabajando por separado. ¡La buena noticia es que puedes hacerlos trabajar juntos! y todo gracias a una metodología a la que llamamos **Autenticación basada en controladores**.
 
 La Autenticación basada en controladores consiste en la implementación de dos interfaces, una en un controlador y otra en un middleware, ambos de tu elección, que automatizan el proceso de autenticación de usuario.
 
@@ -925,7 +925,7 @@ public function `getMiddleware()
 }
 ```
 
-Los métodos `login()` y `logout()` definen, respectivamente, el inicio y cierre de sesión. Cuando un usuario inicie sesión la solicitud será interceptada y manejada automáticamente por Luthier-CI, de modo que en nuestro controlador sólo nos ocupa mostrar una vista con el formulario de inicio de sesión:
+Los métodos `login()` y `logout()` definen, respectivamente, el inicio y cierre de sesión. Cuando un usuario inicie sesión la solicitud será interceptada y manejada automáticamente por Luthier CI, de modo que en nuestro controlador sólo nos ocupa mostrar una vista con el formulario de inicio de sesión:
 
 ```php
 public function login()
@@ -934,7 +934,7 @@ public function login()
 }
 ```
 
-El cierre de sesión también será manejado por Luthier-CI, así que nuestro método `logout()` no hace absolutamente nada a nivel de controlador:
+El cierre de sesión también será manejado por Luthier CI, así que nuestro método `logout()` no hace absolutamente nada a nivel de controlador:
 
 ```php
 public function logout()

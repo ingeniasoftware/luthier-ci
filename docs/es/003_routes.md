@@ -1,5 +1,5 @@
 [//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] El enrutamiento de Luthier-CI explicado a fondo. Aprende más sobre las rutas y una nueva sintaxis inspirada en Laravel que está a tu alcance)
+[//]: # ([meta_description] El enrutamiento de Luthier CI explicado a fondo. Aprende más sobre las rutas y una nueva sintaxis inspirada en Laravel que está a tu alcance)
 
 # Rutas
 
@@ -21,12 +21,12 @@
 
 ### <a name="introduction"></a> Introducción
 
-Luthier-CI cambia el comportamiento del enrutador de CodeIgniter:
+Luthier CI cambia el comportamiento del enrutador de CodeIgniter:
 
-* En CodeIgniter, por defecto, las rutas son accesibles bajo cualquier verbo HTTP. Con Luthier-CI es obligatorio definir los verbos HTTP aceptados para cada ruta y cualquier petición que no coincida con dichos parámetros generará un error 404.
-* En CodeIgniter es posible acceder a los controladores directamente desde la URL sin necesidad de definir rutas. En cambio, con Luthier-CI, intentar acceder a una ruta que no esté definida (incluso si la URL coincide con el nombre del controlador y del método) generará un error 404.
-* En CodeIgniter los parámetros de rutas son simples expresiones regulares que apuntan a controladores, en Luthier-CI una ruta es una entidad independiente y única, que contiene parámetros bien definidos y con la capacidad de construir URLs a partir de ellas.
-* En CodeIgniter únicamente se pueden crear rutas que apunten a controladores. Con Luthier-CI es posible utilizar funciones anónimas como controladores e incluso construir una aplicación web completa sin usar ni un solo controlador.
+* En CodeIgniter, por defecto, las rutas son accesibles bajo cualquier verbo HTTP. Con Luthier CI es obligatorio definir los verbos HTTP aceptados para cada ruta y cualquier petición que no coincida con dichos parámetros generará un error 404.
+* En CodeIgniter es posible acceder a los controladores directamente desde la URL sin necesidad de definir rutas. En cambio, con Luthier CI, intentar acceder a una ruta que no esté definida (incluso si la URL coincide con el nombre del controlador y del método) generará un error 404.
+* En CodeIgniter los parámetros de rutas son simples expresiones regulares que apuntan a controladores, en Luthier CI una ruta es una entidad independiente y única, que contiene parámetros bien definidos y con la capacidad de construir URLs a partir de ellas.
+* En CodeIgniter únicamente se pueden crear rutas que apunten a controladores. Con Luthier CI es posible utilizar funciones anónimas como controladores e incluso construir una aplicación web completa sin usar ni un solo controlador.
 
 ### <a name="route-types"></a> Tipos de rutas
 
@@ -45,13 +45,13 @@ Puedes trabajar con tres tipos de rutas:
 
 ### <a name="syntax"></a> Sintaxis
 
-Si has usado Laravel entonces sabrás usar Luthier-CI, pues su sintaxis es idéntica. Este es el ejemplo más sencillo posible de una ruta:
+Si has usado Laravel entonces sabrás usar Luthier CI, pues su sintaxis es idéntica. Este es el ejemplo más sencillo posible de una ruta:
 
 ```php
 Route::get('foo', 'bar@baz');
 ```
 
-Donde **foo** es la URL de la ruta y **bar@baz** es el nombre del controlador y método (separados por el @) al que apunta. Al usar el método `get()` estás indicando a Luthier-CI que la ruta va a estar disponible bajo peticiones GET.
+Donde **foo** es la URL de la ruta y **bar@baz** es el nombre del controlador y método (separados por el @) al que apunta. Al usar el método `get()` estás indicando a Luthier CI que la ruta va a estar disponible bajo peticiones GET.
 
 <div class="alert alert-info">
     <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -60,7 +60,7 @@ Donde **foo** es la URL de la ruta y **bar@baz** es el nombre del controlador y 
     Si defines dos o más rutas con la misma URL y el mismo verbo HTTP, la primera será devuelta SIEMPRE
 </div>
 
-Luthier-CI te permite definir rutas HTTP con los verbos GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS y TRACE:
+Luthier CI te permite definir rutas HTTP con los verbos GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS y TRACE:
 
 ```php
 Route::post('foo', 'bar@baz');
@@ -146,7 +146,7 @@ Route::group('prefix', ['namespace' => 'foo', 'middleware' => ['Admin','IPFilter
 
 #### <a name="default-controller"></a> Controlador por defecto
 
-Luthier-CI establece automáticamente cualquier ruta definida con la URL `/` y el verbo HTTP **GET** como el controlador por defecto, sin embargo puedes establecerlo explícitamente mediante el método `set()` y esta sintaxis especial:
+Luthier CI establece automáticamente cualquier ruta definida con la URL `/` y el verbo HTTP **GET** como el controlador por defecto, sin embargo puedes establecerlo explícitamente mediante el método `set()` y esta sintaxis especial:
 
 ```php
 // Nota que el valor está enlazado a la ruta especial 'default_controller' de CodeIgniter y debe
@@ -194,7 +194,7 @@ Ten en cuenta que luego del primer parámetro opcional definido, TODOS los sigui
     <i class="fa fa-check" aria-hidden="true"></i>
     <strong>Rutas generadas automáticamente</strong>
     <br />
-    Luthier-CI generará por ti el árbol completo de rutas para todos los parámetros opcionales, así que no tienes que preocuparte por escribir más rutas además de la principal.
+    Luthier CI generará por ti el árbol completo de rutas para todos los parámetros opcionales, así que no tienes que preocuparte por escribir más rutas además de la principal.
 </div>
 
 #### <a name="parameter-regex"></a> Expresiones regulares en parámetros
@@ -214,7 +214,7 @@ Route::get('main/{((es|en)):_locale}/about', 'about@index');
 
 #### <a name="sticky-parameters"></a> Parámetros "adhesivos"
 
-Es posible que necesites definir un parámetro en un grupo de rutas y que a su vez esté disponible en todas sus sub-rutas, sin tener que definirlo en los argumentos de todos los metodos en todos los controladores, lo cual es tedioso. Pensando en eso, Luthier-CI ofrece los llamados **parámetros adhesivos**. Un parámetro adhesivo comienza con un guión bajo (`_`) y tiene algunas singularidades:
+Es posible que necesites definir un parámetro en un grupo de rutas y que a su vez esté disponible en todas sus sub-rutas, sin tener que definirlo en los argumentos de todos los metodos en todos los controladores, lo cual es tedioso. Pensando en eso, Luthier CI ofrece los llamados **parámetros adhesivos**. Un parámetro adhesivo comienza con un guión bajo (`_`) y tiene algunas singularidades:
 
 * No se pasa en los argumentos del método del controlador al que apunta dicha ruta.
 * En todas la sub-rutas que compartan el parámetro adhesivo, valor se tomará de la URL y será suministrado automáticamente en la función `route()`, por lo que puedes omitirlo, o bien, sobreescribirlo por cualquier otro valor.

@@ -1,5 +1,5 @@
 [//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] Puedes añadir PHP Debug Bar a tu aplicación gracias a la integración de Luthier-CI con esta fantástica herramienta.  )
+[//]: # ([meta_description] Puedes añadir PHP Debug Bar a tu aplicación gracias a la integración de Luthier CI con esta fantástica herramienta.  )
 
 # Depuración
 
@@ -20,7 +20,7 @@
 
 ### <a name="introduction"></a> Introducción
 
-Puedes añadir [PHP Debug Bar](http://phpdebugbar.com) a tu aplicación gracias a la integración de Luthier-CI con esta fantástica herramienta.
+Puedes añadir [PHP Debug Bar](http://phpdebugbar.com) a tu aplicación gracias a la integración de Luthier CI con esta fantástica herramienta.
 
 ### <a name="activation"></a> Activación
 
@@ -57,7 +57,7 @@ $hook = Luthier\Hook::getHooks(
 Deberás ver la barra de depuración en la parte inferior de la ventana:
 
 <p align="center">
-    <img src="https://ingenia.me/uploads/2018/06/19/luthier-ci-debugbar.png" alt="Luthier-CI PHP Debug Bar" class="img-responsive" />
+    <img src="https://ingenia.me/uploads/2018/06/19/luthier-ci-debugbar.png" alt="Luthier CI PHP Debug Bar" class="img-responsive" />
 </p>
 
 ### <a name="debug-messages"></a> Mensajes de depuración
@@ -97,7 +97,7 @@ class TestController extends CI_Controller
 Y el resultado:
 
 <p align="center">
-    <img src="https://ingenia.me/uploads/2018/06/19/luthier-ci-debugbar-log.png" alt="Luthier-CI PHP Debug Bar" class="img-responsive" />
+    <img src="https://ingenia.me/uploads/2018/06/19/luthier-ci-debugbar-log.png" alt="Luthier CI PHP Debug Bar" class="img-responsive" />
 </p>
 
 Un argumento `$dataCollector` opcional es el nombre del [recolector de datos](http://phpdebugbar.com/docs/data-collectors.html) donde se guardará el mensaje:
@@ -123,7 +123,7 @@ Debug::logFlash('Hey! this will be available in the next request','info');
     <i class="fa fa-warning" aria-hidden="true"></i>
     <strong>Requiere que existan datos en el buffer de salida</strong>
     <br />
-    Luthier-CI agrega el código de PHP Debug Bar en el buffer de salida ANTES de ser procesado y enviado al navegador por librería <code>output</code> de CodeIgniter. Por lo tanto, es necesario haber utilizado al menos una vez la función <code>$this->load->view()</code> o haber definido explícitamente un buffer de salida sobre el cual trabajar. Las sentencias <code>echo</code> NO producen ningún buffer de salida interno. Además, detener la ejecución del script con las funciones <code>die</code> o <code>exit</code> evitará que se muestre PHP Debug Bar.
+    Luthier CI agrega el código de PHP Debug Bar en el buffer de salida ANTES de ser procesado y enviado al navegador por librería <code>output</code> de CodeIgniter. Por lo tanto, es necesario haber utilizado al menos una vez la función <code>$this->load->view()</code> o haber definido explícitamente un buffer de salida sobre el cual trabajar. Las sentencias <code>echo</code> NO producen ningún buffer de salida interno. Además, detener la ejecución del script con las funciones <code>die</code> o <code>exit</code> evitará que se muestre PHP Debug Bar.
 </div>
 
 ### <a name="add-your-own-data-collectors"></a> Añadir tus propios recolectores de datos

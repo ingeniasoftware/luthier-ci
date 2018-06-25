@@ -1,7 +1,7 @@
 [//]: # ([author] Julio Cedeño)
-[//]: # ([meta_description] The Luthier-CI Authentication Framework is a structure on which user authentication systems are built in CodeIgniter)
+[//]: # ([meta_description] The Luthier CI Authentication Framework is a structure on which user authentication systems are built in CodeIgniter)
 
-# Luthier-CI Authentication Framework
+# Luthier CI Authentication Framework
 
 ### Contents
 
@@ -31,7 +31,7 @@
 
 ### <a name="introduction"></a> Introduction
 
-The **Luthier Authentication Framework-CI** is a structure on which user authentication systems are built in CodeIgniter. It offers answers to two major dilemmas: where users are obtained from and how they are available in your application.
+The **Luthier CI Authentication Framework** is a structure on which user authentication systems are built in CodeIgniter. It offers answers to two major dilemmas: where users are obtained from and how they are available in your application.
 
 During the process the **User Providers** are used. A User Provider is a class that is responsible for obtaining the authenticated user from somewhere, working as an intermediary between CodeIgniter and, for example, a database, an API or even an array of users loaded into memory.
 
@@ -90,7 +90,7 @@ class MyUserProvider implements UserProviderInterface
 }
 ```
 
-The next step is to create the class `MyUser`. The user instance files are saved in the `application/security/providers` folder. In order for Luthier-CI to use them, both the name of the class and the name of the file must match the name returned in the `getUserClass()` method.
+The next step is to create the class `MyUser`. The user instance files are saved in the `application/security/providers` folder. In order for Luthier CI to use them, both the name of the class and the name of the file must match the name returned in the `getUserClass()` method.
 
 User instances must implement the `Luthier\Auth\UserInterface` interface, which defines the following methods:
 
@@ -360,7 +360,7 @@ class MyUserProvider implements UserProviderInterface
 }
 ```
 
-You have probably noticed that the `$password` argument of the `loadUserByUsername()`method must be defined as optional. This is so because at the beginning of each request, Luthier-CI tries to reload the last authenticated user with its user Provider, and this is only possible if it is possible to obtain users from a relatively safe data store in the session, such as your *id* or *username*.
+You have probably noticed that the `$password` argument of the `loadUserByUsername()`method must be defined as optional. This is so because at the beginning of each request, Luthier CI tries to reload the last authenticated user with its user Provider, and this is only possible if it is possible to obtain users from a relatively safe data store in the session, such as your *id* or *username*.
 
 Therefore, we must modify our code a bit to ensure that the User Provider is still able to obtain users even if no password is provided:
 
@@ -798,7 +798,7 @@ Auth::isGranted('general.read', $user);
 
 ### <a name="controller-based-authentication"></a> Controller-based authentication
 
-So far you have seen the elements of the Luthier-CI Authentication Framework working separately. The good news is that you can make them work together! and all thanks to a methodology that we call **Controller-based authentication**.
+So far you have seen the elements of the Luthier CI Authentication Framework working separately. The good news is that you can make them work together! and all thanks to a methodology that we call **Controller-based authentication**.
 
 Controller-based authentication consists of the implementation of two interfaces, one in a controller and the other in a middleware, both of your choice, that automate the user authentication process.
 
@@ -925,7 +925,7 @@ public function `getMiddleware()
 }
 ```
 
-The `login()` and `logout()` methods define, respectively, the start and end of the session. When a user logs in, the request will be intercepted and handled automatically by Luthier-CI, so that in our controller we only have to show a view with the login form:
+The `login()` and `logout()` methods define, respectively, the start and end of the session. When a user logs in, the request will be intercepted and handled automatically by Luthier CI, so that in our controller we only have to show a view with the login form:
 
 ```php
 public function login()
@@ -934,7 +934,7 @@ public function login()
 }
 ```
 
-The logout will also be handled by Luthier-CI, so our `logout()` method does absolutely nothing at the controller level:
+The logout will also be handled by Luthier CI, so our `logout()` method does absolutely nothing at the controller level:
 
 ```php
 public function logout()

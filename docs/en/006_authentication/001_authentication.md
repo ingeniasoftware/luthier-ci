@@ -1,5 +1,5 @@
 [//]: # ([author] Julio Cedeño)
-[//]: # ([meta_description] Luthier-CI includes powerful user authentication tools, inspired by Symfony, so you can worry about what really matters about your application)
+[//]: # ([meta_description] Luthier CI includes powerful user authentication tools, inspired by Symfony, so you can worry about what really matters about your application)
 
 # Authentication
 
@@ -7,10 +7,10 @@
 
 CodeIgniter includes all the necessary tools to build a user authentication system. Unfortunately, it lacks an integrated interface or library that's easy to implement, maintain and scale.
 
-Luthier-CI tackles the problem using an authentication model inspired by Symfony, which looks for as much flexibility as possible so that the developer can start working quickly, without needing to reinvent the wheel.
+Luthier CI tackles the problem using an authentication model inspired by Symfony, which looks for as much flexibility as possible so that the developer can start working quickly, without needing to reinvent the wheel.
 ### Activation
 
-As an optional module, the Luthier-CI authentication functions must be activated first. To do so, go to the `application/config/hooks.php` file and replace it:
+As an optional module, the Luthier CI authentication functions must be activated first. To do so, go to the `application/config/hooks.php` file and replace it:
 
 ```php
 <?php
@@ -42,7 +42,7 @@ $hook = Luthier\Hook::getHooks(
 
 ### Authentication tools available
 
-The authentication of Luthier-CI comes in two flavors: **SimpleAuth** and the **Authentication Framework of Luthier-CI**.
+The authentication of Luthier CI comes in two flavors: **SimpleAuth** and the **Luthier CI Authentication Framework**.
 
 #### SimpleAuth: the fastest and funniest way
 
@@ -61,11 +61,11 @@ Some of its features:
 * Automatic definition of routes (With the method `Route::auth()`)
 * Multiple templates available to choose from, translated into several languages
 
-#### Luthier-CI Authentication Framework: for advanced users
+#### Luthier CI Authentication Framework: for advanced users
 
-The **Luthier Authentication Framework-CI** is a set of classes and interfaces that define the user authentication process abstractly. With it, you can perform the following tasks:
+The **Luthier CI Authentication Framework** is a set of classes and interfaces that define the user authentication process abstractly. With it, you can perform the following tasks:
 
-* A Load of **User Providers**
+* Load of  **User Providers**
 * Login by username and password
 * Forced login (bypass) using a username
 * Validation of authentication status

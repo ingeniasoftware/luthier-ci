@@ -21,12 +21,12 @@
 
 ### <a name="introduction"></a> Introduction
 
-Luthier-CI changes the behavior of the CodeIgniter router:
+Luthier CI changes the behavior of the CodeIgniter router:
 
-* In CodeIgniter, by default, the routes are accessible under any HTTP verb. With Luthier-CI it's mandatory to define the accepted HTTP verbs for each route and any request that doesn't match these parameters will generate a 404 error.
-* In CodeIgniter it's possible to access the controllers directly from the URL without the need to define routes. On the other hand, with Luthier-CI, trying to access a path that is not defined (even if the URL matches the name of the controller and the method) will generate a 404 error.
-* In CodeIgniter the route parameters are simple regular expressions that point to controllers, in Luthier-CI a route is an independent and unique entity, which contains well-defined parameters and the ability to build URLs from them.
-* In CodeIgniter you can only create routes that point to controllers. With Luthier-CI it's possible to use anonymous functions as controllers and even build a complete web application without using a single controller.
+* In CodeIgniter, by default, the routes are accessible under any HTTP verb. With Luthier CI it's mandatory to define the accepted HTTP verbs for each route and any request that doesn't match these parameters will generate a 404 error.
+* In CodeIgniter it's possible to access the controllers directly from the URL without the need to define routes. On the other hand, with Luthier CI, trying to access a path that is not defined (even if the URL matches the name of the controller and the method) will generate a 404 error.
+* In CodeIgniter the route parameters are simple regular expressions that point to controllers, in Luthier CI a route is an independent and unique entity, which contains well-defined parameters and the ability to build URLs from them.
+* In CodeIgniter you can only create routes that point to controllers. With Luthier CI it's possible to use anonymous functions as controllers and even build a complete web application without using a single controller.
 
 ### <a name="route-types"></a> Route types
 
@@ -45,13 +45,13 @@ You can work with three types of routes:
 
 ### <a name="syntax"></a> Syntax
 
-If you have used Laravel then you will know how to use Luthier-CI, since it's syntax is identical. This is the simplest possible example of a route:
+If you have used Laravel then you will know how to use Luthier CI, since it's syntax is identical. This is the simplest possible example of a route:
 
 ```php
 Route::get('foo', 'bar@baz');
 ```
 
-Where **foo** is the URL of the route and **bar@baz** is the name of the controller and method (separated by @) to which it points. By using the `get()` method you are telling Luthier-CI that the route will be available under GET requests.
+Where **foo** is the URL of the route and **bar@baz** is the name of the controller and method (separated by @) to which it points. By using the `get()` method you are telling Luthier CI that the route will be available under GET requests.
 
 <div class="alert alert-info">
     <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -60,7 +60,7 @@ Where **foo** is the URL of the route and **bar@baz** is the name of the control
     If you define two or more routes with the same URL and the same HTTP verb, the first will be returned ALWAYS
 </div>
 
-Luthier-CI allows you to define HTTP routes with the verbs GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS and TRACE:
+Luthier CI allows you to define HTTP routes with the verbs GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS and TRACE:
 
 ```php
 Route::post('foo', 'bar@baz');
@@ -148,7 +148,7 @@ Route::group('prefix', ['namespace' => 'foo', 'middleware' => ['Admin','IPFilter
 
 #### <a name="default-controller"></a> Default controller
 
-Luthier-CI automatically sets any route defined with the URL **/** and the HTTP verb **GET** as the default controller, however you can explicitly set it using the `set()` method and this special syntax:
+Luthier CI automatically sets any route defined with the URL **/** and the HTTP verb **GET** as the default controller, however you can explicitly set it using the `set()` method and this special syntax:
 
 ```php
 // Note that the value is binded to the special 'default_controller' route of CodeIgniter and you must
@@ -197,7 +197,7 @@ Note that after the first optional parameter is defined, ALL the following param
     <i class="fa fa-check" aria-hidden="true"></i>
     <strong>Routes generated automatically</strong>
     <br />
-    Luthier-CI will generate the complete route tree for all the optional parameters for you, so you don't have to worry about writing more routes besides the main one.
+    Luthier CI will generate the complete route tree for all the optional parameters for you, so you don't have to worry about writing more routes besides the main one.
 </div>
 
 #### <a name="parameter-regex"></a> Parameter regex
@@ -217,7 +217,7 @@ Route::get('main/{((es|en)):_locale}/about', 'about@index');
 
 #### <a name="sticky-parameters"></a> "Sticky" parameters
 
-It's possible that you need to define a parameter in a group of routes and that in turn is available in all its sub-routes, without having to define it in the arguments of all the methods in all the controllers, which is tedious. Thinking about that, Luthier-CI offers the so-called **Sticky parameters**. An adhesive parameter starts with an underscore (`_`) and has some singularities:
+It's possible that you need to define a parameter in a group of routes and that in turn is available in all its sub-routes, without having to define it in the arguments of all the methods in all the controllers, which is tedious. Thinking about that, Luthier CI offers the so-called **Sticky parameters**. An adhesive parameter starts with an underscore (`_`) and has some singularities:
 
 * It's not passed in the arguments of the controller method to which the route points.
 * In all the sub-routes that share the adhesive parameter, value will be taken from the URL and will be automatically supplied in the `route()` function, so you can omit it, or overwrite it for any other value.

@@ -1,5 +1,5 @@
 [//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] Explora el concepto de Middleware que Luthier-CI introduce en tus aplicaciones de CodeIgniter y aprende a utilizarlo con ejemplos prácticos)
+[//]: # ([meta_description] Explora el concepto de Middleware que Luthier CI introduce en tus aplicaciones de CodeIgniter y aprende a utilizarlo con ejemplos prácticos)
 
 # Middleware
 
@@ -34,7 +34,7 @@ Están disponibles dos puntos de ejecución:
     <i class="fa fa-warning" aria-hidden="true"></i>
     <strong>El constructor del controlador siempre se ejecuta primero</strong>
     <br />
-    Este es el comportamiento de CodeIgniter y Luthier-CI no lo modifica.
+    Este es el comportamiento de CodeIgniter y Luthier CI no lo modifica.
 </div>
 
 Es posible que en algún momento requieras ejecutar código antes del middleware, la manera de hacerlo es definiendo un método público en tu controlador llamado `preMiddleware`:
@@ -100,7 +100,7 @@ Para poder asignar un middleware en tu aplicación es necesario que tanto el nom
     <i class="fa fa-check" aria-hidden="true"></i>
     <strong>Crea un middleware desde la linea de comandos</strong>
     <br />
-    Si has activado las herramientas CLI integradas de Luthier-CI, usa el comando <code>luthier make middleware [nombre]</code> para crear un nuevo middleware
+    Si has activado las herramientas CLI integradas de Luthier CI, usa el comando <code>luthier make middleware [nombre]</code> para crear un nuevo middleware
 </div>
 
 ### <a name="assign-a-middleware"></a> Asignar un middleware
@@ -127,7 +127,7 @@ Route::middleware(function(){
 
 #### <a name="route-middleware"></a> Middleware de ruta
 
-En el contexto de un **grupo de rutas**, el middleware es otra propiedad más, así que va en el tercer argumento del método `group()`:
+En el contexto de un **grupo de rutas**, el middleware es otra propiedad más, así que va en el segundo argumento del método `group()`:
 
 ```php
 Route::group('site', ['middleware' => ['AuthMiddleware']], function(){
