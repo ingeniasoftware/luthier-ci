@@ -111,7 +111,7 @@ class RouteBuilder
     {
         if(is_cli() && $callback != 'cli' || !is_cli() && $callback == 'cli' || (!is_cli() && is_array($callback) && in_array('CLI', $callback)))
         {
-            show_error('You only can define cli routes in cli context. Please use Route::cli() method in routes/cli.php file instead');
+            show_error('You only can define cli routes in cli context. Please define this route using the Route::cli() method in your routes/cli.php file instead');
         }
 
         if($callback == 'match')
