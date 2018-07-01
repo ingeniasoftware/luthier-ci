@@ -50,9 +50,9 @@
             <p class="version">Version <?= LUTHIER_CI_VERSION ;?></p>
             <p class="links">
                 <a href="https://github.com/ingeniasoftware/luthier-ci">GitHub</a> &middot;
-                <a href="https://luthier-ci.ingenia.me/en/docs">Documentation (English)</a> &middot;
-                <a href="https://luthier-ci.ingenia.me/es/docs">Documentation (Español)</a> &middot;
-                <a href="https://forum.codeigniter.com/thread-70497.html">CodeIgniter forum post</a>
+                <a href="https://luthier.ingenia.me/ci/en/docs">Documentation</a>
+                <a href="https://luthier.ingenia.me/ci/es/docs">(Español)</a> &middot;
+                <a href="https://forum.codeigniter.com/thread-70497.html">Help</a>
             </p>
 
             <?php if(route_exists('login')){ ?>
