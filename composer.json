@@ -1,7 +1,7 @@
 {
     "name"       : "luthier/luthier",
     "type"       : "library",
-    "description": "Improved routing and middleware support for CodeIgniter",
+    "description": "Improved routing, middleware support, authentication tools and more for CodeIgniter 3 framework",
     "license"    : "MIT",
     "homepage"   : "https://luthier.ingenia.me/ci/en/",
     "authors": [
