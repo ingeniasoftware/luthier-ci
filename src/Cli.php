@@ -111,8 +111,11 @@ class Cli
      * @access private
      * @static
      */
-    private static function makeContoller($name)
+    private static function makeContoller($name, $resource = false)
     {
+        // FIXME: Add a nice syntax for this (a method in the RouteBuilder class maybe?)
+        $isResource = isset($_SERVER['argv'][5]) && $_SERVER['argv'][5] == '--resource';
+
         $dir = [];
 
         if(count(explode('/', $name)) > 0)
@@ -141,24 +144,105 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class $name extends CI_Controller
 {
+
     public function __construct()
     {
         parent::__construct();
     }
 
+    %CONTROLLER_BODY%
+}
+CONTROLLER;
+
+
+        if(!$isResource)
+        {
+            $controllerBody ='
     /**
-     * Controller index
-     *
-     * @return void
-     *
-     * @access public
+     * Index action
      */
     public function index()
     {
 
     }
-}
-CONTROLLER;
+';
+        }
+        else
+        {
+            $controllerBody = '
+    /**
+     * Index action
+     */
+    public function index()
+    {
+
+    }
+
+
+    /**
+     * Create action
+     */
+    public function create()
+    {
+
+    }
+
+
+    /**
+     * Store action
+     */
+    public function store()
+    {
+
+    }
+
+
+    /**
+     * Show action
+     *
+     * @param  mixed  $id
+     */
+    public function show($id)
+    {
+
+    }
+
+
+    /**
+     * Edit action
+     *
+     * @param  mixed  $id
+     */
+    public function edit($id)
+    {
+
+    }
+
+
+    /**
+     * Update action
+     *
+     * @param  mixed  $id
+     */
+    public function update($id)
+    {
+
+    }
+
+
+    /**
+     * Destroy action
+     *
+     * @param  mixed $id
+     */
+    public function destroy($id)
+    {
+
+    }
+';
+        }
+
+        $file = str_ireplace('%CONTROLLER_BODY%', $controllerBody, $file);
 
         file_put_contents($path, $file);
 
@@ -206,7 +290,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class $name extends CI_Model
 {
-    // ...
+
 }
 MODEL;
 
@@ -352,7 +436,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class $name
 {
-    // ...
+
 }
 LIBRARY;
 

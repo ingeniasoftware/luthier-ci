@@ -123,6 +123,11 @@ class RouteBuilder
             $methods = $callback;
         }
 
+        if(!in_array(strtoupper($callback), self::HTTP_VERBS,true) && !in_array($callback, ['any','match',true]))
+        {
+            show_error("Call to undefined RouteBuilder::{$callback()} method", 500, 'Route builder error');
+        }
+
         $route = new Route($methods, $args);
 
         self::$routes[] = $route;
@@ -275,6 +280,50 @@ class RouteBuilder
             self::$compiled['reserved']['404_override'] : '';
 
         self::$compiled['routes'] = $routes;
+    }
+
+
+
+    /**
+     * Defines a new route resource
+     *
+     * @param  string   $name
+     * @param  string   $controller
+     * @param  string   $only (Optional)
+     *
+     * @return mixed
+     *
+     * @access public
+     * @static
+     */
+    public static function resource($name, $controller, $only = [])
+    {
+        $routes = [
+            'index'   => ['/',          ['GET']],
+            'create'  => ['/create',    ['GET']],
+            'store'   => ['/',          ['POST']],
+            'show'    => ['/{id}',      ['GET']],
+            'edit'    => ['/{id}/edit', ['GET']],
+            'update'  => ['/{id}',      ['PUT', 'PATCH']],
+            'destroy' => ['/{id}',      ['DELETE']]
+        ];
+
+        if(!is_array($only))
+        {
+            $only = [];
+        }
+
+        foreach($routes as $action => $props)
+        {
+            if(!empty($only) && !in_array($action, $only))
+            {
+                continue;
+            }
+
+            list($path, $methods) = $props;
+
+            self::match($methods, $name . $path, $controller . '@' . $action)->name($name . '.' . $action);
+        }
     }
 
 
