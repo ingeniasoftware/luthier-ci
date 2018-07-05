@@ -2,7 +2,7 @@
     <img src="https://ingenia.me/images/luthier-ci/logo.png" width="100" />
 </p>
 
-**Luthier CI** is an awesome set of core improvements for CodeIgniter 3 that makes the development of APIs (and websites in general) more easy! For full documentation, visit the project [official website](https://luthier.ingenia.me/ci/en/docs) (disponible en [español](https://luthier.ingenia.me/ci/es/docs))
+**Luthier CI** is an awesome set of core improvements for CodeIgniter 3 that makes the development of APIs (and websites in general) more easy!
 
 ## Features
 
@@ -10,7 +10,7 @@
 * Laravel-like routing: prefixes, namespaces, anonymous functions as routes, route groups, CLI routes, named parameters, optional parameters, etc.
 * Middleware support 
 * Authentication library with SimpleAuth template
-* PHP DebugBar integration (experimental)
+* PHP Debug Bar integration (experimental)
 
 ## Requirements
 
@@ -187,9 +187,19 @@ class TestMiddleware
 }
 ```
 
-## Donate
+### Documentation
 
-If you love our work,  consider support us on [Patreon](https://patreon.com/ingenia).
+Visit the project [official website](https://luthier.ingenia.me/ci/en/docs) (disponible en [español](https://luthier.ingenia.me/ci/es/docs))
+
+### Related projects
+
+* [Luthier Framework](https://github.com/ingeniasoftware/luthier-framework): Versatile PHP micro-framework for build APIs and websites quickly
+* [SimpleDocs](https://github.com/ingeniasoftware/simpledocs): Dynamic documentation library for PHP which uses Markdown files
+
+### Donate
+
+If you love our work,  consider support us on [Patreon](https://patreon.com/ingenia)
+
 
 
 
