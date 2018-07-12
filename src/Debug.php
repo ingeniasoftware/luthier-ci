@@ -12,7 +12,7 @@
 namespace Luthier;
 
 use DebugBar\StandardDebugBar as DebugBar;
-use Luthier\RouteBuilder as Route;
+use Luthier\RouteBuilder;
 use Luthier\Utils;
 
 class Debug
@@ -64,7 +64,7 @@ class Debug
      */
     private static function setDebugBarRoutes()
     {
-        Route::any('_debug_bar/css', function(){
+        RouteBuilder::any('_debug_bar/css', function(){
 
             ob_start();
             Debug::getDebugBar()->getJavascriptRenderer()->dumpCssAssets();
@@ -134,7 +134,7 @@ class Debug
 
         })->name('debug_bar.css_assets');
 
-        Route::any('_debug_bar/js', function(){
+        RouteBuilder::any('_debug_bar/js', function(){
 
             ob_start();
             Debug::getDebugBar()->getJavascriptRenderer()->dumpJsAssets();
