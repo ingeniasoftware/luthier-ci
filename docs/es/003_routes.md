@@ -13,7 +13,8 @@
    3. [Rutas con nombre](#named-routes)
    4. [Funciones anónimas como rutas](#callbacks-as-routes)
    5. [Grupos](#groups)
-   6. [Controlador por defecto](#default-controller)
+   6. [Rutas de recurso](#resource-routes)
+   7. [Controlador por defecto](#default-controller)
 4. [Parámetros](#parameters)
    1. [Parámetros opcionales](#optional-parameters)
    2. [Expresiones regulares en parámetros](#parameter-regex)
@@ -142,6 +143,42 @@ Route::group('prefix', ['namespace' => 'foo', 'middleware' => ['Admin','IPFilter
     Route::get('bar','test@bar');
     Route::get('baz','test@baz');
 });
+```
+
+#### <a name="resource-routes"></a> Rutas de recurso
+
+Las rutas de recurso permiten definir operaciones de CRUD (**C**reate, **R**ead, **U**pdate, **D**elete) para un controlador en una sola línea. Ejemplo:
+
+```php
+Route::resource('photos','PhotosController');
+```
+
+Produce:
+
+```php
+[Name]                 [Path]               [Verb]          [Controller action]
+photos.index           photos               GET             PhotosController@index
+photos.create          photos/create        GET             PhotosController@create
+photos.store           photos               POST            PhotosController@store
+photos.show            photos/{id}          GET             PhotosController@show
+photos.edit            photos/{id}/edit     GET             PhotosController@edit
+photos.update          photos/{id}          PUT, PATCH      PhotosController@update
+photos.destroy         photos/{id}          DELETE          PhotosController@destroy
+```
+
+Además, es posible crear rutas de recurso parciales, pasando un tercer argumento con un arreglo de las acciones a filtrar:
+
+```php
+Route::resource('photos','PhotosController', ['index','edit','update']);
+```
+
+Produce:
+
+```php
+[Name]                 [Path]               [Verb]          [Controller action]
+photos.index           photos               GET             PhotosController@index
+photos.edit            photos/{id}/edit     GET             PhotosController@edit
+photos.update          photos/{id}          PUT, PATCH      PhotosController@update
 ```
 
 #### <a name="default-controller"></a> Controlador por defecto

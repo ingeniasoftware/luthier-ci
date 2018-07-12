@@ -13,6 +13,7 @@
    3. [Named routes](#named-routes)
    4. [Callbacks as routes](#callbacks-as-routes)
    5. [Groups](#groups)
+   5. [Resource routes](#resource-routes)
    6. [Default controller](#default-controller)
 4. [Parameters](#parameters)
    1. [Optional parameters](#optional-parameters)
@@ -145,6 +146,41 @@ Route::group('prefix', ['namespace' => 'foo', 'middleware' => ['Admin','IPFilter
     Route::get('baz','test@baz');
 });
 ```
+
+#### <a name="resource-routes"></a> Resource routes
+
+Resource routes allow you to define CRUD operations (**C**reate, **R**ead, **U**pdate, **D**elete) for a controller on a single line. Example:
+
+```php
+Route::resource('photos','PhotosController');
+```
+
+Produces:
+
+```php
+[Name]                 [Path]               [Verb]          [Controller action]
+photos.index           photos               GET             PhotosController@index
+photos.create          photos/create        GET             PhotosController@create
+photos.store           photos               POST            PhotosController@store
+photos.show            photos/{id}          GET             PhotosController@show
+photos.edit            photos/{id}/edit     GET             PhotosController@edit
+photos.update          photos/{id}          PUT, PATCH      PhotosController@update
+photos.destroy         photos/{id}          DELETE          PhotosController@destroy
+```
+
+In addition, it is possible to create partial resource routes, passing a third argument with an array of the actions to be filtered:
+
+```php
+Route::resource('photos','PhotosController', ['index','edit','update']);
+```
+
+Produces:
+
+```php
+[Name]                 [Path]               [Verb]          [Controller action]
+photos.index           photos               GET             PhotosController@index
+photos.edit            photos/{id}/edit     GET             PhotosController@edit
+photos.update          photos/{id}          PUT, PATCH      PhotosController@update
 
 #### <a name="default-controller"></a> Default controller
 

@@ -56,6 +56,4 @@ Luthier CI se instala a través de Composer y utiliza los _hooks_ de CodeIgniter
 
 ### Comunidad y soporte
 
-Para reportar errores y proponer cambios por favor visita el repositorio de [Luthier CI en Github](https://github.com/ingeniasoftware/luthier-ci) y haz tus solicitudes allí.
-
-También, hemos puesto a tu disposición un [hilo en el foro de CodeIgniter](https://forum.codeigniter.com/thread-70497.html) (en inglés) donde puedes compartir tus dudas sobre el proyecto y recibir soporte.
+Para reportar errores y proponer cambios por favor visita el repositorio de [Luthier CI en Github](https://github.com/ingeniasoftware/luthier-ci)
