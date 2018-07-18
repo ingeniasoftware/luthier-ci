@@ -305,137 +305,97 @@ class Route
                         show_error('Required <strong>' . $param->getName() . '</strong> route parameter is not allowed at this position in <strong>"' . $this->path . '"</strong> route');
                     }
                 }
-
                 $this->params[] = $param;
             }
         }
-
-        // Automatically set the default controller if path is "/"
+        
+        // Automatically set the default controller if the path is "/"
         if($fullPath == '/' && in_array('GET', $this->methods))
         {
             RouteBuilder::$compiled['reserved']['default_controller'] = is_string($action)
-                ?
-                    ( empty($this->namespace) ? implode('/', explode('@', $action)) : RouteBuilder::DEFAULT_CONTROLLER )
-                :
-                    RouteBuilder::DEFAULT_CONTROLLER;
+                ? ( empty($this->namespace) ? str_ireplace('@', '/', $action) : RouteBuilder::DEFAULT_CONTROLLER )
+                :  RouteBuilder::DEFAULT_CONTROLLER;
         }
 
         $this->isCli = is_cli();
     }
 
-
     /**
-     * Compiles a Luthier-CI route into a CodeIgniter native route
-     *
-     * (This is used internally by Luthier)
-     *
-     * @param  string $currentMethod (Optional) Current HTTP Verb
+     * Compiles route to a CodeIgniter native route
      *
      * @return array
-     *
-     * @access public
      */
-    public function compile($currentMethod = null )
+    public function compile()
     {
-        $routes    = [];
+        $routes = [];
 
-        if($currentMethod === null)
+        foreach($this->methods as $method)
         {
-            if(is_array($this->methods) && !empty($this->methods))
-            {
-                $methods = $this->methods;
-            }
-            else
-            {
-                $methods = RouteBuilder::HTTP_VERBS;
-            }
-        }
-        else
-        {
-            $methods = [ $currentMethod ];
-        }
+            $path = $this->fullPath;
 
-        foreach($methods as $verb)
-        {
-            $path   = $this->fullPath;
-            $target = null;
+            foreach($this->params as $param)
+            {
+                $path = str_ireplace($param->getSegment(),  $param->getPlaceholder(), $path);
+            }
+
+            $pCount = 0;
 
             if(is_callable($this->action))
             {
                 $target = RouteBuilder::DEFAULT_CONTROLLER;
+                $baseTarget = $target;
             }
             else
             {
-                list($controller, $method) = explode('@', $this->action);
-                $target = $controller . '/' . $method;
+                $baseTarget = ( !empty($this->namespace) ? $this->namespace . '/' : '' )
+                    . str_ireplace('@','/', $this->action);
 
-                if(!empty($this->namespace))
-                {
-                    $target = $this->namespace . '/' . $target;
-                }
+                $target = $baseTarget;
 
                 foreach($this->params as $c => $param)
                 {
-                    $target .= '/$'.++$c;
+                    $target .= '/$' . ($c + 1);
+                    if(!$param->isOptional())
+                    {
+                        $baseTarget .= '/$'. ($c + 1);
+                        $pCount++;
+                    }
                 }
             }
 
-            foreach($this->params as $param)
+            // Fallback routes
+            if($this->optionalParamOffset !== null)
             {
-                $path = str_ireplace($param->getSegment(), $param->getPlaceholder(), $path);
-            }
+                $segments = explode('/', $path);
+                $sCount   = count($segments);
+                $basePath = implode('/', array_slice($segments, 0, $this->optionalParamOffset));
+                $routes[][$basePath][$method] = $baseTarget;
 
-            if($this->hasOptionalParams && $currentMethod === null)
-            {
-                $route = clone $this;
-
-                do
+                for($i = $this->optionalParamOffset; $i < $sCount; $i++)
                 {
-                    $param = array_pop($route->params);
-
-                    if($param === null || !$param->isOptional())
+                    $basePath .= '/' . $segments[$i];
+                    if(is_string($this->action))
                     {
-                        $route->hasOptionalParams = false;
-                        break;
+                        $baseTarget .= '/$' . ++$pCount;
                     }
-
-                    $isOptional = $param->isOptional();
-                    $routePath  = $route->getPath();
-                    $routePath  = explode('/', $routePath);
-
-                    array_pop($routePath);
-
-                    $route->setPath(implode('/', $routePath));
-
-                    $subRoute = $route->compile($verb);
-                    $_path    = key($subRoute[0]);
-                    $_target  = $subRoute[0][key($subRoute[0])][$verb];
-
-                    $routes[][$_path][$verb] =  $_target;
-
-                } while( $isOptional );
+                    $routes[][$basePath][$method] = $baseTarget;
+                }
             }
-
-            $routes[][$path][$verb] = $target;
+            
+            // Main route
+            $routes[][$path][$method] = $target;
         }
-
-        $last = array_pop($routes);
-        array_unshift($routes, $last);
-        $routes = array_reverse($routes);
 
         return $routes;
     }
 
-
     /**
-     * Get or set a route parameter
-     *
-     * @param  string  $name Parameter name
-     * @param  string  $value (Optional) Parameter value
-     *
-     * @return null|string
-     *
-     * @access public
+     * Gets or sets a route parameter
+     * 
+     * @param  string  $name  Parameter name
+     * @param  string  $value Parameter value
+     * 
+     * @return mixed
      */
     public function param($name, $value = null)
     {
