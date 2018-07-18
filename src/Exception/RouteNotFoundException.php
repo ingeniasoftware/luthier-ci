@@ -1,17 +1,21 @@
 <?php
 
-/**
- * RouteNotFoundException
+/*
+ * Luthier CI
  *
- * This exception is thrown when request a non-existent named route
+ * (c) 2018 Ingenia Software C.A
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier\Exception;
 
+/**
+ * Exception thrown when a non existing route is requested
+ *  
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class RouteNotFoundException extends \Exception
 {
-
 }

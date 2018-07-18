@@ -1,35 +1,34 @@
 <?php
 
-/**
- * Loader class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier;
 
 use Luthier\Exception\RouteNotFoundException;
 use Luthier\RouteBuilder as Route;
-use Luthier\RouteAjaxMiddleware;
-use Luthier\Debug;
-use Luthier\Debug\DatabaseDataCollector;
-use Luthier\Debug\RouteDataCollector;
-use Luthier\Debug\AuthDataCollector;
 use Luthier\Auth\Dispatcher as AuthDispatcher;
-use Luthier\Utils;
+use DebugBar\DataCollector\MessagesCollector;
 
-final class Hook
-{
+/**
+ * Defines and returns all the required Luthier CI hooks at framework startup
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
+class Hook
+{    
     /**
-     * Get all Luthier-CI hooks
-     *
-     * @param  mixed  $config (Optional) Array of configuration options
-     *
-     * @return mixed
-     *
-     * @access public
-     * @static
+     * Gets the Luthier CI hooks
+     * 
+     * @param string $config Luthier CI configuration
+     * 
+     * @return array
      */
     public static function getHooks($config = null)
     {
@@ -72,28 +71,23 @@ final class Hook
 
         return $hooks;
     }
-
-
+    
     /**
      * "pre_system" hook
-     *
-     * @param  array  $config Current Luthier-CI configuration
-     *
+     * 
+     * @param array $config
+     * 
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function preSystemHook($config)
     {
-        //
-        // Constants and required files
-        //
-
-        define('LUTHIER_CI_VERSION', '0.3.0');
+        define('LUTHIER_CI_VERSION', '1.0.1');
         define('LUTHIER_CI_DIR', __DIR__);
 
-        $isAjax =  isset($_SERVER['HTTP_X_REQUESTED_WITH']) && (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+        $isAjax =  isset($_SERVER['HTTP_X_REQUESTED_WITH']) 
+                    && (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) 
+                    && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+        
         $isCli  =  is_cli();
         $isWeb  = !is_cli();
 
@@ -129,7 +123,6 @@ final class Hook
             copy(__DIR__ . '/Resources/DefaultApiRoutes.php', APPPATH.'/routes/api.php' );
         }
 
-
         if($isAjax || $isWeb)
         {
             Route::group('/', ['middleware' => [ new RouteAjaxMiddleware() ]],
@@ -140,12 +133,10 @@ final class Hook
             );
         }
 
-
         if( !file_exists(APPPATH . '/routes/cli.php') )
         {
             copy(__DIR__ . '/Resources/DefaultCliRoutes.php', APPPATH.'/routes/cli.php' );
         }
-
 
         if($isCli)
         {
@@ -153,9 +144,7 @@ final class Hook
             Route::set('default_controller', Route::DEFAULT_CONTROLLER);
         }
 
-        //
         //  [>= v0.3.0] Deleting old Luthier default controller (if exists)
-        //
         if( file_exists(APPPATH . '/controllers/Luthier.php'))
         {
             unlink(APPPATH . '/controllers/Luthier.php');
@@ -168,40 +157,28 @@ final class Hook
 
         require_once( __DIR__ . '/Functions.php');
 
-        //
         // Auth module
-        //
-
         if(in_array('auth', $config['modules']))
         {
             Route::middleware(new AuthDispatcher());
         }
 
-        //
         // Debug module
-        //
-
         if( ENVIRONMENT != 'production' && !$isCli && !$isAjax && in_array('debug', $config['modules']))
         {
             Debug::init();
-            Debug::addCollector(new AuthDataCollector());
-            Debug::addCollector(new RouteDataCollector());
+            Debug::addCollector(new MessagesCollector('auth'));
+            Debug::addCollector(new MessagesCollector('routing'));
             Debug::log('Welcome to Luthier-CI ' . LUTHIER_CI_VERSION . '!');
         }
 
-        //
-        // Compile all routes
-        //
-
+        // Compiling all routes
         Route::compileAll();
 
-        //
         // HTTP verb tweak
         //
-        // This allows us to use any HTTP Verb if the form contains a hidden field
-        // named "_method"
-        //
-
+        // (This allows us to use any HTTP Verb if the form contains a hidden field
+        // named "_method")
         if(isset($_SERVER['REQUEST_METHOD']))
         {
             if(strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['_method']))
@@ -216,15 +193,8 @@ final class Hook
             $requestMethod = 'CLI';
         }
 
-        //
         // Getting the current url
-        //
-
         $url = Utils::currentUrl();
-
-        //
-        // Guessing the current Luthier-CI route
-        //
 
         try
         {
@@ -258,25 +228,21 @@ final class Hook
         Route::setCurrentRoute($currentRoute);
     }
 
-
     /**
      * "pre_controller" hook
-     *
-     * @param  array    $params (Passed by reference) Array of CodeIgniter router parsed parameters
-     * @param  string   $URI (Passed by reference) Current URL
-     * @param  string   $class (Passed by reference) Current Class
-     * @param  string   $method (Passed by reference) Current Method
-     *
+     * 
+     * @param  array    $params
+     * @param  string   $URI
+     * @param  string   $class  
+     * @param  string   $method
+     * 
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function preControllerHook(&$params, &$URI, &$class, &$method)
     {
         $route  = Route::getCurrentRoute();
 
-        // Is a 404 route? exit
+        // Is a 404 route? stop this hook
         if($route->is404)
         {
             return;
@@ -285,10 +251,7 @@ final class Hook
         $path   = $route->getFullPath();
         $pcount = 0;
 
-        //
-        // Removing controller's subdirectories limitation over "/" path
-        //
-
+        // Removing controller's sub-directory limitation over "/" path
         if($path == '/')
         {
             if(!empty($route->getNamespace()) || is_string($route->getAction()))
@@ -361,26 +324,19 @@ final class Hook
         Route::setCurrentRoute($route);
     }
 
-
     /**
-     * "post_contoller_constructor" hook
-     *
-     * @param  array    $config Current Luthier-CI configuration
-     * @param  array    $params (Passed by reference) Array of CodeIgniter router parsed parameters
-     *
+     * "post_controller" hook
+     * 
+     * @param  array $config
+     * @param  array $params
+     * 
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function postControllerConstructorHook($config, &$params)
     {
         if(!is_cli())
         {
-            //
-            // Auth bootstrap
-            //
-
+            // Auth module bootstrap
             if(in_array('auth', $config['modules']) || in_array('debug', $config['modules']))
             {
                 ci()->load->library('session');
@@ -396,10 +352,7 @@ final class Hook
                 Auth::user(true);
             }
 
-            //
             // Restoring flash debug messages
-            //
-
             if(ENVIRONMENT != 'production' && in_array('debug', $config['modules']))
             {
                 $debugBarFlashMessages = ci()->session->flashdata('_debug_bar_flash');
@@ -423,11 +376,7 @@ final class Hook
             }
         }
 
-
-        //
-        // Routing
-        //
-
+        // Current route configuration and dispatch
         ci()->route = Route::getCurrentRoute();
 
         if(!ci()->route->is404)
@@ -474,14 +423,12 @@ final class Hook
         }
     }
 
-
     /**
-     * "post_controller_hook" hook
-     *
+     * "post_controller" hook
+     * 
+     * @param array $config
+     * 
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function postControllerHook($config)
     {
@@ -501,14 +448,10 @@ final class Hook
         }
     }
 
-
     /**
-     * "display_override_hook" hook
+     * "display_override" hook
      *
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function displayOverrideHook()
     {
@@ -519,7 +462,7 @@ final class Hook
             $queries = ci()->db->queries;
             if(!empty($queries))
             {
-                Debug::addCollector(new DatabaseDataCollector());
+                Debug::addCollector(new MessagesCollector('database'));
                 foreach($queries as $query)
                 {
                     Debug::log($query, 'info', 'database');

@@ -1,10 +1,12 @@
 <?php
 
-/**
- * SimpleAuthMiddleware class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier\Auth\SimpleAuth\Middleware;
@@ -12,10 +14,19 @@ namespace Luthier\Auth\SimpleAuth\Middleware;
 use Luthier\Auth;
 use Luthier\MiddlewareInterface;
 use Luthier\Auth\ControllerInterface as AuthControllerInterface;
-use Luthier\Auth\SimpleAuth\Middleware\RememberMeMiddleware;
 
+/**
+ * Basic security layer for routing that requires user authentication.
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class SimpleAuthMiddleware implements MiddlewareInterface
 {
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\MiddlewareInterface::run()
+     */
     public function run($args)
     {
         if(ci() instanceof AuthControllerInterface)

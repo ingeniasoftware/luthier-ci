@@ -1,32 +1,34 @@
 <?php
 
-/**
- * Middleware class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier;
 
-use Luthier\MiddlewareInterface;
-use Luthier\Debug;
-
+/**
+ * Middleware handler class
+ *
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class Middleware
 {
-    private static $loadedMiddleware = [];
-
     /**
-     * Loads a Middleware class.
-     *
-     * The middleware class MUST implement the Luthier\MiddlewareInterface interface
-     *
-     * @param  mixed        $middleware
-     *
-     * @return mixed
-     *
-     * @access public
-     * @static
+     * @var array
+     */
+    private static $loadedMiddleware = [];
+    
+    /**
+     * Loads a middleware class
+     * 
+     * @param mixed $middleware Middleware name
+     * 
+     * @return void
      */
     public static function load($middleware)
     {
@@ -57,14 +59,12 @@ class Middleware
     }
 
     /**
-     * Manually run a middleware
-     *
-     * @param  string|callable $middleware
-     * @param  mixed ...$args
-     *
+     * Runs a middleware
+     * 
+     * @param string|callable $middleware
+     * @param array $args
+     * 
      * @return void
-     *
-     * @access public
      */
     final public function run($middleware, $args = [])
     {
@@ -72,10 +72,7 @@ class Middleware
         {
             call_user_func_array($middleware, $args);
         }
-        //
-        // This is a future change:
         // else if(is_object($middleware) && $middleware instanceof MiddlewareInterface)
-        //
         else if(is_object($middleware))
         {
             if(!$middleware instanceof MiddlewareInterface)
@@ -105,15 +102,13 @@ class Middleware
     }
 
     /**
-     * Defines or add a new hook at $hook point
-     *
-     * @param  string $hook
-     * @param  middleware $middleware
-     * @param  mixed ...$args
-     *
+     * Binds a middleware to CodeIgniter hook at runtime
+     * 
+     * @param string    $hook        Hook name
+     * @param callable  $middleware  Middleware callable
+     * @param array[]   ...$args     Middleware ars
+     * 
      * @return void
-     *
-     * @access public
      */
     final public function addHook($hook, $middleware, ...$args)
     {

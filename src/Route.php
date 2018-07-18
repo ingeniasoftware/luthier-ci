@@ -1,183 +1,111 @@
 <?php
 
-/**
- * Route class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier;
 
-use Luthier\Exception\RouteNotFoundException;
-use Luthier\RouteBuilder;
-
+/**
+ * Represents a Luthier CI route
+ *
+ * @autor Anderson Salas <anderson@ingenia.me>
+ */
 class Route
 {
     /**
-     * Route path (without prefix)
-     *
-     * @var $path
-     *
-     * @access private
+     * @var string
      */
     private $path;
 
-
     /**
-     * Route full path
-     *
-     * @var $fullPath
-     *
-     * @access private
+     * @var string
      */
     private $fullPath;
 
     /**
-     * Route name
-     *
-     * @var $name
-     *
-     * @access private
+     * @var string
      */
     private $name;
 
-
     /**
-     * Route accepted methods (HTTP Verbs)
-     *
-     * @var $methods
-     *
-     * @access private
+     * @var string[]
      */
     private $methods = [];
 
-
     /**
-     * Route action, can be both a 'controller@method' string or a valid callback
-     *
-     * @var $action
-     *
-     * @access private
+     * @var string|callable
      */
     private $action;
 
-
     /**
-     * Route middleware
-     *
-     * @var $middleware
-     *
-     * @access private
+     * @var array
      */
     private $middleware = [];
 
-
     /**
-     * Route pseudo-namespace  (is actually the directory path to the controller)
-     *
-     * @var $namespace
-     *
-     * @access private
+     * @var string
      */
     private $namespace = '';
 
-
     /**
-     * Route prefix
-     *
-     * @var $prefix
-     *
-     * @access private
+     * @var string
      */
     private $prefix = '';
 
-
     /**
-     * Array of route parameter objects (Luthier\RouteParam)
-     *
-     * @var $params
-     *
-     * @access public
+     * @var RouteParam[]
      */
     public $params = [];
 
-
-
     /**
-     * Route segment where starts the parameters
-     *
-     * @var $paramOffset
-     *
-     * @access public
+     * @var int
      */
     public $paramOffset;
 
+    /**
+     * @var int
+     */
+    public $optionalParamOffset;
 
     /**
-     * Does the route have optional parameters?
-     *
-     * @var $hasOptionalParams
-     *
-     * @access private
+     * @var bool
      */
     private $hasOptionalParams = false;
 
-
     /**
-     * Is the current route a 404 page?
-     *
-     * @var $is404
-     *
-     * @access private
+     * @var bool
      */
     public $is404 = false;
 
-
     /**
-     * Is the current route a CLI route?
-     *
-     * @var $isCli
-     *
-     * @access public
+     * @var bool
      */
     public $isCli = false;
 
-
     /**
-     * Current request method
-     *
-     * @var $requestMethod
-     *
-     * @access public
+     * @var string
      */
     public $requestMethod;
-
-
+    
     /**
-     * Get all compiled routes
-     *
-     * (Alias of RouteBuilder::getRoutes() )
-     *
-     * @return mixed
-     *
-     * @access public
-     * @static
+     * Gets compiled routes (Alias of RouteBuilder::getRoutes())
+     * 
+     * @return array
      */
     public static function getRoutes()
     {
         return RouteBuilder::getRoutes();
     }
 
-
     /**
-     * Class constructor
-     *
-     * @param  string|array $methods HTTP Verbs
-     * @param  array|callable $route Route definition
-     *
-     * @return void
-     * @access public
+     * @param string|array  $methods  Route accepted HTTP verbs
+     * @param array         $route    Route attributes
      */
     public function __construct($methods, $route)
     {
@@ -297,6 +225,10 @@ class Route
                 if( $param->isOptional() )
                 {
                     $this->hasOptionalParams = true;
+                    if($this->optionalParamOffset === null)
+                    {
+                        $this->optionalParamOffset = $i;
+                    }
                 }
                 else
                 {
@@ -412,15 +344,12 @@ class Route
         }
     }
 
-
     /**
-     * Check if the route has a specific parameter
+     * Checks if the route has a specific parameter
      *
-     * @param  string  $name
+     * @param  string  $name Parameter name
      *
      * @return bool
-     *
-     * @access public
      */
     public function hasParam($name)
     {
@@ -434,15 +363,12 @@ class Route
         return false;
     }
 
-
     /**
-     * Build the route url with the provided parameters
+     * Build route absolute url
      *
      * @param  string|array $params Route parameters
      *
      * @return string
-     *
-     * @access public
      */
     public function buildUrl($params)
     {
@@ -497,14 +423,12 @@ class Route
         return base_url() . trim($path,'/');
     }
 
-
     /**
-     * Fluent name setter for a route
+     * Sets route name
      *
-     * @param  string $name
+     * @param  string $name route name
      *
-     * @return Route
-     * @access public
+     * @return self
      */
     public function name($name)
     {
@@ -512,149 +436,119 @@ class Route
         return $this;
     }
 
-
     /**
-     * Get route name
+     * Gets route name
      *
      * @return string
-     *
-     * @access public
      */
     public function getName()
     {
         return $this->name;
     }
 
-
     /**
-     * Set route name
+     * Sets route name (alias of Route::name())
      *
-     * @param  string  $name
+     * @param  string $name
      *
-     * @return void
-     *
-     * @access public
+     * @return self
      */
     public function setName($name)
     {
         $this->name = $name;
+        return $this;
     }
 
-
     /**
-     * Get route path
+     * Gets route path
      *
      * @return string
-     *
-     * @access public
      */
     public function getPath()
     {
         return $this->path;
     }
 
-
     /**
-     * Get route full path
+     * Gets route full path
      *
-     * @return mixed
-     *
-     * @access public
+     * @return string
      */
     public function getFullPath()
     {
         return $this->fullPath;
     }
 
-
     /**
-     * Set route path
+     * Sets route path
      *
      * @param  string  $path
      *
-     * @return void
-     *
-     * @access public
+     * @return self
      */
     public function setPath($path)
     {
         $this->path = $path;
+        return $this;
     }
 
-
     /**
-     * Get route prefix
+     * Gets route prefix
      *
      * @return string
-     *
-     * @access public
      */
     public function getPrefix()
     {
         return $this->prefix;
     }
 
-
     /**
-     * Get route action
+     * Gets route action
      *
      * @return string|callable
-     *
-     * @access public
      */
     public function getAction()
     {
         return $this->action;
     }
 
-
     /**
-     * Set route action
+     * Sets route action
      *
-     * @param  string|callable   $action
+     * @param  string|callable  $action
      *
-     * @return void
-     *
-     * @access public
+     * @return self
      */
     public function setAction($action)
     {
         $this->action = $action;
+        return $this;
     }
-
 
     /**
      * Get route middleware
      *
      * @return array
-     *
-     * @access public
      */
     public function getMiddleware()
     {
         return $this->middleware;
     }
 
-
     /**
-     * Get route namespace
+     * Gets route namespace
      *
      * @return string
-     *
-     * @access public
      */
     public function getNamespace()
     {
         return $this->namespace;
     }
 
-
     /**
-     * Get route accepted HTTP Verbs
+     * Gets route accepted HTTP Verbs
      *
      * @return mixed
-     *
-     * @access public
      */
     public function getMethods()
     {

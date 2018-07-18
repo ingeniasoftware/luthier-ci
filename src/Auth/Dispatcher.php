@@ -1,28 +1,37 @@
 <?php
 
-/**
- * Authentication Dispatcher
+/*
+ * Luthier CI
  *
- * (This is used by Luthier-CI internally)
+ * (c) 2018 Ingenia Software C.A
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier\Auth;
 
-use Luthier\Auth\ControllerInterface as AuthControllerInterface;
 use Luthier\Auth\Middleware as AuthMiddlewareInterface;
 use Luthier\Auth;
 use Luthier\Middleware;
 use Luthier\MiddlewareInterface;
-use Luthier\Debug;
 
+/**
+ * Internal middleware that dispatches the Controller-based authentication
+ * when the ControllerInterface is detected in the framework singleton base object
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class Dispatcher implements MiddlewareInterface
 {
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\MiddlewareInterface::run()
+     */
     public function run($args)
     {
-        if(!ci() instanceof AuthControllerInterface)
+        if(!ci() instanceof ControllerInterface)
         {
             return;
         }

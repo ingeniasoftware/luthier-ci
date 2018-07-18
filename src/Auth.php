@@ -1,66 +1,46 @@
 <?php
 
-/**
- * Auth class
+/*
+ * Luthier CI
  *
- * The Luthier-CI Authentication Framework main class.
+ * (c) 2018 Ingenia Software C.A
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier;
 
 use Luthier\Auth\UserInterface;
 use Luthier\Auth\UserProviderInterface;
-use Luthier\Debug;
 
+/**
+ * Luthier CI authentication class
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class Auth
 {
     private static $providers = [];
 
-
     /**
-     * Returns the current auth session name
+     * Returns the current authentication session name
      *
-     * @return mixed
-     *
-     * @access private
-     * @static
+     * @return string
      */
     private static function getSessionName()
     {
         return config_item('auth_session_var') !== null
-            ?
-                config_item('auth_session_var')
-            :
-                'auth';
+            ? config_item('auth_session_var')
+            : 'auth';
     }
 
     /**
-     * Loads an User class and his attached User Provider class used for authentication process.
+     * Loads an User class and his related User Provider class
      *
-     * The User Provider class, as its name suggests, is responsible for retrieving the user
-     * from somewhere (a database, an API or even a static file) and will return
-     * an object of the User class, in case of a successful authentication, of course.
+     * @param  string $userClass User class name
      *
-     * The User class is a abstraction layer which returns some essential data of the
-     * authenticated user, such his username, roles and permissions.
-     *
-     * There are a set of requirements:
-     *
-     * 1) The User Provider class MUST have the "Provider" suffix and MUST implement the
-     *    Luthier\Auth\UserProviderInterface inteface.
-     * 2) The User Provider class MUST be located in the application/security/providers folder
-     * 3) The attached User Instance MUST be located in the application/security/providers folder
-     *    and MUST implement the Luthier\Auth\UserInterface interface
-     *
-     * @param  string  $userClass  User class name (without the -Provider prefix)
-     *
-     * @return UserProviderInterface
-     *
-     * @access public
-     * @static
+     * @return \Luthier\Auth\UserProviderInterface
      */
     public static function loadUserProvider($userProviderClass)
     {
@@ -89,7 +69,6 @@ class Auth
         }
 
         $userProviderInstance = new $userProviderClass();
-
         $userClass = $userProviderInstance->getUserClass();
 
         if(!file_exists( APPPATH . '/security/providers/' . $userClass . '.php') )
@@ -108,30 +87,22 @@ class Auth
         return $userProviderInstance;
     }
 
-
     /**
      * Checks if the current user is guest (not authenticated)
      *
      * @return bool
-     *
-     * @access public
-     * @static
      */
     public static function isGuest()
     {
         return self::user() === null;
     }
 
-
     /**
-     * Checks if current user has a specific role
+     * Checks if current user has the provided role name
      *
-     * @param  string $role Role name or an array of role names
+     * @param  string $role Role name
      *
      * @return bool
-     *
-     * @access public
-     * @static
      */
     public static function isRole($user, $role = null)
     {
@@ -156,16 +127,12 @@ class Auth
         return in_array($role, $user->getRoles());
     }
 
-
     /**
-     * Checks if current user has a specific permission
+     * Checks if current user has a the provided permission name
      *
      * @param  string  $permission
      *
      * @return bool
-     *
-     * @access public
-     * @static
      */
     public static function isGranted($user, $permission = null)
     {
@@ -204,22 +171,18 @@ class Auth
         }
     }
 
-
     /**
-     * Stores an user in the auth session
+     * Stores an user in the authentication session
      *
-     * @param  UserInterface $user
-     * @param  array $data (Optional)
+     * @param  UserInterface $user Authenticated user
+     * @param  array         $data User data
      *
      * @return void
-     *
-     * @access public
-     * @static
      */
     final public static function store(UserInterface $user, $data = [])
     {
         $storedSessionUser = [
-            'user'       =>
+            'user' =>
                 [
                     'class'       => get_class($user),
                     'entity'      => $user->getEntity(),
@@ -227,7 +190,7 @@ class Auth
                     'roles'       => $user->getRoles(),
                     'permissions' => $user->getPermissions(),
                 ],
-            'validated'   => false,
+            'validated' => false,
             'fully_authenticated' => true,
         ];
 
@@ -245,14 +208,10 @@ class Auth
         ci()->session->set_userdata( self::getSessionName() ,$storedSessionUser);
     }
 
-
     /**
-     * Initializes the Auth library
+     * Initializes the authentication session
      *
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function init()
     {
@@ -266,17 +225,13 @@ class Auth
         }
     }
 
-
     /**
-     * Get or sets an auth session variable (or the whole auth session if none is provided)
-     *
-     * @param  string  $name (Optional)
-     * @param  mixed  $value (Optional)
+     * Gets (or sets) an authentication session variable
+     *  
+     * @param  string  $name 
+     * @param  mixed   $value
      *
      * @return mixed
-     *
-     * @access public
-     * @static
      */
     public static function session($name = null, $value = null)
     {
@@ -300,17 +255,12 @@ class Auth
         }
     }
 
-
-
     /**
-     * Get the current authenticated user
+     * Gets the current authenticated user
      *
-     * @param  bool $refresh (Optional) Forces user refresh
+     * @param  bool $refresh Force user refresh
      *
      * @return mixed
-     *
-     * @access public
-     * @static
      */
     public static function user($refresh = false)
     {
@@ -350,14 +300,10 @@ class Auth
         return $userInstance;
     }
 
-
     /**
-     * Delete the current authenticated user
+     * Deletes the current authenticated user
      *
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function destroy()
     {
@@ -365,21 +311,19 @@ class Auth
         self::init();
     }
 
-
-     /**
-      * Attempt login with the specified username, password and User Provider
-      *
-      * You must catch any exception produced here manually.
-      *
-      * @param  string  $username
-      * @param  string  $password
-      * @param  string|UserProviderInterface $userProvider
-      *
-      * @return UserInterface
-      *
-      * @access public
-      * @static
-      */
+    /**
+     * Attempts login using an username, password and a User Provider class
+     * 
+     * (You must catch any exception produced here manually)
+     * 
+     * @param string                 $username      Username
+     * @param string                 $password     
+     * @param UserProviderInterface  $userProvider
+     * 
+     * @throws \Exception
+     * 
+     * @return UserInterface
+     */
     final public static function attempt($username, $password, $userProvider)
     {
         if(!is_string($userProvider) && !$userProvider instanceof UserProviderInterface)
@@ -398,22 +342,19 @@ class Auth
 
         return $user;
     }
-
-
+    
     /**
-     * Bypass (force) login with the specified User Provider
+     * Forces a user login 
      *
-     * You must catch any exception produced here manually. Even if you can bypass the
-     * authentication process with this method, is still required that the target user
-     * exists.
-     *
-     * @param  string  $username
-     * @param  string|UserProviderInterface $userProvider
-     *
+     * (Even if you can bypass the authentication process with this method, is still 
+     * required that the target user exists)
+     * 
+     * @param string                       $username
+     * @param string|UserProviderInterface $userProvider
+     * 
+     * @throws \Exception
+     * 
      * @return UserInterface
-     *
-     * @access public
-     * @static
      */
     final public static function bypass($username, $userProvider)
     {
@@ -440,23 +381,17 @@ class Auth
         return $user;
     }
 
-
     /**
-     * Returns an array with the current authentication messages (useful for validations, etc)
+     * Gets the current authentication messages (useful for validations, etc)
      *
-     * @return mixed
-     *
-     * @access public
-     * @static
+     * @return array
      */
     public static function messages()
     {
         $messages = ci()->session->flashdata('_auth_messages');
 
         return !empty($messages)
-            ?
-                $messages
-            :
-                 [];
+            ? $messages
+            : [];
     }
 }

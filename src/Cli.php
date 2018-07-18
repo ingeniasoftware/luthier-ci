@@ -1,30 +1,32 @@
 <?php
 
-/**
- * Cli utilities
+/*
+ * Luthier CI
  *
- * Due security reasons, this commands aren't available in 'production' or 'testing'
- * environment.
+ * (c) 2018 Ingenia Software C.A
  *
- * @author Anderson Salas <anderson@ingenia.me>
- * @license MIT
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier;
 
 use Luthier\RouteBuilder as Route;
-use Luthier\Utils;
 
+/**
+ * CLI handler for Luthier CI
+ * 
+ * (Due security reasons, mostly commands defined here are disbled in 'production'
+ * and 'testing' environments)
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class Cli
 {
-
     /**
-     * Register all maker cli commands
-     *
+     * Registers all 'luthier make' commands
+     * 
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function maker()
     {
@@ -70,14 +72,10 @@ class Cli
         });
     }
 
-
     /**
-     * Register all migrations cli commands
-     *
+     * Registers the 'luthier migrate' command
+     * 
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function migrations()
     {
@@ -99,17 +97,12 @@ class Cli
         });
     }
 
-
-
     /**
-     * Creates a controller
+     * Creates a new controller
      *
-     * @param  string  $name controller name
+     * @param  string $name Controller name
      *
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function makeContoller($name, $resource = false)
     {
@@ -249,16 +242,12 @@ CONTROLLER;
         echo "\nCREATED:\n" . realpath($path) . "\n";
     }
 
-
     /**
-     * Creates a model
+     * Creates a new model
      *
-     * @param  string   $name model name
+     * @param  string $name Model name
      *
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function makeModel($name)
     {
@@ -395,16 +384,12 @@ MIDDLEWARE;
         echo "\nCREATED:\n" . realpath($path) . "\n";
     }
 
-
     /**
-     * Creates a library
+     * Creates a new library
      *
-     * @param  string   $name library name
+     * @param  string $name Library name
      *
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function makeLibrary($name)
     {
@@ -445,17 +430,13 @@ LIBRARY;
         echo "\nCREATED:\n" . realpath($path) . "\n";
     }
 
-
     /**
-     * Creates a migration
+     * Creates a new migration
      *
-     * @param  string  $name migration name
-     * @param  string  $type migration type (sequential|date)
+     * @param  string  $name Name
+     * @param  string  $type Type (sequential|date)
      *
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function makeMigration($name, $type)
     {
@@ -527,13 +508,15 @@ MIGRATION;
         echo "\nCREATED:\n" . realpath($path) . "\n";
     }
 
-
+    /**
+     * Creates all SimpleAuth required files
+     * 
+     * @return void
+     */
     private static function makeAuth()
     {
         Utils::rcopy(__DIR__ . '/Resources/SimpleAuth/Framework', APPPATH);
     }
-
-
 
     /**
      * Runs a migration
@@ -541,8 +524,6 @@ MIGRATION;
      * @param  string  $version (Optional)
      *
      * @return void
-     *
-     * @access private
      */
     private static function migrate($version = null)
     {

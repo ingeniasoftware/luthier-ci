@@ -1,10 +1,12 @@
 <?php
 
-/**
- * SimpleAuth Controller class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier\Auth\SimpleAuth;
@@ -15,19 +17,26 @@ use Luthier\Auth\SimpleAuth\Middleware as SimpleAuthMiddleware;
 use Luthier\Utils;
 use Luthier\Debug;
 
+/**
+ * SimpleAuth base controller
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class Controller extends \CI_Controller implements AuthControllerInterface
 {
+    /**
+     * @var string
+     */
     private static $lang;
 
     /**
-     * Internal translation function
-     *
-     * @param  mixed        $index
-     *
-     * @return mixed
-     *
-     * @access private
-     * @static
+     * Retrieves a translated text from the internal translations array
+     * 
+     * (This is NOT a replacement for the built-in Language library)
+     *  
+     * @param string $index Translation index
+     * 
+     * @return string|null 
      */
     final private static function lang($index)
     {
@@ -46,38 +55,31 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         return isset(self::$lang[$index]) ? self::$lang[$index] : $index;
     }
 
-
     public function __construct()
     {
         parent::__construct();
     }
 
-
     /**
-     * Shows a SimpleAuth message
-     *
-     * @param  string        $title
-     * @param  string       $message
-     *
+     * Shows a SimpleAuth message screen (varies depending of the current skin)
+     * 
+     * @param string $title
+     * @param string $message
+     * 
      * @return mixed
-     *
-     * @access private
      */
     private function showMessage($title, $message)
     {
         return $this->loadView('message', compact('title', 'message'));
     }
 
-
     /**
      * Loads a SimpleAuth view
-     *
-     * @param  string       $view View name
-     * @param  array        $data (Optional) View data
+     * 
+     * @param  string  $view  View file name
+     * @param  array   $data  View data
      *
      * @return mixed
-     *
-     * @access private
      */
     private function loadView($view, $data = [])
     {
@@ -111,15 +113,13 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         return $this->output->set_output($view);
     }
 
-
     /**
-     * Copy required SimpleAuth assets
+     * Copies all the required SimpleAuth assets to the path specified by
+     * the 'simpleauth_assets_dir' option
      *
      * @param  mixed $skin Current skin
      *
-     * @return mixed
-     *
-     * @access private
+     * @return void
      */
     final private function copyAssets($skin)
     {
@@ -141,67 +141,50 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         }
     }
 
-
     /**
-     * Returns an array with fillable user fields
+     * Gets all fillable user database fields
      *
      * @return array
-     *
-     * @access public
      */
     public function getUserFields()
     {
         return [];
     }
 
-
     /**
-     * Returns an array of the sign up fields.
+     * Gets the sign up form structure
      *
      * @return mixed
-     *
-     * @access public
      */
     public function getSignupFields()
     {
         return [];
     }
 
-
     /**
-     * Returns the User Provider's name used by authentication process for this controller
-     *
-     * @return string
-     *
-     * @access public
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\ControllerInterface::getUserProvider()
      */
     final public function getUserProvider()
     {
         return config_item('simpleauth_user_provider');
     }
 
-
-
     /**
-     * Returns the (Authentication) Middleware used by authentication process for this
-     * controller.
-     *
-     * @return Luthie\Auth\Middleware
-     *
-     * @access public
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\ControllerInterface::getMiddleware()
      */
     final public function getMiddleware()
     {
         return new SimpleAuthMiddleware();
     }
 
-
     /**
-     * Login action
-     *
-     * @return mixed
-     *
-     * @access public
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\ControllerInterface::login()
      */
     public function login()
     {
@@ -210,26 +193,20 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         $this->loadView('login', compact('messages'));
     }
 
-
     /**
-     * Logout action
-     *
-     * @return mixed
-     *
-     * @access public
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\ControllerInterface::logout()
      */
     public function logout()
     {
         redirect(route(config_item('success_logout_route')));
     }
 
-
     /**
-     * Signup action
-     *
-     * @return mixed
-     *
-     * @access public
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\ControllerInterface::signup()
      */
     public function signup()
     {
@@ -239,12 +216,10 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         }
 
         // Loading required libraries
-
         $this->load->database();
         $this->load->library('form_validation');
 
         // Setting required paths and fields
-
         $assetsPath   = base_url(config_item('simpleauth_assets_dir'));
         $signupFields = $this->getSignupFields();
 
@@ -252,17 +227,13 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         {
             $this->copyAssets(config_item('simpleauth_skin'));
 
-            //
-            // Processing the submited form
-            //
-
+            // Processing the submitted form
             $user = [];
             $userFields = $this->getUserFields();
 
             foreach($signupFields as $fieldName => $attrs)
             {
                 // Setting validation
-
                 if(isset($attrs['checkbox']) || isset($attrs['radio']) || isset($attrs['select']))
                 {
                     $type = isset($attrs['checkbox']) ? 'checkbox' : (isset($attrs['radio']) ? 'radio' : 'select');
@@ -300,7 +271,6 @@ class Controller extends \CI_Controller implements AuthControllerInterface
             if($this->form_validation->run() === TRUE)
             {
                 // Is the form valid? let's store the user
-
                 $emailVerificationEnabled = config_item('simpleauth_enable_email_verification');
 
                 $this->load->library('encryption');
@@ -330,7 +300,6 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                     );
 
                     // Sending email verification message
-
                     $this->load->library('email');
                     $this->load->library('parser');
 
@@ -376,15 +345,10 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         return $this->loadView('signup', compact('validationErrors', 'signupFields'));
     }
 
-
     /**
-     * emailVerification action
-     *
-     * @param  mixed   $token
-     *
-     * @return mixed
-     *
-     * @access public
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\ControllerInterface::emailVerification()
      */
     public function emailVerification($token)
     {
@@ -406,7 +370,6 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         }
 
         // Verifying the token
-
         $verificationToken = $this->db->get_where(
             config_item('simpleauth_users_email_verification_table'),
             [
@@ -458,13 +421,10 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         );
     }
 
-
     /**
-     * passwordReset action
-     *
-     * @return mixed
-     *
-     * @access public
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\ControllerInterface::passwordReset()
      */
     public function passwordReset()
     {
@@ -479,7 +439,6 @@ class Controller extends \CI_Controller implements AuthControllerInterface
 
         if($_POST)
         {
-
             $this->form_validation->set_rules(
                 'email', self::lang('password_reset_email_field'),
                 [
@@ -492,7 +451,6 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                 $this->load->database();
 
                 // First, check if the user exists
-
                 $user = $this->db->get_where(
                     config_item('simpleauth_users_table'),
                     [
@@ -536,8 +494,8 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                             ],
                             [
                                 'email' => $this->input->post('email'),
-                                'id !=' => null // <--Some MySQL modes doesn't allow update/delete queries without
-                                                // a primary key or unique index
+                                'id !=' => null // <-- Some MySQL modes doesn't allow update/delete queries without
+                                                // a primary key or unique index involved in the query
                             ]
                         );
 
@@ -550,7 +508,6 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                         );
 
                         // Sending password reset message
-
                         if(!empty(config_item('simpleauth_email_configuration')))
                         {
                             $this->email->initialize(config_item('simpleauth_email_configuration'));
@@ -595,15 +552,10 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         return $this->loadView('password_reset', compact('messages', 'validationErrors'));
     }
 
-
     /**
-     * Password reset form
-     *
-     * @param  mixed  $token
-     *
-     * @return mixed
-     *
-     * @access public
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\ControllerInterface::passwordResetForm()
      */
     public function passwordResetForm($token)
     {
@@ -613,7 +565,6 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         $this->load->library('form_validation');
 
         // Verifying the token
-
         $email = $this->input->get('email');
 
         if( empty($email) )
@@ -706,13 +657,10 @@ class Controller extends \CI_Controller implements AuthControllerInterface
         return $this->loadView('password_reset_form', compact('messages', 'validationErrors'));
     }
 
-
     /**
      * Password confirm prompt (if the user is not fully authenticated)
      *
      * @return mixed
-     *
-     * @access public
      */
     public function confirmPassword()
     {

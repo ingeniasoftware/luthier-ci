@@ -1,10 +1,12 @@
 <?php
 
-/**
- * SimpleAuth Controller class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier\Auth\SimpleAuth;
@@ -13,17 +15,46 @@ use Luthier\Auth;
 use Luthier\Auth\Exception\UserNotFoundException;
 use Luthier\Auth\Exception\PermissionNotFoundException;
 
+/**
+ * SimpleAuth useful methods in a CodeIgniter-compatible library format
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class Library
 {
+    /**
+     * @var string[]
+     */
     private static $fetchedPermissions = [];
 
+    /**
+     * @var string[]
+     */
     private static $foundedPermissions = [];
 
+    final public function __call($name, $args)
+    {
+        if(method_exists(Auth::class, $name))
+        {
+            return call_user_func_array([Auth::class, $name], $args);
+        }
+        
+        show_error('Unknown "' . $name . '" method', 500, 'SimpleAuth error');
+    }
+    
+    /**
+     * Resolves the ACL permission name, walking up from the given permission ID
+     * 
+     * @param string $id             
+     * @param string $permissionName
+     * 
+     * @throws PermissionNotFoundException
+     * 
+     * @return void
+     */
     final public static function walkUpPermission($id, &$permissionName = '')
     {
-        //
         // FASTEST: Defined permission ID in ACL Map
-        //
         $aclMap = config_item('simpleauth_acl_map');
 
         if(is_array($aclMap) && !empty($aclMap))
@@ -40,17 +71,13 @@ class Library
             $permissionName = $foundedPermission;
             return;
         }
-        //
         // FAST: Cached permission
-        //
         else if(isset(self::$fetchedPermissions[$id]))
         {
             $permission = self::$fetchedPermissions[$id];
         }
-        //
         // SLOW: Application guessing of permission name iterating over the ACL categories
         //       table
-        //
         else
         {
             $permission = ci()->db->get_where(
@@ -86,24 +113,29 @@ class Library
         }
     }
 
-
+    /**
+     * Gets the actual ID of the given ACL permission name, walking to the more
+     * nested permission
+     * 
+     * @param string $permission Permission name
+     * @param int    $parentID   Parent permission id
+     * 
+     * @throws PermissionNotFoundException
+     * 
+     * @return int
+     */
     final public static function walkDownPermission($permission , $parentID = null)
     {
         $aclMap = config_item('simpleauth_acl_map');
 
-        //
         // FASTEST: Defined permission ID in ACL Map
-        //
         if(is_array($aclMap) && !empty($aclMap) && isset($aclMap[$permission]))
         {
             return $aclMap[$permission];
         }
 
-        //
         // SLOW: Application guessing of permission name iterating over the ACL categories
         //       table
-        //
-
         $_permission    = explode('.', $permission);
         $permissionName = array_shift($_permission);
 
@@ -155,18 +187,11 @@ class Library
         return $category->id;
     }
 
-
-    final public function __call($name, $args)
-    {
-        if(method_exists(Auth::class, $name))
-        {
-            return call_user_func_array([Auth::class, $name], $args);
-        }
-
-        show_error('Unknown "' . $name . '" method', 500, 'SimpleAuth error');
-    }
-
-
+    /**
+     * Checks if the user is logged in and was not remembered by a cookie
+     * 
+     * @return bool
+     */
     public function isFullyAuthenticated()
     {
         if(Auth::isGuest())
@@ -177,7 +202,15 @@ class Library
         return Auth::session('fully_authenticated') === TRUE;
     }
 
-
+    /**
+     * Checks if the user has been authenticated through the 'Remember me' 
+     * cookie and asks for the password to continue with the request in that 
+     * case
+     * 
+     * @param string $route
+     * 
+     * @return bool
+     */
     public function promptPassword($route = 'confirm_password')
     {
         if( Auth::isGuest() || !route_exists($route) )
@@ -194,7 +227,15 @@ class Library
         }
     }
 
-
+    /**
+     * Searches the given user in the database and returns an object 
+     * with their data in case of match, or NULL if no user matches the 
+     * criteria
+     *  
+     * @param mixed $search
+     * 
+     * @return object|NULL
+     */
     public function searchUser($search)
     {
         if(is_int($search))
@@ -230,7 +271,12 @@ class Library
         }
     }
 
-
+    /**
+     * Updates the user that matches the criteria with the provided data
+     *  
+     * @param string|int $user Search criteria
+     * @param array      $values new data
+     */
     public function updateUser($user, $values = null)
     {
         if($values === null)
@@ -260,6 +306,11 @@ class Library
         );
     }
 
+    /**
+     * Stores a new user in the database with the given data
+     * 
+     * @param array $user The new user
+     */
     public function createUser($user)
     {
         // Automatic password hash
@@ -271,8 +322,14 @@ class Library
 
         ci()->db->insert(config_item('simpleauth_users_table'), $user);
     }
-
-
+    
+    /**
+     * Checks if the given permission exists in the ACL categories table
+     * 
+     * @param string $permission
+     * 
+     * @return bool
+     */
     final public function permissionExists($permission)
     {
         if(config_item('simpleauth_enable_acl') !== true)
@@ -295,7 +352,14 @@ class Library
         return true;
     }
 
-
+    /**
+     * Grants the given permission to an user (searched by its username)
+     * 
+     * @param string $username
+     * @param string $permission Permission name
+     * 
+     * @return bool
+     */
     final public function grantPermission($username, $permission = null)
     {
         if(config_item('simpleauth_enable_acl') !== true)
@@ -345,7 +409,14 @@ class Library
         return false;
     }
 
-
+    /**
+     * Revokes the given permission to an user (searched by its username)
+     * 
+     * @param string $username
+     * @param string $permission
+     * 
+     * @return bool
+     */
     final public function revokePermission($username, $permission = null)
     {
         if(config_item('simpleauth_enable_acl') !== true)

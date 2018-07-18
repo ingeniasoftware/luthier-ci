@@ -1,32 +1,81 @@
 <?php
 
-/**
- * Authentication Controller Interface
+/*
+ * Luthier CI
  *
- * ALL Controller-Based authentication controller MUST implement this interface.
- * It provides the basic structure of a traditional login/signup form
+ * (c) 2018 Ingenia Software C.A
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier\Auth;
 
+/**
+ * Describes the methods that must have a controller that authenticates users in 
+ * CodeIgniter applications
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 interface ControllerInterface
 {
+    /**
+     * Gets the User provider used by the Controller-based authentication
+     * 
+     * @return UserProviderInterface|string
+     */
     public function getUserProvider();
 
+    /**
+     * Gets the middleware used by the Controller-based authentication
+     * 
+     * @return \Luthier\Auth\Middleware
+     */
     public function getMiddleware();
 
+    /**
+     * User login screen
+     * 
+     * @return mixed
+     */
     public function login();
 
+    /**
+     * User logout screen
+     * 
+     * @return mixed
+     */
     public function logout();
 
+    /**
+     * User sign up screen
+     * 
+     * @return mixed
+     */
     public function signup();
 
+    /**
+     * User email verification screen 
+     * 
+     * @param string $token Verification token
+     * 
+     * @return mixed
+     */
     public function emailVerification($token);
 
+    /**
+     * User password reset screen
+     * 
+     * @return mixed
+     */
     public function passwordReset();
 
+    /**
+     * User password reset form screem
+     * 
+     * @param string $token Password reset token
+     * 
+     * @return mixed
+     */
     public function passwordResetForm($token);
 }

@@ -1,28 +1,44 @@
 <?php
 
-/**
- * SimpleAuth User Provider class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier\Auth\SimpleAuth;
 
 use Luthier\Auth\UserInterface;
 use Luthier\Auth\UserProviderInterface;
-use Luthier\Auth\SimpleAuth\Library;
 use Luthier\Auth\Exception\UserNotFoundException;
 use Luthier\Auth\Exception\InactiveUserException;
 use Luthier\Auth\Exception\UnverifiedUserException;
 
+/**
+ * SimpleAuth user provider
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class UserProvider implements UserProviderInterface
 {
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\UserProviderInterface::getUserClass()
+     */
     public function getUserClass()
     {
         return 'User';
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\UserProviderInterface::loadUserByUsername()
+     */
     final public function loadUserByUsername($username, $password = null)
     {
         ci()->load->database();
@@ -64,6 +80,11 @@ class UserProvider implements UserProviderInterface
         return new $userClass($user[0], $roles, $permissions);
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\UserProviderInterface::checkUserIsActive()
+     */
     final public function checkUserIsActive(UserInterface $user)
     {
         if($user->getEntity()->{config_item('simpleauth_active_col')} == 0)
@@ -72,7 +93,11 @@ class UserProvider implements UserProviderInterface
         }
     }
 
-
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\UserProviderInterface::checkUserIsVerified()
+     */
     final public function checkUserIsVerified(UserInterface $user)
     {
         $enableCheck = config_item('simpleauth_enable_email_verification')  === TRUE &&
@@ -89,17 +114,23 @@ class UserProvider implements UserProviderInterface
         }
     }
 
-
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\UserProviderInterface::hashPassword()
+     */
     public function hashPassword($password)
     {
         return password_hash($password, PASSWORD_DEFAULT);
     }
 
-
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\UserProviderInterface::verifyPassword()
+     */
     public function verifyPassword($password, $hash)
     {
         return password_verify($password, $hash);
     }
-
-
 }

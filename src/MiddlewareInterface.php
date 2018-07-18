@@ -1,27 +1,30 @@
 <?php
 
-/**
- * Middleware Interface
+/*
+ * Luthier CI
  *
- * ALL middleware used within the application MUST implement this interface, or will not
- * be detected by the Luthier-CI Middleware class.
+ * (c) 2018 Ingenia Software C.A
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier;
 
+/**
+ * All Luthier CI middleware used in the application SHOULD implement this interface, 
+ * in order to be properly detected by the router
+ *
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 interface MiddlewareInterface
 {
     /**
      * Middleware entry point
-     *
-     * @param  mixed $args
-     *
+     * 
+     * @param mixed $args Middleware arguments
+     * 
      * @return mixed
-     *
-     * @access public
      */
     public function run($args);
 }

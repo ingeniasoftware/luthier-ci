@@ -1,16 +1,23 @@
 <?php
 
-/**
- * RouteBuilder class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier;
 
 use Luthier\Exception\RouteNotFoundException;
 
+/**
+ * Defines the Luthier CI routing that will be parsed and sent to CodeIgniter
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class RouteBuilder
 {
     const DEFAULT_CONTROLLER = 'LuthierController';
@@ -18,25 +25,12 @@ class RouteBuilder
     const HTTP_VERBS = ['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS','TRACE'];
 
     /**
-     * Luthier routes
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @var static $routes
-     *
-     * @access private
+     * @var Route[]
      */
     private static $routes = [];
 
-
     /**
-     * Luthier routing context
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @var static $context
-     *
-     * @access private
+     * @var string[]
      */
     private static $context = [
         'middleware' =>
@@ -54,15 +48,8 @@ class RouteBuilder
         'params'    => [],
     ];
 
-
     /**
-     * Compiled routes
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @var static $compiled
-     *
-     * @access public
+     * @var string[]
      */
     public static $compiled = [
         'routes'   => [],
@@ -71,47 +58,21 @@ class RouteBuilder
         'reserved' => [],
     ];
 
-
     /**
-     * Current active route
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @var static $current
-     *
-     * @access private
+     * @var Route
      */
     private static $current;
 
-
     /**
-     * Custom 404 route
-     *
-     * It could be both a path to a controller or a callback
-     *
-     *
-     * @var static $_404
-     *
-     * @access private
+     * @var string|callable
      */
     private static $_404;
 
-    /**
-     * Method overload used to define routes
-     *
-     * @param  string $callback Callback name (route HTTP verb name)
-     * @param  array  $args route args
-     *
-     * @return Route
-     *
-     * @access public
-     * @static
-     */
     public static function __callStatic($callback, array $args)
     {
         if(is_cli() && $callback != 'cli' || !is_cli() && $callback == 'cli' || (!is_cli() && is_array($callback) && in_array('CLI', $callback)))
         {
-            show_error('You only can define cli routes in cli context. Please define this route using the Route::cli() method in your routes/cli.php file instead');
+            show_error('You only can define CLI routes in CLI context. Please define this route using the Route::cli() method in your routes/cli.php file instead');
         }
 
         if($callback == 'match')
@@ -135,18 +96,14 @@ class RouteBuilder
         return $route;
     }
 
-
     /**
-     * Creates a route group
-     *
-     * @param  string          $prefix Group path prefix
-     * @param  array|callable  $attributes Group shared attributes/Routes
-     * @param  callable        $routes (Optional) Routes
-     *
+     * Creates a new route group
+     * 
+     * @param string          $prefix
+     * @param callable|array  $attributes
+     * @param callable|null   $routes
+     * 
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function group($prefix, $attributes, $routes = null)
     {
@@ -194,17 +151,13 @@ class RouteBuilder
         }
     }
 
-
     /**
-     * Defines a route middleware in a global context
-     *
-     * @param  string|array  $middleware
-     * @param  string $point (Optional) the point of execution of the middleware
-     *
+     * Creates a new middleware
+     * 
+     * @param mixed   $middleware  Middleware callable
+     * @param string  $point       Middleware execution point
+     * 
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function middleware($middleware, $point = 'pre_controller')
     {
@@ -222,16 +175,10 @@ class RouteBuilder
         }
     }
 
-
     /**
-     * Returns an array of all compiled Luthier-CI routes, in the native framework format
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @return array
-     *
-     * @access public
-     * @static
+     * Compiles all routes
+     * 
+     * @return void
      */
     public static function compileAll()
     {
@@ -281,20 +228,15 @@ class RouteBuilder
 
         self::$compiled['routes'] = $routes;
     }
-
-
-
+    
     /**
-     * Defines a new route resource
-     *
-     * @param  string   $name
-     * @param  string   $controller
-     * @param  string   $only (Optional)
-     *
-     * @return mixed
-     *
-     * @access public
-     * @static
+     * Creates a new resource route
+     * 
+     * @param string  $name       Resource name
+     * @param string  $controller Resource controller
+     * @param array   $only       Resource action filtering
+     * 
+     * @return void
      */
     public static function resource($name, $controller, $only = [])
     {
@@ -325,18 +267,16 @@ class RouteBuilder
             self::match($methods, $name . $path, $controller . '@' . $action)->name($name . '.' . $action);
         }
     }
-
-
+    
     /**
-     * Defines a CodeIgniter reserved route or custom Luthier configuration
-     *
-     * @param  string  $name
-     * @param  mixed   $value
-     *
+     * Sets a CodeIgniter special route
+     * 
+     * @param string $name  Route name
+     * @param string $value Route value
+     * 
      * @return void
-     *
-     * @access public
-     * @static
+     * 
+     * @throws \Exception
      */
     public static function set($name, $value)
     {
@@ -354,24 +294,15 @@ class RouteBuilder
         self::$compiled['reserved'][$name] = $value;
     }
 
-
-
     /**
-     * Defines all auth-related routes/middleware
-     *
-     * @param  bool  $secureLogout (Optional) Enable/disable logout route only over POST requests
-     *
-     * @return mixed
-     *
-     * @access public
-     * @static
+     * Sets the SimpleAuth default routing
+     * 
+     * @param boolean $secureLogout Disable logout with GET requests
+     * 
+     * @return void
      */
     public static function auth($secureLogout = true)
     {
-        //
-        // Auth routes (Login, logout, etc.)
-        //
-
         self::match(['get', 'post'], 'login', 'SimpleAuthController@login')->name('login');
 
         self::match($secureLogout === true ? ['post'] : ['get','post'], 'logout', 'SimpleAuthController@logout')->name('logout');
@@ -387,20 +318,16 @@ class RouteBuilder
             self::match(['get','post'], '{token}', 'SimpleAuthController@passwordResetForm')->name('password_reset_form');
         });
     }
-
-
+    
     /**
-     * Get route by url
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @param string $path Current URI url
-     *
-     * @return Route
-     *
+     * Gets the matching route of the provided URL
+     * 
+     * @param string $url
+     * @param string $requestMethod
+     * 
      * @throws RouteNotFoundException
-     * @access public
-     * @static
+     * 
+     * @return Route
      */
     public static function getByUrl($url, $requestMethod = null)
     {
@@ -414,11 +341,11 @@ class RouteBuilder
         }
 
         // First, look for a direct match:
-        $_url = '#^' . str_replace('/', '\\/', $url) . '$#';
+        $urlRegex = '#^' . str_replace('/', '\\/', $url) . '$#';
 
-        if(isset(self::$compiled['paths'][$_url]))
+        if(isset(self::$compiled['paths'][$urlRegex]))
         {
-            foreach(self::$compiled['paths'][$_url] as $route)
+            foreach(self::$compiled['paths'][$urlRegex] as $route)
             {
                 if(in_array($requestMethod, $route->getMethods()))
                 {
@@ -445,17 +372,14 @@ class RouteBuilder
         throw new RouteNotFoundException;
     }
 
-
     /**
-     * Get route by name
-     *
-     * @param  string  $name Route name
-     *
-     * @return Route
-     *
+     * Gets a route by its name
+     * 
+     * @param string $name Route name to search
+     * 
      * @throws RouteNotFoundException
-     * @access public
-     * @static
+     * 
+     * @return Route
      */
     public static function getByName($name)
     {
@@ -466,65 +390,41 @@ class RouteBuilder
 
         throw new RouteNotFoundException;
     }
-
-
+    
     /**
-     * Get all compiled routes (CodeIgniter format)
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @return array
-     *
-     * @access public
-     * @static
+     * Gets all compiled routes
+     * 
+     * @return string[]
      */
     public static function getRoutes()
     {
         return self::$compiled['routes'];
     }
 
-
     /**
-     * Get the current active route
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @return Route
-     *
-     * @access public
-     * @static
+     * Gets the current route
+     * 
+     * @return Route|null
      */
     public static function getCurrentRoute()
     {
         return self::$current;
     }
-
-
+    
     /**
-     * Get global middleware
-     *
-     * (This us used internally by Luthier-CI)
-     *
+     * Gets the global middleware
+     * 
      * @return array
-     *
-     * @access public
-     * @static
      */
     public static function getGlobalMiddleware()
     {
         return self::$context['middleware']['global'];
     }
 
-
     /**
-     * Get the current custom 404 route
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @return string|callable
-     *
-     * @access public
-     * @static
+     * Gets the custom 404 controller/callback
+     * 
+     * @return string|callable|NULL
      */
     public static function get404()
     {
@@ -537,56 +437,48 @@ class RouteBuilder
             self::$compiled['reserved']['404_override'] : null;
     }
 
+    /**
+     * Gets the static context of the route builder
+     * 
+     * (This is used internally by Luthier CI)
+     * 
+     * @param string $context Context index
+     * 
+     * @return mixed
+     */
     public static function getContext($context)
     {
         return self::$context[$context];
     }
 
-
     /**
-     * Set the current active route
-     *
-     * (This us used internally by Luthier-CI)
-     *
-     * @param  Route $route
-     *
+     * Sets the current route
+     * 
+     * @param Route $route
+     * 
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function setCurrentRoute(Route $route)
     {
         self::$current = $route;
     }
 
-
     /**
-     * Set a default global parameter
-     *
-     * @param  string  $name
-     * @param  string   $value
-     *
+     * Sets a (global) default value for a sticky parameter
+     * 
+     * @param string $name   Parameter name 
+     * @param string $value  Parameter value
+     * 
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function setDefaultParam($name, $value)
     {
         self::$context['params'][$name] = $value;
     }
-
-
+    
     /**
-     * Get default global route params
-     *
-     * (This is used internally by Luthier)
-     *
-     * @return array
-     *
-     * @access public
-     * @static
+     * Gets all (global) default sticky parameters values
+     * @return string
      */
     public static function getDefaultParams()
     {

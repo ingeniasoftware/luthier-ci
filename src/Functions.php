@@ -1,9 +1,21 @@
 <?php
 
-/**
- * Get route by name
+/*
+ * Luthier CI
  *
- * @return Route
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
+ */
+
+/**
+ * Gets a route URL by its name
+ * 
+ * @param string  $name    Route name
+ * @param array   $params  Route parameters
+ * 
+ * @return string
  */
 function route($name = null, $params = [])
 {
@@ -19,22 +31,24 @@ function route($name = null, $params = [])
     return $route->buildUrl($params);
 }
 
-
 /**
- * Check if route exists
- *
- * @param  string $name Route name
- *
- * @return mixed
+ * Checks if a route exists
+ * 
+ * @param string $name Route name
+ * 
+ * @return bool
  */
 function route_exists($name)
 {
     return isset(Route::$compiled['names'][$name]);
 }
 
-
 /**
- * Alias of get_instance() function
+ * Returns the framework singleton
+ * 
+ * (Alias of &get_instance() CodeIgniter function)
+ * 
+ * @return object
  */
 function ci()
 {
@@ -42,11 +56,10 @@ function ci()
     return $CI;
 }
 
-
 /**
- * Returns a screen with information about Luthier
- *
- * @return mixed
+ * Shows a screen with information about Luthier CI
+ * 
+ * @return void
  */
 function luthier_info()
 {
@@ -59,12 +72,11 @@ function luthier_info()
 }
 
 
-
 /**
- * Trigger the custom Luthier-CI 404 page, with fallback to
- * show_404() function.
+ * Triggers the custom Luthier CI 404 error page, with fallback to
+ * native show_404() function
  *
- * @return mixed
+ * @return void
  */
 function trigger_404()
 {
@@ -79,17 +91,16 @@ function trigger_404()
     exit;
 }
 
-
 /**
- * Redirect to named route
- *
- * @param  string   $routeName
- * @param  array    $params (Optional)
- * @param  array    $messages (Optional) Session flash messages to be stored
- *
- * @return mixed
+ * Redirects to a route URL by its name
+ * 
+ * @param string $name     Route name
+ * @param array  $params   Route parameters
+ * @param array  $messages Array with flashdata messages
+ * 
+ * @return void
  */
-function route_redirect($routeName, $params = [], $messages = [])
+function route_redirect($name, $params = [], $messages = [])
 {
     if(!empty($messages) && is_array($messages))
     {
@@ -101,5 +112,5 @@ function route_redirect($routeName, $params = [], $messages = [])
         }
     }
 
-    redirect(route($routeName, $params));
+    redirect(route($name, $params));
 }

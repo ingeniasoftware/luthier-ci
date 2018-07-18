@@ -13,14 +13,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class LuthierController extends CI_Controller
 {
     /**
-     * Fake Index
-     *
-     * @return void
-     *
-     * @access public
+     * Luthier CI fake index method
      */
     public function index()
     {
-        // ...
     }
 }

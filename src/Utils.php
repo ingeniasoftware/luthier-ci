@@ -1,16 +1,29 @@
 <?php
 
+/*
+ * Luthier CI
+ *
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
+ */
+
 namespace Luthier;
 
+/**
+ * Miscellaneous functions used across Luthier CI
+ *  
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class Utils
-{
+{    
     /**
-     * Get the current url
-     *
-     * This is the same code of the CI_URI class
-     *
+     * Gets the current url
+     * 
+     * (Taken from the CodeIgniter CI_Uri class)
+     * 
      * @return string
-     * @static
      */
     public static function currentUrl()
     {
@@ -108,7 +121,7 @@ class Utils
         }
         else
         {
-            show_error('Unsupported uri protocol', 500, 'Luthier-CI boot error');
+            show_error('Unsupported uri protocol', 500, 'Luthier CI boot error');
         }
 
         if(empty($url))
@@ -120,14 +133,12 @@ class Utils
     }
 
     /**
-     * Recursive mkdir helper
-     *
-     * @param  string   $dir path
-     *
+     * Recursive mkdir function
+     * 
+     * @param string[]  $folders Array with folders to be created
+     * @param string    $base    Target base path
+     * 
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function rmkdir($folders, $base)
     {
@@ -144,17 +155,13 @@ class Utils
         }
     }
 
-
     /**
-     * Recursive copy helper
-     *
-     * @param  string  $source Source path
-     * @param  string  $target Target path
-     *
+     * Recursive copy function
+     * 
+     * @param string $source
+     * @param string $target
+     * 
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function rcopy($source, $target)
     {

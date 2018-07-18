@@ -1,32 +1,34 @@
 <?php
 
-/**
- * Debug class
+/*
+ * Luthier CI
  *
- * This is a wrapper for the PHP DebugBar library
+ * (c) 2018 Ingenia Software C.A
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier;
 
 use DebugBar\StandardDebugBar as DebugBar;
-use Luthier\RouteBuilder;
-use Luthier\Utils;
 
+/**
+ * Wrapper of PHP Debug integration for Luthier CI
+ *  
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class Debug
 {
+    /**
+     * @var \DebugBar\StandardDebugBar 
+     */
     private static $debugBar;
-
 
     /**
      * Creates an instance of PHP DebugBar
      *
      * @return void
-     *
-     * @access public
-     * @static
      */
     public static function init()
     {
@@ -39,28 +41,20 @@ class Debug
         self::setDebugBarRoutes();
     }
 
-
     /**
-     * Returns the current PHP DebugBar instance
+     * Gets the current PHP Debug Bar instance
      *
-     * @return DebugBar
-     *
-     * @access public
-     * @static
+     * @return \DebugBar\StandardDebugBar 
      */
     public static function getDebugBar()
     {
         return self::$debugBar;
     }
 
-
     /**
-     * Sets the special PHP DebugBar routes
+     * Sets PHP Debug Bar assets routes
      *
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function setDebugBarRoutes()
     {
@@ -69,9 +63,7 @@ class Debug
             ob_start();
             Debug::getDebugBar()->getJavascriptRenderer()->dumpCssAssets();
 
-            //
-            // Some CSS tweaks
-            //
+            // CSS tweaks
             echo "
                 div.phpdebugbar-header, a.phpdebugbar-restore-btn
                 {
@@ -130,7 +122,7 @@ class Debug
                 ->set_output($css)
                 ->_display();
 
-                exit;
+            exit;
 
         })->name('debug_bar.css_assets');
 
@@ -145,22 +137,18 @@ class Debug
                 ->set_output($js)
                 ->_display();
 
-                exit;
+            exit;
 
         })->name('debug_bar.js_assets');
     }
 
-
     /**
-     * Injects the PHP DebugBar assets in the output returned by the get_output()
-     * CodeIgniter's CI_OUTPUT method.
+     * Injects the PHP Debug Bar required assets to the HTML output returned by the 
+     * CI_Output::get_output() method
      *
-     * @param  mixed $output (Passed by reference)
+     * @param  mixed $output
      *
-     * @return mixed
-     *
-     * @access public
-     * @static
+     * @return void
      */
     public static function prepareOutput(&$output)
     {
@@ -190,18 +178,12 @@ class Debug
         }
     }
 
-
     /**
-     * Log message in a DataCollector
-     *
-     * @param  mixed        $message
-     * @param  mixed        $type (Optional)
-     * @param  mixed        $collector (Optional)
-     *
-     * @return mixed
-     *
-     * @access public
-     * @static
+     * Logs a message in a PHP Debug Bar data collector
+     * 
+     * @param string $message   Content
+     * @param string $type      Type 
+     * @param string $collector Collector name ('messages' by default)
      */
     public static function log($message, $type = 'info', $collector = 'messages')
     {
@@ -219,18 +201,13 @@ class Debug
         self::getDebugBar()->getCollector($collector)->addMessage($message, $type, is_string($message));
     }
 
-
     /**
-     * Log message in the session's flash storage
-     *
-     * @param  mixed        $message
-     * @param  mixed        $type (Optional)
-     * @param  mixed        $collector (Optional)
-     *
-     * @return mixed
-     *
-     * @access public
-     * @static
+     * Logs a message that will be available in the next request 
+     * as a session flash variable
+     * 
+     * @param string $message   Content
+     * @param string $type      Type 
+     * @param string $collector Collector name ('messages' by default)
      */
     public static function logFlash($message, $type = 'info', $collector = 'messages')
     {
@@ -255,6 +232,13 @@ class Debug
      *
      * @access public
      * @static
+     */
+    /**
+     * Adds a data collector to the PHP Debug Bar instance
+     * 
+     * @param \DebugBar\DataCollector\DataCollectorInterface $dataCollector
+     * 
+     * @return void
      */
     public static function addCollector($dataCollector)
     {

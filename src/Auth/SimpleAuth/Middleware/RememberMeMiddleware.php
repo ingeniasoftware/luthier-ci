@@ -1,20 +1,31 @@
 <?php
 
-/**
- * RememberMeMiddleware class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier\Auth\SimpleAuth\Middleware;
 
 use Luthier\MiddlewareInterface;
 use Luthier\Auth;
-use Luthier\Auth\UserInterface;
 
+/**
+ * Special 'Remember me' feature of SimpleAuth
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class RememberMeMiddleware implements MiddlewareInterface
 {
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\MiddlewareInterface::run()
+     */
     public function run($action = 'store')
     {
         if($action == 'store')
@@ -106,22 +117,6 @@ class RememberMeMiddleware implements MiddlewareInterface
         }
 
         Auth::store($user, ['fully_authenticated' => false]);
-
-        /*
-
-        // This, probably, is not necessary:
-
-        $newRememberToken = bin2hex(ci()->encryption->create_key(32));
-
-        set_cookie(config_item('simpleauth_remember_me_cookie'), $newRememberToken, 1296000); // 15 days
-
-        ci()->db->update(
-             config_item('simpleauth_users_table'),
-            [config_item('simpleauth_remember_me_col') => $newRememberToken],
-            ['id' => $user->getInstance()->id]
-        );
-
-        */
     }
 
     private function destroyAuthCookie()

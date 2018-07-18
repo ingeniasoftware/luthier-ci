@@ -1,129 +1,88 @@
 <?php
 
-/**
- * Route Parameter class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier;
 
-final class RouteParam
+/**
+ * Route segment parameter
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
+class RouteParam
 {
-
     /**
-     * Route parameter name
-     *
-     * @var $name
-     *
-     * @access private
+     * @var string
      */
     private $name;
 
-
     /**
-     * Actual segment regex to be matched
-     *
-     * @var $regex
-     *
-     * @access private
+     * @var string
      */
     private $regex;
 
-
     /**
-     * Route parameter placeholder in CI native format
-     *
-     * @var $placeholder
-     *
-     * @access private
+     * @var string
      */
     private $placeholder;
 
-
     /**
-     * Is the parameter optional?
-     *
-     * @var $optional
-     *
-     * @access private
+     * @var bool
      */
     private $optional;
 
-
     /**
-     * Original Luthier route segment
-     *
-     * @var $segment
-     *
-     * @access private
+     * @var string
      */
     private $segment;
 
-
-
     /**
-     * Route param default value
-     *
-     * @var $value
-     *
-     * @access public
+     * @var string
      */
     public $value;
 
-
     /**
-     * Luthier route placeholder to CI route placeholder
+     * Luthier CI placeholder -> CodeIgniter placeholder conversion
      *
-     * @var $patterns
-     *
-     * @access private
+     * @var string[]
      */
     private static $placeholderPatterns = [
-        '{num:[a-zA-Z0-9-_]*(\?}|})'      => '(:num)', # (:num) route
-        '{any:[a-zA-Z0-9-_]*(\?}|})'      => '(:any)', # (:any) route
-        '{[a-zA-Z0-9-_]*(\?}|})'          => '(:any)', # Everything else
+        '{num:[a-zA-Z0-9-_]*(\?}|})'  => '(:num)', # (:num) route
+        '{any:[a-zA-Z0-9-_]*(\?}|})'  => '(:any)', # (:any) route
+        '{[a-zA-Z0-9-_]*(\?}|})'      => '(:any)', # Everything else
     ];
 
-
     /**
-     * CodeIgniter route placeholder to regex
+     * CodeIgniter placeholder -> regex conversaion
      *
-     * @var static $placeholderReplacements
-     *
-     * @access private
+     * @var string[]
      */
     private static $placeholderReplacements = [
         '/\(:any\)/'  => '[^/]+',
         '/\(:num\)/'  => '[0-9]+',
     ];
 
-
     /**
-     * Get the CodeIgniter route placeholder to Regex
+     * Gets Luthier CI -> CodeIgniter placeholder conversion array
      *
-     * @return array
-     *
-     * @access public
-     * @static
+     * @return string[]
      */
     public static function getPlaceholderReplacements()
     {
         return self::$placeholderReplacements;
     }
 
-
     /**
-     * Class constructor
-     *
-     * @param  string  $segment
-     *
-     * @return $this
-     *
-     * @access public
+     * @param string $segment Original route segment
      */
-    public function __construct($segment, $default = null)
+    public function __construct($segment)
     {
         $this->segment = $segment;
         $customRegex = false;
@@ -156,65 +115,50 @@ final class RouteParam
         $this->name = substr($name,1, !$this->optional ? -1 : -2);
     }
 
-
     /**
-     * Get parameter name
-     *
+     * Gets parameter name
+     * 
      * @return string
-     *
-     * @access public
      */
     public function getName()
     {
         return $this->name;
     }
 
-
     /**
-     * Get original segment
+     * Gets original segment
      *
      * @return string
-     *
-     * @access public
      */
     public function getSegment()
     {
         return $this->segment;
     }
 
-
     /**
-     * Get segment regex
+     * Gets segment regex
      *
      * @return string
-     *
-     * @access public
      */
     public function getRegex()
     {
         return $this->regex;
     }
 
-
     /**
-     * Get segment placeholder
+     * Gets segment placeholder
      *
      * @return string
-     *
-     * @access public
      */
     public function getPlaceholder()
     {
         return $this->placeholder;
     }
 
-
     /**
-     * Is the segment optional?
+     * Checks if a segment is optional or not
      *
      * @return bool
-     *
-     * @access public
      */
     public function isOptional()
     {

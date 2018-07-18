@@ -1,23 +1,33 @@
 <?php
 
-/**
- * SimpleAuth Middleware class
+/*
+ * Luthier CI
  *
- * @autor Anderson Salas <anderson@ingenia.me>
- * @licence MIT
+ * (c) 2018 Ingenia Software C.A
+ *
+ * This file is part of Luthier CI, a plugin for CodeIgniter 3. See the LICENSE
+ * file for copyright information and license details
  */
 
 namespace Luthier\Auth\SimpleAuth;
 
-use Luthier\Auth;
 use Luthier\Auth\Middleware as AuthMiddleware;
 use Luthier\Auth\UserInterface;
 use Luthier\Auth\SimpleAuth\Middleware\RememberMeMiddleware;
 use Luthier\Route;
-use Luthier\Debug;
 
+/**
+ * SimpleAuth implementation of the Controller-based authentication
+ * 
+ * @author Anderson Salas <anderson@ingenia.me>
+ */
 class Middleware extends AuthMiddleware
 {
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\Middleware::preLogin()
+     */
     public function preLogin(Route $route)
     {
         if(
@@ -42,6 +52,11 @@ class Middleware extends AuthMiddleware
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\Middleware::onLoginSuccess()
+     */
     public function onLoginSuccess(UserInterface $user)
     {
         if( config_item('simpleauth_enable_remember_me') === true )
@@ -56,6 +71,11 @@ class Middleware extends AuthMiddleware
         );
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\Middleware::onLoginFailed()
+     */
     public function onLoginFailed($username)
     {
         ci()->load->database();
@@ -72,16 +92,31 @@ class Middleware extends AuthMiddleware
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\Middleware::onLoginInactiveUser()
+     */
     public function onLoginInactiveUser(UserInterface $user)
     {
         return;
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\Middleware::onLoginUnverifiedUser()
+     */
     public function onLoginUnverifiedUser(UserInterface $user)
     {
         return;
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see \Luthier\Auth\Middleware::onLogout()
+     */
     public function onLogout()
     {
         ci()->middleware->run( new RememberMeMiddleware(), 'destroy');
