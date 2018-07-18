@@ -193,7 +193,7 @@ CONTROLLER;
     /**
      * Show action
      *
-     * @param  mixed  $id
+     * @param  string  $id
      */
     public function show($id)
     {
@@ -204,7 +204,7 @@ CONTROLLER;
     /**
      * Edit action
      *
-     * @param  mixed  $id
+     * @param  string  $id
      */
     public function edit($id)
     {
@@ -215,7 +215,7 @@ CONTROLLER;
     /**
      * Update action
      *
-     * @param  mixed  $id
+     * @param  string  $id
      */
     public function update($id)
     {
@@ -226,7 +226,7 @@ CONTROLLER;
     /**
      * Destroy action
      *
-     * @param  mixed $id
+     * @param  string $id
      */
     public function destroy($id)
     {
@@ -295,9 +295,6 @@ MODEL;
      * @param  string  $name helper name
      *
      * @return void
-     *
-     * @access private
-     * @static
      */
     private static function makeHelper($name)
     {
@@ -336,6 +333,13 @@ HELPER;
     }
 
 
+    /**
+     * Creates a middleware
+     * 
+     * @param string $name Middleware name
+     * 
+     * @return void
+     */
     private static function makeMiddleware($name)
     {
         $dir = [];
