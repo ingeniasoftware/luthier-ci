@@ -14,7 +14,7 @@ namespace Luthier;
 /**
  * Represents a Luthier CI route
  *
- * @autor Anderson Salas <anderson@ingenia.me>
+ * @author Anderson Salas <anderson@ingenia.me>
  */
 class Route
 {
