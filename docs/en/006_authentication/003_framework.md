@@ -529,7 +529,7 @@ class MyUserProvider implements UserProviderInterface
     final public function checkUserIsActive(UserInterface $user)
     {
         /*
-         * The getEntity () method is used to return an array / object / entity with the
+         * The getEntity() method is used to return an array / object / entity with the
          * user data. In our case, it is an object, so we can use
          * the following chained syntax:
          */
@@ -925,7 +925,7 @@ public function `getMiddleware()
 }
 ```
 
-The `login()` and `logout()` methods define, respectively, the start and end of the session. When a user logs in, the request will be intercepted and handled automatically by Luthier CI, so that in our controller we only have to show a view with the login form:
+The `login()` and `logout()` methods defines the start and end of the session. When a user logs in, the request will be intercepted and handled automatically by Luthier CI, so that in our controller we only have to show a view with the login form:
 
 ```php
 public function login()
@@ -1096,12 +1096,12 @@ class MyAuthMiddleware extends Luthier\Auth\Middleware
 
 Each method corresponds to an authentication event, explained below:
 
-* **preLogin**: Event activated when the user visits the login path, regardless of whether he or she logs in or not.
-* **onLoginSuccess**: Event activated immediately after a successful login session, and before the redirect that follows.
-* **onLoginFailed**: Event activated after a failed session attempt, and before the redirect that follows.
-* **onLoginInactiveUser**: This event is triggered if an `InactiveUserException` exception is thrown within the User Provider, corresponding to an inactive user login error.
-* **onLoginUnverifiedUser**: This event is triggered if an `UnverifiedUserException` exception is thrown inside the User Provider, corresponding to an error by login of an unverified user.
-* **onLogout**: Event activated immediately after the user closes session.
+* **preLogin**: Event triggered when the user visits the login path, regardless of whether logs in or not.
+* **onLoginSuccess**: Event triggered immediately after a successful login session, and before the redirect that follows.
+* **onLoginFailed**: Event triggered after a failed session attempt, and before the redirect that follows.
+* **onLoginInactiveUser**: Event triggered if an `InactiveUserException` exception is thrown within the User Provider, corresponding to an inactive user login error.
+* **onLoginUnverifiedUser**: Event triggered if an `UnverifiedUserException` exception is thrown inside the User Provider, corresponding to an error by login of an unverified user.
+* **onLogout**: Event triggered immediately after the user closes session.
 
 
 

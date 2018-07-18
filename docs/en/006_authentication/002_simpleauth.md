@@ -143,7 +143,7 @@ If you have followed all the steps correctly, when visiting the url `/login` you
 
 ### <a name="simpleauth-controller"></a> SimpleAuth Controller
 
-The SimpleAuth driver (`SimpleAuthController`) contains authentication actions such as login, user registration, password reset, among others. It looks similar to this:
+The SimpleAuth controller (`SimpleAuthController`) contains authentication actions such as login, user registration, password reset, among others. It looks similar to this:
 
 ```php
 <?php
