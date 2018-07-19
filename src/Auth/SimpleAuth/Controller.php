@@ -132,7 +132,7 @@ class Controller extends \CI_Controller implements AuthControllerInterface
 
         foreach(['css','js','img'] as $folder)
         {
-            $source =  LUTHIER_CI_DIR . '/Resources/Assets/SimpleAuth/skins/' . $skin . '/assets/' . $folder;
+            $source =  LUTHIER_CI_DIR . '/Resources/SimpleAuth/Assets/skins/' . $skin . '/assets/' . $folder;  
 
             if(file_exists($source))
             {
