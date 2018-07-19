@@ -36,9 +36,7 @@ class Cli
         }
 
         Route::group('luthier', function(){
-
             Route::group('make', function(){
-
                 Route::cli('controller/{(.+):name}',function($name){
                     self::makeContoller($name);
                 });
@@ -66,9 +64,7 @@ class Cli
                 Route::cli('auth', function(){
                     self::makeAuth();
                 });
-
             });
-
         });
     }
 
@@ -85,15 +81,11 @@ class Cli
         }
 
         Route::group('luthier', function(){
-
             Route::group('migrate', function(){
-
                 Route::cli('{version?}',function($version = null){
                     self::migrate($version);
                 });
-
             });
-
         });
     }
 
@@ -171,7 +163,6 @@ CONTROLLER;
 
     }
 
-
     /**
      * Create action
      */
@@ -180,7 +171,6 @@ CONTROLLER;
 
     }
 
-
     /**
      * Store action
      */
@@ -188,7 +178,6 @@ CONTROLLER;
     {
 
     }
-
 
     /**
      * Show action
@@ -200,7 +189,6 @@ CONTROLLER;
 
     }
 
-
     /**
      * Edit action
      *
@@ -211,7 +199,6 @@ CONTROLLER;
 
     }
 
-
     /**
      * Update action
      *
@@ -221,7 +208,6 @@ CONTROLLER;
     {
 
     }
-
 
     /**
      * Destroy action

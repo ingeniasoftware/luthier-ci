@@ -50,15 +50,14 @@ function route_exists($name)
  * 
  * @return object
  */
-function ci()
+function &ci()
 {
-    $CI = &get_instance();
-    return $CI;
+    return get_instance();
 }
 
 /**
  * Shows a screen with information about Luthier CI
- * 
+ *
  * @return void
  */
 function luthier_info()
