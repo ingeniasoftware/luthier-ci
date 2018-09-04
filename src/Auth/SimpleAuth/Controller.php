@@ -469,8 +469,8 @@ class Controller extends \CI_Controller implements AuthControllerInterface
                     // this email address (max 3 within 2 hours)
 
                     $requestCount = $this->db->where('email', $this->input->post('email'))
-                        ->where('created_at >=', date('Y-m-d H:i:s'))
-                        ->where('created_at <=', date('Y-m-d H:i:s', time() + (60 * 60 * 2))) // 2 hours
+                        ->where('created_at <=', date('Y-m-d H:i:s'))
+                        ->where('created_at >=', date('Y-m-d H:i:s', time() - (60 * 60 * 2))) // 2 hours
                         ->count_all_results(config_item('simpleauth_password_resets_table'));
 
                     Debug::log('Password reset count for this email: ' . $requestCount, 'info', 'auth');
