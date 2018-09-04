@@ -183,7 +183,7 @@ class Hook
         {
             if(strtolower($_SERVER['REQUEST_METHOD']) == 'post' && isset($_POST['_method']))
             {
-                $_SERVER['RQUEST_METHOD'] = $_POST['_method'];
+                $_SERVER['REQUEST_METHOD'] = $_POST['_method'];
             }
 
             $requestMethod = $_SERVER['REQUEST_METHOD'];
