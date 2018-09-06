@@ -81,7 +81,7 @@ class Hook
      */
     private static function preSystemHook($config)
     {
-        define('LUTHIER_CI_VERSION', '1.0.1');
+        define('LUTHIER_CI_VERSION', '1.0.3');
         define('LUTHIER_CI_DIR', __DIR__);
 
         $isAjax =  isset($_SERVER['HTTP_X_REQUESTED_WITH']) 
@@ -293,6 +293,10 @@ class Hook
 
                     $route->params[$pcount]->value =  $URI->segment($i+1);
 
+                    if(is_callable($route->getAction()) && !empty($URI->segment($i+1))){
+                        $params[$route->params[$pcount]->getName()] = $URI->segment($i+1);
+                    }
+
                     // Removing "sticky" route parameters
                     if(substr($route->params[$pcount]->getName(), 0, 1) == '_')
                     {
@@ -322,6 +326,19 @@ class Hook
         }
 
         Route::setCurrentRoute($route);
+        
+        // If the current route is an anonymous route, we must prevent
+        // the execution of their 'traditional' counterpart (if exists)
+        if(is_callable($route->getAction()))
+        {
+            $RTR = &load_class('Router', 'core'); 
+            $class = Route::DEFAULT_CONTROLLER;
+            if(!class_exists($class))
+            {
+                require_once APPPATH.'/controllers/'.  Route::DEFAULT_CONTROLLER .'.php';
+            }
+            $method = 'index';
+        }
     }
 
     /**

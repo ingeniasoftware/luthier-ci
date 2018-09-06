@@ -372,15 +372,15 @@ class Route
      */
     public function buildUrl($params)
     {
-        $defaultParams = RouteBuilder::getDefaultParams();
+        $defaults = RouteBuilder::getDefaultParams();
 
-        if(is_string($params))
+        if(!is_array($params))
         {
-            $params = [ '*' => $params ];
-        }
-        else
-        {
-            if(!is_array($params))
+            if(!empty($params) && count($this->params) == 1)
+            {
+                $params = [ $this->params[0]->getName() => $params ];
+            }
+            else
             {
                 $params = [];
             }
@@ -392,23 +392,23 @@ class Route
         {
             $name = $param->getName();
 
-            if(!$param->isOptional())
+            if(!$param->isOptional() && !isset($defaults[$name]) && !isset($params[$param->getName()]))
             {
-                if(!isset($defaultParams[$name]) && !isset($params[$param->getName()]))
-                {
-                    throw new \Exception('Missing "' . $name .'" parameter for "' . $this->getName() . '" route');
-                }
+                throw new \Exception('Missing "' . $name .'" parameter for "' . $this->getName() . '" route');
+            }
 
-                if(isset($defaultParams[$name]))
-                {
-                    $param->value = $defaultParams[$param->getName()];
-                }
+            if(isset($defaults[$name]))
+            {
+                $param->value = $defaults[$param->getName()];
+            }
 
-                if(isset($params[$param->getName()]))
-                {
-                    $param->value = $params[$param->getName()];
-                }
+            if(isset($params[$param->getName()]))
+            {
+                $param->value = $params[$param->getName()];
+            }
 
+            if(isset($defaults[$name]) || isset($params[$param->getName()]))
+            {
                 $path = str_replace($param->getSegment(), $param->value, $path);
             }
             else
