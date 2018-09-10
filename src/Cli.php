@@ -88,9 +88,49 @@ class Cli
             });
         });
     }
+    
+    /**
+     * Parses a CLI agument 
+     * 
+     * @param string $name    Parameter value
+     * @param mixed  $default Default parameter value
+     * @internal
+     * 
+     * @return boolean|array|string
+     */
+    private static function arg($name, $default = null)
+    {
+        foreach($_SERVER['argv'] as $arg){
+            $find = '--' . $name;
+            if(substr($arg, 0, strlen($find)) == $find){
+                if($arg == $find){
+                    return true;
+                }
+                if(count(explode(':',$arg)) == 2){
+                    list(,$value) = explode(':',$arg);
+                    return $value;
+                }
+            }
+        }
+        return $default;
+    }
 
     /**
      * Creates a new controller
+     *
+     * To create a resource controller with common CRUD operations structure,
+     * use the --resource parameter. Example:
+     * 
+     *   php index.php luthier make controller Airplanes --resource
+     *
+     * (For HMVC users) To specify the module name, use the --module:[name] 
+     * parameter. Example:
+     * 
+     *   php index.php luthier make controller Invoice --module:MyModule
+     *   
+     *   ... you can also create a new resource module controller:
+     *   
+     *   php index.php luthier make controller Invoice --module:MyModule --resource
      *
      * @param  string $name Controller name
      *
@@ -98,26 +138,30 @@ class Cli
      */
     private static function makeContoller($name, $resource = false)
     {
-        // FIXME: Add a nice syntax for this (a method in the RouteBuilder class maybe?)
-        $isResource = isset($_SERVER['argv'][5]) && $_SERVER['argv'][5] == '--resource';
-
-        $dir = [];
-
+        $resource = self::arg('resource') === true;
+        $module = self::arg('module');
+        
+        if(!is_string($module) || empty($module)){
+            $module = null;
+        }
+        
+        $subFolder = null;
+        $name = ucfirst($name) . 'Controller';
+        
         if(count(explode('/', $name)) > 0)
         {
-            $dir  = explode('/', $name);
-            $name = array_pop($dir);
+            $subFolder = explode('/', $name);
+            $name = array_pop($subFolder);
+            $subFolder = implode('/', $subFolder);
         }
-
-        $name = ucfirst($name) . 'Controller';
-        $path = APPPATH . 'controllers/' . ( empty($dir) ? $name : implode('/', $dir) . '/' . $name ) . '.php';
-
-        if(!empty($dir))
-        {
-            Utils::rmkdir($dir,'controllers');
+        
+        $path = APPPATH . (!empty($module) ? 'modules/' . $module . '/' : '' ) . 'controllers/' . (!empty($subFolder) ? $subFolder . '/' : '' );
+        
+        if(!file_exists($path)){
+            mkdir($path, 0777, true);
         }
-
-        if(file_exists($path))
+        
+        if(file_exists($path . '/' . $name . '.php'))
         {
             show_error('The file already exists!');
         }
@@ -140,7 +184,7 @@ class $name extends CI_Controller
 CONTROLLER;
 
 
-        if(!$isResource)
+        if(!$resource)
         {
             $controllerBody ='
     /**
@@ -223,41 +267,52 @@ CONTROLLER;
 
         $file = str_ireplace('%CONTROLLER_BODY%', $controllerBody, $file);
 
-        file_put_contents($path, $file);
+        file_put_contents($path . '/' . $name . '.php', $file);
 
-        echo "\nCREATED:\n" . realpath($path) . "\n";
+        echo "\nCREATED:\n" . realpath($path . '/' . $name . '.php') . "\n";
     }
-
+    
     /**
      * Creates a new model
+     *
+     * (For HMVC users) To specify the module name, use the --module:[name]
+     * parameter. Example:
+     *
+     *   php index.php luthier make model Invoice --module:MyModule
      *
      * @param  string $name Model name
      *
      * @return void
      */
     private static function makeModel($name)
-    {
-        $dir = [];
-
+    {        
+        $module = self::arg('module');
+        
+        if(!is_string($module) || empty($module)){
+            $module = null;
+        }
+        
+        $subFolder = null;
+        $name = ucfirst($name) . '_model';
+        
         if(count(explode('/', $name)) > 0)
         {
-            $dir  = explode('/', $name);
-            $name = array_pop($dir);
+            $subFolder = explode('/', $name);
+            $name = array_pop($subFolder);
+            $subFolder = implode('/', $subFolder);
         }
-
-        $name = ucfirst($name) . '_model';
-        $path = APPPATH . 'models/' . ( empty($dir) ? $name : implode('/', $dir) . '/' . $name ) . '.php';
-
-        if(!empty($dir))
-        {
-            Utils::rmkdir($dir,'models');
+        
+        $path = APPPATH . (!empty($module) ? 'modules/' . $module . '/' : '' ) . 'models/' . (!empty($subFolder) ? $subFolder . '/' : '' );
+        
+        if(!file_exists($path)){
+            mkdir($path, 0777, true);
         }
-
-        if(file_exists($path))
+        
+        if(file_exists($path . '/' . $name . '.php'))
         {
             show_error('The file already exists!');
         }
-
+        
         $file = <<<MODEL
 <?php
 
@@ -269,9 +324,9 @@ class $name extends CI_Model
 }
 MODEL;
 
-        file_put_contents($path, $file);
+        file_put_contents($path . '/' . $name . '.php', $file);
 
-        echo "\nCREATED:\n" . realpath($path) . "\n";
+        echo "\nCREATED:\n" . realpath($path . '/' . $name . '.php') . "\n";
     }
 
 
@@ -282,29 +337,48 @@ MODEL;
      *
      * @return void
      */
+    
+    /**
+     * Creates a new model
+     *
+     * (For HMVC users) To specify the module name, use the --module:[name]
+     * parameter. Example:
+     *
+     *   php index.php luthier make model Invoice --module:MyModule
+     *
+     * @param  string $name Model name
+     *
+     * @return void
+     */
     private static function makeHelper($name)
-    {
-        $dir = [];
-
+    {        
+        $module = self::arg('module');
+        
+        if(!is_string($module) || empty($module)){
+            $module = null;
+        }
+        
+        $subFolder = null;
+        $name = ucfirst($name) . '_helper';
+        
         if(count(explode('/', $name)) > 0)
         {
-            $dir  = explode('/', $name);
-            $name = array_pop($dir);
+            $subFolder = explode('/', $name);
+            $name = array_pop($subFolder);
+            $subFolder = implode('/', $subFolder);
         }
-
-        $name = ucfirst($name) . '_helper';
-        $path = APPPATH . 'helpers/' . ( empty($dir) ? $name : implode('/', $dir) . '/' . $name ) . '.php';
-
-        if(!empty($dir))
-        {
-            Utils::rmkdir($dir,'helpers');
+        
+        $path = APPPATH . (!empty($module) ? 'modules/' . $module . '/' : '' ) . 'helpers/' . (!empty($subFolder) ? $subFolder . '/' : '' );
+        
+        if(!file_exists($path)){
+            mkdir($path, 0777, true);
         }
-
-        if(file_exists($path))
+        
+        if(file_exists($path . '/' . $name . '.php'))
         {
             show_error('The file already exists!');
         }
-
+        
         $file = <<<HELPER
 <?php
 
@@ -312,10 +386,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 
 HELPER;
-
-        file_put_contents($path, $file);
-
-        echo "\nCREATED:\n" . realpath($path) . "\n";
+        
+        file_put_contents($path . '/' . $name . '.php', $file);
+        
+        echo "\nCREATED:\n" . realpath($path . '/' . $name . '.php') . "\n";
     }
 
 
@@ -383,6 +457,8 @@ MIDDLEWARE;
      */
     private static function makeLibrary($name)
     {
+        // TODO: Add HMVC Support
+        
         $dir = [];
 
         if(count(explode('/', $name)) > 0)
