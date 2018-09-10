@@ -427,7 +427,7 @@ Revoca el permiso `$permission` al usuario `$username`, retornando `TRUE` si la 
 
 ```php
 // Revocando el permiso 'general.read' al usuario actual
-$this->simple_auth->grantPermission('general.read');
+$this->simple_auth->revokePermission('general.read');
 ```
 
 #### <a name="simpleauth-library-other-functions"></a> Otras funciones
