@@ -116,7 +116,7 @@ class Cli
     }
 
     /**
-     * Creates a new controller
+     * Creates a controller
      *
      * To create a resource controller with common CRUD operations structure,
      * use the --resource parameter. Example:
@@ -273,12 +273,12 @@ CONTROLLER;
     }
     
     /**
-     * Creates a new model
+     * Creates a model
      *
      * (For HMVC users) To specify the module name, use the --module:[name]
      * parameter. Example:
      *
-     *   php index.php luthier make model Invoice --module:MyModule
+     *   php index.php luthier make model ModelName --module:MyModule
      *
      * @param  string $name Model name
      *
@@ -329,24 +329,16 @@ MODEL;
         echo "\nCREATED:\n" . realpath($path . '/' . $name . '.php') . "\n";
     }
 
-
-    /**
-     * Creates a helper
-     *
-     * @param  string  $name helper name
-     *
-     * @return void
-     */
     
     /**
-     * Creates a new model
+     * Creates a helper
      *
      * (For HMVC users) To specify the module name, use the --module:[name]
      * parameter. Example:
      *
-     *   php index.php luthier make model Invoice --module:MyModule
+     *   php index.php luthier make helper MyHelper --module:MyModule
      *
-     * @param  string $name Model name
+     * @param  string $name Helper name
      *
      * @return void
      */
@@ -449,7 +441,7 @@ MIDDLEWARE;
     }
 
     /**
-     * Creates a new library
+     * Creates a library
      *
      * @param  string $name Library name
      *
@@ -457,29 +449,33 @@ MIDDLEWARE;
      */
     private static function makeLibrary($name)
     {
-        // TODO: Add HMVC Support
+        $module = self::arg('module');
         
-        $dir = [];
-
+        if(!is_string($module) || empty($module)){
+            $module = null;
+        }
+        
+        $subFolder = null;
+        $name = ucfirst($name);
+        
         if(count(explode('/', $name)) > 0)
         {
-            $dir  = explode('/', $name);
-            $name = array_pop($dir);
+            $subFolder = explode('/', $name);
+            $name = array_pop($subFolder);
+            $subFolder = implode('/', $subFolder);
         }
-
-        $name = ucfirst($name) ;
-        $path = APPPATH . 'libraries/' . ( empty($dir) ? $name : implode('/', $dir) . '/' . $name ) . '.php';
-
-        if(!empty($dir))
-        {
-            Utils::rmkdir($dir,'libraries');
+        
+        $path = APPPATH . (!empty($module) ? 'modules/' . $module . '/' : '' ) . 'libraries/' . (!empty($subFolder) ? $subFolder . '/' : '' );
+        
+        if(!file_exists($path)){
+            mkdir($path, 0777, true);
         }
-
-        if(file_exists($path))
+        
+        if(file_exists($path . '/' . $name . '.php'))
         {
             show_error('The file already exists!');
         }
-
+        
         $file = <<<LIBRARY
 <?php
 
@@ -490,14 +486,14 @@ class $name
 
 }
 LIBRARY;
-
-        file_put_contents($path, $file);
-
-        echo "\nCREATED:\n" . realpath($path) . "\n";
+        
+        file_put_contents($path . '/' . $name . '.php', $file);
+        
+        echo "\nCREATED:\n" . realpath($path . '/' . $name . '.php') . "\n";
     }
 
     /**
-     * Creates a new migration
+     * Creates a migration
      *
      * @param  string  $name Name
      * @param  string  $type Type (sequential|date)
