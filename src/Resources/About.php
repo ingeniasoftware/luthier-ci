@@ -55,7 +55,7 @@
                 <a href="https://forum.codeigniter.com/thread-70497.html">Help</a>
             </p>
 
-            <?php if(route_exists('login')){ ?>
+            <?php if(route_exists('login') && class_exists('Auth')){ ?>
             <p>
                 Auth:
 
