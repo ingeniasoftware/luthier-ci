@@ -135,6 +135,7 @@ class Utils
     /**
      * Recursive mkdir function
      * 
+     * @deprecated Use mkdir('path', 0777, true) instead!
      * @param string[]  $folders Array with folders to be created
      * @param string    $base    Target base path
      * 
