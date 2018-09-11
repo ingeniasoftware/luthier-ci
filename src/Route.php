@@ -374,6 +374,11 @@ class Route
     {
         $defaults = RouteBuilder::getDefaultParams();
 
+        // Thanks for @Ihabafia for the suggest!
+        if(is_object($params)){
+            $params = (array) $params;
+        }
+        
         if(!is_array($params))
         {
             if(!empty($params) && count($this->params) == 1)
