@@ -81,7 +81,7 @@ class Hook
      */
     private static function preSystemHook($config)
     {
-        define('LUTHIER_CI_VERSION', '1.0.4');
+        define('LUTHIER_CI_VERSION', '1.0.5');
         define('LUTHIER_CI_DIR', __DIR__);
 
         $isAjax =  isset($_SERVER['HTTP_X_REQUESTED_WITH']) 
