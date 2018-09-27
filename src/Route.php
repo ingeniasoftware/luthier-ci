@@ -364,9 +364,9 @@ class Route
     }
 
     /**
-     * Build route absolute url
+     * Builds the route absolute url
      *
-     * @param  string|array $params Route parameters
+     * @param  mixed $params Route parameters
      *
      * @return string
      */
@@ -374,7 +374,7 @@ class Route
     {
         $defaults = RouteBuilder::getDefaultParams();
 
-        // Thanks for @Ihabafia for the suggest!
+        // Thanks to @Ihabafia for the suggest!
         if(is_object($params)){
             $params = (array) $params;
         }
@@ -392,16 +392,19 @@ class Route
         }
 
         $path = $this->getPrefix() . '/' . $this->getPath();
-
+        $skippedOptional = null;
+        
         foreach($this->params as &$param)
         {
             $name = $param->getName();
-
-            if(!$param->isOptional() && !isset($defaults[$name]) && !isset($params[$param->getName()]))
+            $isMissingRequiredField = !$param->isOptional() && !isset($defaults[$name]) && !isset($params[$param->getName()]);
+            $alreadySkippedOptionalField = $param->isOptional() && $skippedOptional !== null && (isset($defaults[$name]) || isset($params[$name]));
+            
+            if( $isMissingRequiredField || $alreadySkippedOptionalField )
             {
-                throw new \Exception('Missing "' . $name .'" parameter for "' . $this->getName() . '" route');
+                throw new \Exception('Missing "' . ($skippedOptional === null ? $name : $skippedOptional) . '" parameter for "' . $this->getName() . '" route');
             }
-
+                        
             if(isset($defaults[$name]))
             {
                 $param->value = $defaults[$param->getName()];
@@ -418,10 +421,13 @@ class Route
             }
             else
             {
+                $skippedOptional = $skippedOptional === null 
+                    ? $param->getName() 
+                    : $skippedOptional;
+                
                 $_path = explode('/', $path);
-                array_pop($_path);
-                $path = implode('/', $_path);
-                array_pop($this->params);
+                unset($_path[array_search($param->getSegment(), $_path)]);
+                $path  = implode('/', $_path);
             }
         }
 
