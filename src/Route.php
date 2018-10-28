@@ -206,38 +206,44 @@ class Route
 
         foreach(explode('/', $fullPath) as $i => $segment)
         {
-            if(preg_match('/^\{(.*)\}$/', $segment))
+            if(preg_match_all('/\{(.*?)\}+/', $segment, $matches))
             {
                 if($this->paramOffset === null)
                 {
                     $this->paramOffset = $i;
                 }
 
-                $param  = new RouteParam($segment);
+                $params = [];
 
-                if(in_array($param->getName(), $_names))
-                {
-                    show_error('Duplicate route parameter <strong>' . $param->getName() . '</strong> in route <strong>"' .  $this->path . '</strong>"');
+                foreach ($matches[0] as $paramCode) {
+                    $params[] = new RouteParam($paramCode);
                 }
 
-                $_names[] = $param->getName();
-
-                if( $param->isOptional() )
-                {
-                    $this->hasOptionalParams = true;
-                    if($this->optionalParamOffset === null)
+                foreach ($params as $key => $param) {
+                    if(in_array($param->getName(), $_names))
                     {
-                        $this->optionalParamOffset = $i;
+                        show_error('Duplicate route parameter <strong>' . $param->getName() . '</strong> in route <strong>"' .  $this->path . '</strong>"');
                     }
-                }
-                else
-                {
-                    if( $this->hasOptionalParams )
+
+                    $_names[] = $param->getName();
+
+                    if( $param->isOptional() )
                     {
-                        show_error('Required <strong>' . $param->getName() . '</strong> route parameter is not allowed at this position in <strong>"' . $this->path . '"</strong> route');
+                        $this->hasOptionalParams = true;
+                        if($this->optionalParamOffset === null)
+                        {
+                            $this->optionalParamOffset = $i;
+                        }
                     }
+                    else
+                    {
+                        if( $this->hasOptionalParams )
+                        {
+                            show_error('Required <strong>' . $param->getName() . '</strong> route parameter is not allowed at this position in <strong>"' . $this->path . '"</strong> route');
+                        }
+                    }
+                    $this->params[] = $param;
                 }
-                $this->params[] = $param;
             }
         }
         
