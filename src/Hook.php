@@ -287,13 +287,15 @@ class Hook
         if(!$route->isCli)
         {
             $params_result = [];
-            
+            $scount = 0;
+
             foreach(explode('/', $path) as $currentSegmentIndex => $segment)
             {
                 $key = [];
 
                 if(preg_match('/\{(.*?)\}+/', $segment))
                 {
+
                     foreach ($route->params as $param) 
                     {
                         if (empty($key[$param->getSegmentIndex()])) 
@@ -311,8 +313,8 @@ class Hook
                             $segment = preg_replace('/\((.*)\):/', '', $segment);
 
                             if (preg_match('#^'.$key[$currentSegmentIndex].'$#', $URI->segment($currentSegmentIndex+1), $matches)) {
-                                if (isset($matches[$pcount])) {
-                                    $route->params[$pcount]->value = $matches[$pcount];
+                                if (isset($matches[$pcount + 1 - $scount])) {
+                                    $route->params[$pcount]->value = $matches[$pcount + 1 - $scount];
                                 }
                             }
 
@@ -329,6 +331,7 @@ class Hook
                             $pcount++;
                         }
                     }
+                    $scount++;
                 }
             }
 
