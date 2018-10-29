@@ -313,7 +313,6 @@ class Hook
                             if (preg_match('#^'.$key[$currentSegmentIndex].'$#', $URI->segment($currentSegmentIndex+1), $matches)) {
                                 if (isset($matches[$pcount])) {
                                     $route->params[$pcount]->value = $matches[$pcount];
-                                    var_dump($matches);
                                 }
                             }
 
