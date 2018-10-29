@@ -49,6 +49,16 @@ class RouteParam
     public $value;
 
     /**
+     * @var string
+     */
+    public $segmentIndex;
+
+    /**
+     * @var string
+     */
+    public $fullSegment;
+
+    /**
      * Luthier CI placeholder -> CodeIgniter placeholder conversion
      *
      * @var string[]
@@ -82,7 +92,7 @@ class RouteParam
     /**
      * @param string $segment Original route segment
      */
-    public function __construct($segment)
+    public function __construct($segment, $segmentIndex, $fullSegment)
     {
         $this->segment = $segment;
         $customRegex = false;
@@ -111,6 +121,8 @@ class RouteParam
             }
         }
 
+        $this->segmentIndex = $segmentIndex;
+        $this->fullSegment = $fullSegment;
         $this->optional = substr($segment,-2,1) == '?';
         $this->name = substr($name,1, !$this->optional ? -1 : -2);
     }
@@ -163,5 +175,21 @@ class RouteParam
     public function isOptional()
     {
         return $this->optional;
+    }
+
+    /**
+     * @return type
+     */
+    public function getFullSegment()
+    {
+        return $this->fullSegment;
+    }
+
+    /**
+     * @return type
+     */
+    public function getSegmentIndex()
+    {
+        return $this->segmentIndex;
     }
 }

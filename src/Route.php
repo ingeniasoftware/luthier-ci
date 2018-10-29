@@ -216,7 +216,7 @@ class Route
                 $params = [];
 
                 foreach ($matches[0] as $paramCode) {
-                    $params[] = new RouteParam($paramCode);
+                    $params[] = new RouteParam($paramCode, $i, $segment);
                 }
 
                 foreach ($params as $key => $param) {
