@@ -392,6 +392,7 @@ class RouteBuilder
 
         if(self::$autoRoute) 
         {
+
             $segments = explode('/', $url);
 
             if (count($segments) >= 3) 
@@ -406,10 +407,19 @@ class RouteBuilder
                     self::$context['namespace'][] = $prefix;
                     self::$context['prefix'][] = $prefix;
 
-                    $route = new Route('any', [
+                     $options = [
                         0 => $url,
                         1 => ucfirst($class).'@'.$method
-                    ]);
+                    ];
+
+                    foreach (self::$routes as $existingRoute) {
+                        if ($existingRoute->getPath() === '/' && $existingRoute->getFullPath() === $prefix) {
+                            $middlewares = $existingRoute->getMiddleware();
+                            $options[2]['middleware'] = $middlewares[0];
+                        }
+                    }
+
+                    $route = new Route('any', $options);
 
                     return $route;
                 }
