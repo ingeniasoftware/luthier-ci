@@ -68,8 +68,17 @@ class RouteBuilder
      */
     private static $_404;
 
+    /**
+     * @var string|callable
+     */
+    private static $autoRoute = false;
+
     public static function __callStatic($callback, array $args)
     {
+        if ($callback === 'setAutoRoute') {
+            return ;
+        }
+
         if(is_cli() && $callback != 'cli' || !is_cli() && $callback == 'cli' || (!is_cli() && is_array($callback) && in_array('CLI', $callback)))
         {
             show_error('You only can define CLI routes in CLI context. Please define this route using the Route::cli() method in your routes/cli.php file instead');
@@ -94,6 +103,18 @@ class RouteBuilder
         self::$routes[] = $route;
 
         return $route;
+    }
+
+    /**
+     * Allow to match URI against the controllers and methods
+     * 
+     * @param boolean          $active
+     * 
+     * @return void
+     */
+    public static function setAutoRoute($active)
+    {
+        self::$autoRoute = $active;
     }
 
     /**
@@ -365,6 +386,57 @@ class RouteBuilder
                     {
                         return $route;
                     }
+                }
+            }
+        }
+
+        if(self::$autoRoute) 
+        {
+
+            $segments = explode('/', $url);
+
+            if (count($segments) >= 3) 
+            {
+                $prefix = $segments[0];
+                $class  = $segments[1];
+                $method = $segments[2];
+                $params = array_slice($segments, 3);
+
+                if (is_dir(APPPATH.'controllers/'.$prefix) && file_exists(APPPATH.'controllers/'.$prefix.'/'.ucfirst($class).'.php')) 
+                {
+                    self::$context['namespace'][] = $prefix;
+                    self::$context['prefix'][] = $prefix;
+
+                     $options = [
+                        0 => $url,
+                        1 => ucfirst($class).'@'.$method
+                    ];
+
+                    foreach (self::$routes as $existingRoute) {
+                        if ($existingRoute->getPath() === '/' && $existingRoute->getFullPath() === $prefix) {
+                            $middlewares = $existingRoute->getMiddleware();
+                            $options[2]['middleware'] = $middlewares[0];
+                        }
+                    }
+
+                    $route = new Route('any', $options);
+
+                    return $route;
+                }
+            } else if (count($segments) >= 2) 
+            {
+                $class  = $segments[0];
+                $method = $segments[1];
+                $params = array_slice($segments, 2);
+
+                if (file_exists(APPPATH.'controllers/'.ucfirst($class).'.php')) 
+                {
+                    $route = new Route('any', [
+                        0 => $url,
+                        1 => ucfirst($class).'@'.$method
+                    ]);
+
+                    return $route;
                 }
             }
         }
