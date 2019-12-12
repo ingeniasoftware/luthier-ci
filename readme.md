@@ -189,7 +189,7 @@ class TestMiddleware
 
 ### Documentation
 
-Visit the project [official website](https://luthier.ingenia.me/ci/en/docs) (disponible en [español](https://luthier.ingenia.me/ci/es/docs))
+Visit the project [official website](https://luthier.ingenia.me/ci/en/help) (disponible en [español](https://luthier.ingenia.me/ci/es/help))
 
 
 
