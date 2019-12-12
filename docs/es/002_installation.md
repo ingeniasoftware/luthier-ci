@@ -1,42 +1,32 @@
-[//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] Aprende cómo obtener Luthier CI e instalarlo en tu aplicación de CodeIgniter con instrucciones paso a paso ¡no toma más de 5 minutos!)
-
 # Instalación
 
-### Contenido
+Instalar Luthier CI es muy sencillo y en la mayoría de los casos no toma más de 5 minutos. Asegúrate de cumplir con los requisitos descritos más abajo y de seguir los pasos de instalación.
 
-1. [Requisitos](#requirements)
-2. [Instalación](#installation)
-   1. [Obtener Luthier CI](#get-luthier-ci)
-   2. [Habilitar el autoload de Composer y los hooks](#enable-composer-autoload-and-hooks)
-   3. [Conectar Luthier CI con tu aplicación](#connect-luthier-ci-with-your-application)
-3. [Inicialización](#initialization)
+<!-- %index% -->
 
-### <a name="requirements"></a> Requisitos
+### Requisitos
 
 * PHP >= 5.6 (Compatible con PHP 7)
 * CodeIgniter >= 3.0
 
-### <a name="installation"></a> Instalación
+### Pasos de Instalación de Luthier CI
 
-#### <a name="get-luthier-ci"></a> Obtener Luthier CI
+#### Paso 1: Obtener Luthier CI
 
 <div class="alert alert-info">
-    <i class="fa fa-info-circle" aria-hidden="true"></i>
-    <strong>Composer requerido</strong>
-    <br />
-    Luthier CI se instala a través de Composer. Puedes obtenerlo <a href="https://getcomposer.org/download/">aquí</a>.
+    <strong>Composer requerido</strong><br />
+    Luthier CI se instala usando Composer. Puedes obtenerlo <a href="https://getcomposer.org/download/">aquí</a>.
 </div>
 
-Dirígete a la carpeta `application` y ejecuta el siguiente comando:
+Dirígete a la carpeta `application` de CodeIgniter y ejecuta el siguiente comando:
 
 ```bash
 composer require luthier/luthier
 ```
 
-#### <a name="enable-composer-autoload-and-hooks"></a> Habilitar el _autoload_ de Composer y los _hooks_
+#### Paso 2: Habilitar el autoload de Composer y los hooks
 
-Para que Luthier CI funcione es necesario que tanto el **autoload** de Composer y como los **hooks** estén habilitados. En el archivo `config.php` modifica lo siguiente:
+Es necesario que tanto el **autoload** de Composer y como los **hooks** estén habilitados en tu aplicación. En el archivo `config.php` modifica lo siguiente:
 
 ```php
 <?php
@@ -44,13 +34,13 @@ Para que Luthier CI funcione es necesario que tanto el **autoload** de Composer 
 
 // (...)
 
-$config['enable_hooks']      = TRUE;
+$config['enable_hooks'] = TRUE;
 $config['composer_autoload'] = TRUE;
 
 // (...)
 ```
 
-#### <a name="connect-luthier-ci-with-your-application"></a> Conectar Luthier CI con tu aplicación
+#### Paso 3: Conectar Luthier CI con tu aplicación
 
 En el archivo `hooks.php`, asigna los hooks de Luthier CI a la variable `$hook`:
 
@@ -78,9 +68,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route = Luthier\Route::getRoutes();
 ```
 
-### <a name="initialization"></a> Inicialización
+### Inicialización
 
-La primera vez que Luthier CI se ejecuta algunos archivos y carpetas son creados automáticamente:
+La primera vez que Luthier CI se ejecuta en tu aplicación algunos archivos y carpetas son creados automáticamente:
 
 * `routes/web.php`: Archivo de rutas HTTP
 * `routes/api.php`: Archivo de rutas AJAX
@@ -88,11 +78,10 @@ La primera vez que Luthier CI se ejecuta algunos archivos y carpetas son creados
 * `controllers/Luthier.php`: Controlador falso, necesario para usar algunas rutas
 * `middleware`: Carpeta para guardar los archivos de middleware
 
-Durante la inicialización del framework los _hooks_ son llamados: `Luthier\Hook::getHooks()` devuelve un arreglo con los hooks usados por Luthier CI, incluído el necesario para su arranque. En este punto, Luthier CI analiza y compila todas las rutas definidas en los tres primeros archivos mencionados anteriormente. Entonces, cuando el framework carga las rutas en el archivo `application/config/routes.php`, `Luthier\Route::getRoutes()` devuelve un arreglo con las rutas en el formato que CodeIgniter entiende. Todo lo siguiente es la ejecución normal del framework.
+`Luthier\Hook::getHooks()` devuelve un arreglo con los hooks usados por Luthier CI, incluído el necesario para su arranque.  `Luthier\Route::getRoutes()` devuelve un arreglo con las rutas en el formato que CodeIgniter entiende. Todo lo siguiente es la ejecución normal del framework.
 
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
     <strong>Permisos de escritura</strong>
     <br />
-    Si obtienes errores durante la creación de los archivos base de Luthier CI, es posible que se deba a permisos insuficientes. Asegúrate de que la carpeta <code>application</code> tenga permisos de escritura
+    Si ocurren errores durante la creación de los archivos mencionados arriba es posible que se deba a permisos insuficientes. Asegúrate de que la carpeta <code>application</code> tenga permisos de escritura
 </div>

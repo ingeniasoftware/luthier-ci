@@ -1,43 +1,16 @@
-[//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] El Framework de Autenticación de Luthier CI es una estructura sobre la cual se construyen sistemas de autenticación de usuario en CodeIgniter)
-
 # Framework de Autenticación de Luthier CI
 
-### Contenido
+El **Framework de Autenticación de Luthier CI** es una arquitectura sobre la cual se construyen sistemas de autenticación de usuarios dentro de CodeIgniter.
 
-1. [Introducción](#introduction)
-2. [Creación de Proveedores de usuario](#creation-of-user-providers)
-   1. [Instancia de usuario](#user-instance)
-   2. [Carga de usuarios](#user-load)
-   3. [Hash de contraseñas y su verificación](#password-hash-and-verification)
-   4. [Validar que un usuario esté activo y verificado](#validate-that-an-user-is-active-and-verified)
-3. [Trabajando con Proveedores de usuario](#working-with-user-providers)
-   1. [Inicio de sesión](#user-login)
-   2. [Inicio de sesión avanzado](#advanced-user-login)
-4. [Sesiones](#sessions)
-   1. [Almacenando un usuario en la sesión](#storing-an-user-in-the-session)
-   2. [Obteniendo un usuario desde la sesión](#retrieving-an-user-from-the-session)
-   3. [Datos de sesión personalizados](#custom-session-data)
-   4. [Eliminando la sesión actual](#deleting-custom-session)
-5. [Operaciones con usuarios](#user-operations)
-   1. [Verificación de roles](#roles-verification)
-   2. [Verificación de permisos](#permissions-verification)
-6. [Autenticación basada en controladores](#controller-based-authentication)
-   1. [Configuración general](#general-configuration)
-   2. [El controlador de autenticación](#the-authentication-controller)
-   3. [El formulario de inicio de sesión](#the-login-form)
-   4. [Cierre de sesión](#logout)
-   5. [Eventos de autenticación](#authentication-events)
-
-### <a name="introduction"></a> Introducción
-
-El **Framework de Autenticación de Luthier CI** es una estructura sobre la cual se construyen sistemas de autenticación de usuario en CodeIgniter. Ofrece respuestas a dos grandes dilemas: de dónde se obtienen los usuarios y cómo se dispone de ellos en tu aplicación.
+Ofrece respuestas a dos grandes dilemas: de dónde se obtienen los usuarios y cómo se dispone de ellos en tu aplicación.
 
 Durante el proceso son utilizados los **Proveedores de usuario**. Un Proveedor de usuario es una clase que se encarga de obtener de algún lugar al usuario que se pretende autenticar, funcionando como un intermediario entre CodeIgniter y, por ejemplo, una base de datos, una API o incluso un arreglo de usuarios cargado en la memoria.
 
-Este artículo está orientado a usuarios avanzados y con necesidades muy específicas de autenticación. Si estás buscando una solución pre-configurada y fácil de usar, consulta la documentación de [SimpleAuth](./simpleauth) que, de hecho, es una implementación de todo lo que vas a leer a continuación.
+Este artículo está orientado a usuarios avanzados y con necesidades muy específicas. Si lo que buscas es una solución lista para usar,  consulta la documentación de [SimpleAuth](./simpleauth?relative_url=..%2Fsimpleauth). SimpleAuth es, de hecho, es una implementación de todo lo que vas a leer a continuación.
 
-### <a name="creation-of-user-providers"></a> Creación de Proveedores de usuario
+<!-- %index% -->
+
+### Creación de Proveedores de usuario
 
 Todos los Proveedores de usuario se guardan en la carpeta `application/security/providers`. Además, sus clases deben implementar la interfaz `Luthier\Auth\UserProviderInterface`, que define los siguientes métodos:
 
@@ -69,9 +42,11 @@ class MyUserProvider implements UserProviderInterface
 }
 ```
 
-#### <a name="user-instance"></a> Instancia de usuario
+#### Instancia de usuario
 
-Las **instancias de usuario** son una representación lógica de los usuarios autenticados: contienen (y devuelven) todos sus detalles, roles y permisos. El primer método que debemos implementar en nuestro Proveedor de usuario es `getUserClass()`, que retorna el nombre de la **instancia de usuario** que se utilizará de ahora en adelante.
+Las **instancias de usuario** son una representación lógica de los usuarios autenticados: contienen (y devuelven) todos sus detalles, roles y permisos. 
+
+El primer método que debemos implementar en nuestro Proveedor de usuario es `getUserClass()`, que retorna el nombre de la **instancia de usuario** que se utilizará de ahora en adelante.
 
 Nuestra instancia de usuario se llamará `MyUser`, entonces:
 
@@ -162,7 +137,7 @@ application
     |       | - MyUser.php
 ```
 
-#### <a name="user-load"></a>  Carga de usuarios
+#### Carga de usuarios
 
 Los usuarios deben obtenerse de alguna parte, y el siguiente método a implementar, `loadUserByUsername()`, cumple esa función.
 
@@ -254,7 +229,7 @@ class MyUserProvider implements UserProviderInterface
 }
 ```
 
-Ahora nuestro Proveedor de usuario es capaz de buscar en el arreglo y devolver un *objeto de usuario* en caso de haber una coincidencia, o lanzar una excepción `UserNotFoundException` si no encuentra ningún usuario.
+Ahora nuestro Proveedor de usuario es capaz de buscar en el arreglo y devolver un *objeto de usuario* en caso de haber una coincidencia, o lanzar una excepción `UserNotFoundException` si no encuentra ninguno.
 
 Sin embargo, por regla general, las contraseñas no suelen (ni deben) almacenarse directamente. En su lugar, se almacena un  *hash* generado con un algoritmo de encriptación de un solo sentido.
 
@@ -281,13 +256,12 @@ $users = [
 
 Las contraseñas de cada uno siguen siendo exactamente las mismas, la diferencia es que ahora lo almacenado es su *hash* y no la contraseña en texto plano, por lo que una comparación `$user->password == $password` no es suficiente.
 
-#### <a name="password-hash-and-verification"></a> Hash de contraseñas y su verificación
+#### Hash de contraseñas y su verificación
 
 Los siguientes métodos a implementar se encargan de generar y validar los hash de contraseñas en el Proveedor de usuario:
 
-* `hashPassword()`: *[string]* recibe un contraseña en texto plano y devuelve su hash
-
-* `verifyPassword()`: *[bool]* recibe una contraseña en texto plano y hash de contraseña, validando que coincidan
+* `hashPassword($password)`: recibe un contraseña en texto plano `$password` y retorna su hash.
+* `verifyPassword($password, $hash)`: recibe una contraseña en texto plano `$password` y un hash de contraseña `$hash`. Retorna `TRUE` si la contraseña corresponde al hash, o `FALSE` en caso contrario.
 
 La lógica y la implementación queda a criterio del desarrollador. En nuestro caso, usaremos el algoritmo `blowfish`, quedando el código así:
 
@@ -361,7 +335,7 @@ class MyUserProvider implements UserProviderInterface
 }
 ```
 
-Seguramente habrás notado que el argumento `$password` del método `loadUserByUsername()` se debe definir como opcional. Esto es así debido a que al inicio de cada solicitud, Luthier CI intenta volver a cargar el último usuario autenticado con su Proveedor de usuario, y esto sólo es posible si se permite la obtención de usuarios a partir de un dato relativamente seguro de almacenar en la sesión, como su *id* o *username*.
+Seguramente habrás notado que el argumento `$password` del método `loadUserByUsername()` se debe definir como opcional. Esto es así debido a que al momento de procesar las solicitudes HTTP entrantes Luthier CI intenta volver a cargar el último usuario autenticado con su Proveedor de usuario, y esto sólo es posible si se permite la obtención de usuarios a partir de un dato relativamente seguro de almacenar en la sesión, como su *id* o *username*.
 
 Por lo tanto, debemos modificar un poco nuestro código para garantizar que el Proveedor de usuario aún siga siendo capaz de obtener usuarios incluso si ninguna contraseña es suministrada:
 
@@ -439,18 +413,16 @@ class MyUserProvider implements UserProviderInterface
 ```
 
 <div class="alert alert-danger">
-    <i class="fa fa-times" aria-hidden="true"></i>
-    <strong>No uses las funciones md5() ni sha1() para hash de contraseñas</strong>
-    <br />
-    Estos algoritmos son muy eficientes y cualquier persona (con una computadora moderna y suficiente tiempo libre) puede intentar "romper" el cifrado por fuerza bruta. Existe una sección que habla sobre los <a href="http://php.net/manual/es/faq.passwords.php">hash de contraseñas</a> en la documentación de PHP, y es sin duda una lectura obligatoria para quienes se preocupen por este importante aspecto de seguridad.
+    <strong>No uses md5() ni sha1() para el hash de contraseñas</strong><br />
+    Estos algoritmos son muy eficientes, por lo que romper el cifrado por fuerza bruta es relativamente sencillo. Consulta la <a href="http://php.net/manual/es/faq.passwords.php">documentación de PHP</a> para obtener más detalles.
 </div>
 
 
-#### <a name="validate-that-an-user-is-active-and-verified"></a> Validar que un usuario esté activo y verificado
+#### Validar que un usuario esté activo y verificado
 
 Sólo quedan por implementar los métodos `checkUserIsActive()` y `checkUserIsVerified()` que, como sugieren sus nombres, validan que un usuario esté *activo* y su información esté *verificada*.
 
-El criterio para que un usuario esté *activo* y *verificado* es de tu elección. En nuestro caso, para que un usuario esté *activo* su valor `active` debe ser igual a `1`, y para que esté *verificado* su valor `verified` debe ser igual a `1` también.
+El criterio para que un usuario esté *activo* y *verificado* es de tu elección. En nuestro caso, para que un usuario esté *activo* su atributo `active` debe ser igual a `1`, y para que esté *verificado* su atributo `verified` debe ser igual a `1` también.
 
 Implementando ambos métodos, nuestro Proveedor de usuario ahora se ve así:
 
@@ -556,9 +528,9 @@ class MyUserProvider implements UserProviderInterface
 
 ¡Listo! ya has creado tu primer Proveedor de usuario y su Instancia de usuario adjunta. Estás listo para autenticar usuarios.
 
-### <a name="working-with-user-providers"></a> Trabajando con Proveedores de usuario
+### Trabajando con Proveedores de usuario
 
-Lo primero que debes hacer antes de usar un Proveedor de usuario es cargarlo en tu aplicación. Para ello, utiliza el método estático `loadUserProvider()` de la clase `Auth`.
+Lo primero que debes hacer antes de usar un Proveedor de usuario es cargarlo en tu aplicación. Para ello, utiliza el método `Auth::loadUserProvider()`:
 
 Por ejemplo, para cargar el Proveedor de usuario anterior, la sintaxis es la siguiente:
 
@@ -566,42 +538,31 @@ Por ejemplo, para cargar el Proveedor de usuario anterior, la sintaxis es la sig
 $myUserProvider = Auth::loadUserProvider('MyUserProvider');
 ```
 
-#### <a name="user-login"></a> Inicio de sesión
+#### Inicio de sesión
 
 Para realizar un inicio de sesión usa el método `loadUserByUsername()` de tu Proveedor de usuario, donde el primer argumento es el nombre de usuario/email y el segundo es su contraseña:
 
 ```php
-// Cargamos un Proveedor de usuario:
 $myUserProvider = Auth::loadUserProvider('MyUserProvider');
 
-// Retorna el objeto de usuario correspondiente a 'jonh@doe.com':
 $john = $myUserProvider->loadUserByUsername('john@doe.com', 'foo123');
 
-// Retorna el objeto de usuario correspondiente a 'alice@brown.com':
 $alice = $myUserProvider->loadUserByUsername('alice@brown.com', 'bar456');
 ```
 
-Los Proveedores de usuario están diseñados de tal forma que también es posible iniciar sesión únicamente con el nombre de usuario/email:
+Cualquier error durante el inicio de sesión producirá una excepción, que debe ser atrapada y manejada:
 
 ```php
-$alice = $myUserProvider->loadUserByUsername('alice@brown.com');
-```
-
-Cualquier error durante el inicio de sesión producirá una excepción, que debe ser atrapada y manejada según sea el caso:
-
-```php
-// ERROR: La contraseña de john@doe.com es incorrecta!
-// (Una excepción 'UserNotFoundException' será lanzada)
+// Una excepción 'UserNotFoundException' será lanzada
 $jhon = $myUserProvider->loadUserByUsername('john@doe.com', 'wrong123');
 
-// ERROR: El usuario anderson@example.com no existe!
-// (Una excepción 'UserNotFoundException' será lanzada)
+// Una excepción 'UserNotFoundException' será lanzada
 $anderson = $myUserProvider->loadUserByUsername('anderson@example.com', 'test123');
 ```
 
-#### <a name="advanced-user-login"></a> Inicio de sesión avanzado
+#### Inicio de sesión avanzado
 
-Que el Proveedor de usuario devuelva un usuario no significa que realmente esté autorizado para iniciar sesión. Los métodos `checkUserIsActive()` y `checkUserIsVerified()` añaden comprobaciones adicionales convenientes.
+Los métodos `checkUserIsActive()` y `checkUserIsVerified()` añaden comprobaciones adicionales al inicio de sesión.
 
 Considera el siguiente arreglo de usuarios:
 
@@ -672,9 +633,7 @@ var_dump( advanced_login('jessica@example.com') ); // OK: Login success!
 
 A pesar de que `alex@rodriguez.com` y `alice@brown.com` existen dentro del arreglo de usuarios, según el Proveedor de usuario el primero está inactivo y el segundo no está verificado, y como el usuario `jack@grimes.com` no existe, el único usuario que puede iniciar sesión es `jessica@example.com`.
 
-Para que no tengas que definir la función `advanced_login` una y otra vez en tus aplicaciones, ya existen dos métodos que hacen lo mismo: `Auth::attempt()` y `Auth::bypass()`, el primero se usa para inicios de sesión por nombre de usuario y contraseña y el segundo para inicios de sesión por nombre de usuario solamente.
-
-Salvo por el manejo de excepciones, las siguientes expresiones son equivalentes al código anterior:
+Para que no tengas que definir la función `advanced_login` una y otra vez en tus aplicaciones, ya existen dos métodos que hacen lo mismo: `Auth::attempt()` y `Auth::bypass()`, el primero se usa para inicios de sesión por nombre de usuario y contraseña y el segundo para inicios de sesión por nombre de usuario solamente:
 
 ```php
 Auth::bypass('alex@rodriguez.com', 'MyUserProvider');
@@ -684,46 +643,28 @@ Auth::attempt('alex@rodriguez.com', 'foo123', 'MyUserProvider');
 Auth::attempt('alice@brown.com', 'bar456', 'MyUserProvider');
 ```
 
-### <a name="sessions"></a> Sesiones
+### Sesiones
 
-¿De qué sirve poder iniciar sesión si el usuario autenticado no persiste en la navegación? La clase `Auth` incluye funciones para el almacenamiento y obtención de usuarios en la sesión.
+La clase `Auth` incluye funciones para el almacenamiento y obtención de usuarios en la sesión.
 
-#### <a name="storing-an-user-in-the-session"></a> Almacenando un usuario en la sesión
+#### Almacenando un usuario en la sesión
 
-Para almacenar un usuario en la sesión, utiliza el método estático `store()`:
+Para almacenar un usuario en la sesión, utiliza el método `Auth::store($user)`, donde `$user` es una **Instancia de Usuario**:
 
 ```php
 $alice = $myUserProvider->loadUserByUsername('alice@brown.com');
 Auth::store($alice);
 ```
 
-Esto guardará al usuario autenticado durante el resto de la navegación, siempre y cuando no elimines la sesión o ésta expire.
+#### Obteniendo un usuario desde la sesión
 
-####  <a name="retrieving-an-user-from-the-session"></a> Obteniendo un usuario desde la sesión
-
-Para obtener el usuario almacenado en la sesión, utiliza el método estático `user()`:
+Para obtener el usuario almacenado en la sesión, utiliza el método  `Auth::user()`, que retorna una **Instancia de Usuario**, o `NULL` si no hay ningún usuario almacenado en la sesión:
 
 ```php
 $alice = Auth::user();
 ```
 
-Éste método devuelve un objeto de **instancia de usuario**, o `NULL` en caso de no haber ningún usuario almacenado. Ejemplo:
-
-```php
-$alice = Auth::user();
-
-// La entidad de usuario
-// (El valor devuelto depende del Proveedor de usuario, aunque lo más común es que sea un objeto)
-$alice->getEntity();
-
-// Un arreglo con los roles que el Proveedor de usuario le ha asignado al usuario
-$alice->getRoles();
-
-// Un arreglo con los permisos que el Proveedor de usuario le ha asignado al usuario
-$alice->getPermissions();
-```
-
-Puedes comprobar si un usuario es anónimo (o invitado) usando el método estático `isGuest()`:
+Puedes comprobar si un usuario es anónimo (invitado) usando el método `Auth::isGuest()`:
 
 ```php
 if( Auth::isGuest() )
@@ -736,9 +677,9 @@ else
 }
 ```
 
-#### <a name="custom-session-dat"></a> Datos de sesión personalizados
+#### Datos de sesión personalizados
 
-Para obtener y almacenar en un sólo lugar tus propios datos de sesión (relacionados con la autenticación) usa el método estático `session()`, cuyo primer argumento es el nombre del valor a almacenar, y el segundo argumento es el valor asignado.
+Para obtener y almacenar tus propios datos de sesión, usa el método estático `Auth::session($name, $value)`, donde `$name` es el nombre de la variable de sesión, y `$value` el valor a asignar:
 
 Ejemplo:
 
@@ -748,42 +689,41 @@ Auth::session('my_value', 'foo');
 
 // Obtener un valor
 $myValue = Auth::session('my_value');
-var_dump( $myValue ); // foo
 
 // Obtener TODOS los valores almacenados
-var_dump( Auth::session() ); // [ 'my_value' => 'foo' ]
+var_dump( Auth::session() );
 ```
 
-#### <a name="deleting-custom-session"></a> Eliminando la sesión actual
+#### Eliminando la sesión actual
 
-Para eliminar TODOS los datos de la sesión de autenticacion actual (incluído el usuario autenticado que esté almacenado en ese momento) utiliza el método estático `destroy`:
+Para eliminar TODOS los datos de la sesión actual, utiliza el método estático `Auth::destroy()`:
 
 ```php
 Auth::destroy();
 ```
 
-### <a name="user-operations"></a> Operaciones con usuarios
+### Operaciones con usuarios
 
-Hay dos operaciones disponibles para realizar con los usuarios autenticados: la verificación de roles y la verificación de permisos.
+Hay dos operaciones disponibles para realizar con los usuarios autenticados: la **verificación de roles** y la **verificación de permisos**.
 
-#### <a name="roles-verification"></a> Verificación de roles
+#### Verificación de roles
 
-Para verificar que un usuario posea un rol determinado, usa el método estático `isRole()`, cuyo primer argumento es el nombre del rol a verificar:
+Para verificar que un usuario posea un rol, usa el método  `Auth::isRole($role)`, donde `$role` es el nombre del rol:
 
 ```php
 Auth::isRole('user');
 ```
 
-Se puede suministrar un objeto de usuario diferente al almacenado en sesión como segundo argumento:
+Se puede suministrar un objeto de usuario personalizado como segundo argumento:
 
 ```php
 $alice = Auth::loadUserProvider('MyUserProvider')->bypass('alice@brown.com');
 Auth::isRole('admin', $user);
 ```
 
-#### <a name="permissions-verification"></a> Verificación de permisos
+#### Verificación de permisos
 
-Para verificar que el usuario posea un permiso determinado, usa el método estático `isGranted()`, cuyo primer argumento es el nombre del permiso a verificar:
+Para verificar que un usuario posea un permiso, usa el método estático `Auth::isGranted($permission)`, donde `$permission` es el nombre del permiso:
 
 ```php
 Auth::isGranted('general.read');
@@ -796,17 +736,15 @@ $alice = Auth::loadUserProvider('MyUserProvider')->bypass('alice@brown.com');
 Auth::isGranted('general.read', $user);
 ```
 
-### <a name="controller-based-authentication"></a> Autenticación basada en controladores
+### Autenticación basada en controladores
 
-Hasta ahora has visto los elementos del Framework de Autenticación de Luthier CI trabajando por separado. ¡La buena noticia es que puedes hacerlos trabajar juntos! y todo gracias a una metodología a la que llamamos **Autenticación basada en controladores**.
+Hasta ahora has visto los elementos del Framework de Autenticación de Luthier CI trabajando por separado. ¡La buena noticia es que puedes hacerlos trabajar juntos! gracias a una metodología llamada  **Autenticación basada en controladores**.
 
 La Autenticación basada en controladores consiste en la implementación de dos interfaces, una en un controlador y otra en un middleware, ambos de tu elección, que automatizan el proceso de autenticación de usuario.
 
-#### <a name="general-configuration"></a> Configuración general
+#### Configuración general
 
-Puedes crear (aunque no es obligatorio) un archivo llamado `auth.php` dentro de la carpeta `config` de tu aplicación para configurar las opciones de la Autenticación basada en controladores. El significado de cada opción lo explicamos en la [documentación de SimpleAuth](./simpleauth#general-configuration)
-
-Esto es un ejemplo de un archivo de configuración:
+Puedes crear (aunque no es obligatorio) un archivo llamado `auth.php` dentro de la carpeta `config` de tu aplicación para configurar las opciones de la Autenticación basada en controladores:
 
 ```
 <?php
@@ -829,11 +767,13 @@ $config['auth_form_password_field'] = 'password';
 $config['auth_session_var'] = 'auth';
 ```
 
-Si no existe el archivo se usará la configuración predeterminada, expuesta arriba.
+<div class="alert alert-info">
+    Si no existe el archivo se usará la configuración predeterminada, expuesta arriba.
+</div>
 
-#### <a name="the-authentication-controller"></a> El controlador de autenticación
+#### El controlador de autenticación
 
-Un controlador de autenticación es cualquier controlador de CodeIgniter que implemente la interfaz `Luthier\Auth\ControllerInterface`, la cual define los siguientes métodos:
+Un **controlador de autenticación** es cualquier controlador de CodeIgniter que implemente la interfaz `Luthier\Auth\ControllerInterface`, la cual define los siguientes métodos:
 
 ```php
 public function getUserProvider();
@@ -853,7 +793,7 @@ public function passwordReset();
 public function passwordResetForm($token);
 ```
 
-Empecemos por crear un controlador llamado `AuthController.php`, que implemente todos los métodos requeridos:
+Empecemos por crear un controlador `AuthController.php` que implemente todos los métodos requeridos por la interfaz:
 
 ```php
 <?php
@@ -907,7 +847,7 @@ class AuthController extends CI_Controller implements ControllerInterface
 }
 ```
 
-Los valores devueltos por los métodos `getUserProvider()` y  `getMiddleware()` corresponden al **Proveedor de usuario** y al middleware con los **eventos de autenticación** que serán usados durante el proceso que sigue. En el caso del Proveedor de usuario, será el mismo de los ejemplos anteriores, `MyUserProvider`:
+Los valores devueltos por los métodos `getUserProvider()` y  `getMiddleware()` corresponden al **Proveedor de usuario** y al middleware con los **eventos de autenticación** que serán usados durante el proceso que sigue. En el caso del Proveedor de usuario, usaremos el mismo de los ejemplos anteriores, `MyUserProvider`:
 
 ```php
 public function getUserProvider()
@@ -916,7 +856,7 @@ public function getUserProvider()
 }
 ```
 
-Mientras que para el middleware con los **eventos de autenticación** se usará uno llamado `MyAuthMiddleware` (que aún no existe) y del cual hablaremos más adelante:
+El middleware con los **eventos de autenticación** será uno llamado `MyAuthMiddleware` (aún no existe) y del cual hablaremos más adelante:
 
 ```php
 public function `getMiddleware()
@@ -925,7 +865,7 @@ public function `getMiddleware()
 }
 ```
 
-Los métodos `login()` y `logout()` definen, respectivamente, el inicio y cierre de sesión. Cuando un usuario inicie sesión la solicitud será interceptada y manejada automáticamente por Luthier CI, de modo que en nuestro controlador sólo nos ocupa mostrar una vista con el formulario de inicio de sesión:
+Los métodos `login()` y `logout()` definen la lógica de inicio y cierre de sesión. Cuando un usuario envía el formulario de inicio de sesión, la solicitud es interceptada y manejada automáticamente por Luthier CI, de modo que sólo necesitamos renderizar una vista aquí:
 
 ```php
 public function login()
@@ -945,15 +885,14 @@ public function logout()
 
 La implementación de los métodos restantes depende de ti, pero te damos una idea de cuales deberían ser sus funciones:
 
-* **signup()**: Método con toda la lógica del registro de usuarios. Aquí se debe mostrar un formulario de registro y procesarlo (guardar el usuario en una base de datos, etc)
+| Método | Función que cumple |
+| :--- | :--- |
+| **signup()** | Lógica del registro de usuario. Aquí se debe mostrar un formulario de registro y procesarlo (guardar el usuario en una base de datos, etc) |
+| **emailVerification($token)** | Verifica la dirección de email de un usuario recién registrado con un *tóken de verificación* `$token`, normalmente enviado como un link por correo electrónico |
+| **passwordReset()** | Muestra un formulario para el restablecimiento de contraseña |
+| **passwordResetForm($token)** | Realiza un restablecimiento de contraseña, después de validar el *tóken de restablecimiento de contraseña* `$token`, que normalmente es enviado al usuario como un link por correo electrónico |
 
-* **emailVerification(** *string* `$token`**)**: Se encarga de verificar el email de un usuario recién registrado. Lo normal es que se le haya enviado un email que contiene un enlace con un *token de verificación* (`$token`) hacia aquí.
-
-* **passwordReset()**: Muestra un formulario para el restablecimiento de contraseña.
-
-* **passwordResetForm(** *string* `$token`**)**: Verifica una solicitud de restablecimiento de contraseña. Casi siempre se trata de un email que se le envía al usuario y que contiene un enlace hacia aquí con un *token de restablecimiento de contraseña* (`$token`)
-
-#### <a name="the-login-form"></a> El formulario de inicio de sesión
+#### El formulario de inicio de sesión
 
 Nuestro método `login()` hace referencia a una vista llamada `auth/login.php`. Vamos a crearla:
 
@@ -975,20 +914,15 @@ Nuestro método `login()` hace referencia a una vista llamada `auth/login.php`. 
 </html>
 ```
 
-Luego, nos toca añadir la siguiente ruta en nuestro archivo `web.php`:
+Luego, añadimos la siguiente ruta en nuestro archivo `web.php`:
 
 ```php
 Route::match(['get', 'post'], 'login', 'AuthController@login')->name('login');
 ```
 
-Al acceder a la url `/login` debe aparecer el formulario de inicio de sesión que hemos creado:
+Al acceder a la url `/login` debe aparecer el formulario de inicio de sesión que hemos creado.
 
-<p align="center">
-    <img src="https://ingenia.me/uploads/2018/06/18/luthier-ci-login-screen.png" alt="Login screen" class="img-responsive" />
-</p>
-
-
-Puedes obtener un arreglo con los errores ocurridos durante del proceso de autenticación y utilizarlo en tus vistas para informar al usuario. Usa el método `Auth::messages()`, como verás a continuación:
+Puede obtener un arreglo con los errores ocurridos durante el proceso de autenticación con el método `Auth::messages()` y usarlo en sus vistas para informar al usuario:
 
 ```php
 <!doctype html>
@@ -1000,10 +934,6 @@ Puedes obtener un arreglo con los errores ocurridos durante del proceso de auten
 <body>
     <h1>Log in</h1>
     <?php
-
-        // Nos ayudaremos de un arreglo con las traducciones de los códigos de error
-        // devueltos (son siempre los mismos)
-
         $errorMessages = [
             'ERR_LOGIN_INVALID_CREDENTIALS' => 'Correo electrónico o contraseña incorrecta',
             'ERR_LOGIN_INACTIVE_USER'       => 'Usuario inactivo',
@@ -1026,11 +956,13 @@ Puedes obtener un arreglo con los errores ocurridos durante del proceso de auten
 </html>
 ```
 
-¡Tu formulario de inicio de sesión está listo!
+¡Tu formulario de inicio de sesión está listo! Siéntete libre de probar cualquier combinación de usuario/contraseña disponible en tu Proveedor de usuario. 
 
-Siéntete libre de probar cualquier combinación de usuario/contraseña disponible en tu Proveedor de usuario. Cuando logres iniciar sesión, serás redirigido a la ruta que hayas definido en la opción `$config['auth_login_route_redirect']`, o en caso de no existir dicha ruta, a la url raíz de tu aplicación.
+<div class="alert alert-info">
+    Cuando iniciar sesión serás redirigido a la ruta que hayas definido en la opción `$config['auth_login_route_redirect']` o, en caso de no existir dicha ruta, a la url raíz de tu aplicación.
+</div>
 
-#### <a name="logout"></a> Cierre de sesión
+#### Cierre de sesión
 
 Ahora vamos a configurar el cierre de sesión. Lo único que hace falta es definir la ruta
 que se usará, y por defecto será aquella que hayas llamado `logout`:
@@ -1046,11 +978,11 @@ Route::match(['get', 'post'], 'login', 'AuthController@login')->name('login');
 Route::get('logout', 'AuthController@logout')->name('logout');
 ```
 
-#### <a name="authentication-events"></a> Eventos de autenticación
+#### Eventos de autenticación
 
 ¿Recuerdas el método `getMiddleware()` de nuestro controlador? Devuelve el nombre de un middleware *especial*: el middleware con los **eventos de autenticación**.
 
-Vamos a crear un middleware llamado `MyAuthMiddleware` que extienda a la clase abstracta `Luthier\Auth\Middleware` y que, implementando todos los métodos requeridos, quedará así:
+Vamos a crear un middleware llamado `MyAuthMiddleware` que extienda a la clase abstracta `Luthier\Auth\Middleware`. Una vez implementados todos los métodos requeridos, quedará así:
 
 ```php
 <?php
@@ -1095,13 +1027,13 @@ class MyAuthMiddleware extends Luthier\Auth\Middleware
 }
 ```
 
-Cada método corresponde a un evento de autenticación, explicado a continuación:
+Cada método corresponde a un evento de autenticación:
 
-* **preLogin**: Evento activado cuando el usuario visita la ruta de inicio de sesión, independientemente si inicia sesión o no.
-* **onLoginSuccess**: Evento activado inmediatamente después de un inicio de sesión exitoso, y antes de la redirección que le sigue.
-* **onLoginFailed**: Evento activado después de un intento de sesión fallido, y antes de la redirección que le sigue.
-* **onLoginInactiveUser**: Este evento se activa si es lanzada una excepción `InactiveUserException` dentro del Proveedor de usuario, correspondiente a un error por inicio de sesión de un usuario inactivo.
-* **onLoginUnverifiedUser**: Este evento se activa si es lanzada una excepción `UnverifiedUserException` dentro del Proveedor de usuario, correspondiente a un error por inicio de sesión de un usuario no verificado.
-* **onLogout**: Evento activado inmediatamente después de que el usuario cierra sesión.
-
-¡Felicidades! acabas de completar tu primera implementación de la Autenticación basada en controladores.
+| Evento | Descripción |
+| :--- | :--- |
+| **preLogin** | Evento activado cuando el usuario visita la ruta de inicio de sesión, independientemente si inicia sesión o no. |
+| **onLoginSuccess** | Evento activado inmediatamente después de un inicio de sesión exitoso, y antes de la redirección que le sigue. |
+| **onLoginFailed** | Evento activado después de un intento de sesión fallido, y antes de la redirección que le sigue. |
+| **onLoginInactiveUser** | Evento activado si es lanzada una excepción `InactiveUserException` dentro del Proveedor de usuario |
+| **onLoginUnverifiedUser** | Evento activado si es lanzada una excepción `UnverifiedUserException` dentro del Proveedor de usuario |
+| **onLogout** | Evento activado después de que el usuario cierra sesión |

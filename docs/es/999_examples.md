@@ -1,6 +1,3 @@
-[//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] ¡Mira en acción a Luthier-CI! aquí recopilamos algunos ejemplos reales de uso para que encuentres inspiración)
-
 # Ejemplos
 
 ### Ejemplo #1: Sitio web multi-idioma

@@ -1,67 +1,51 @@
-[//]: # ([author] Anderson Salas, translated by Julio Cedeño)
-[//]: # ([meta_description] Luthier-routing CI thoroughly explained. Learn more about routes and new syntax inspired by laravel that is within your reach)
-
 # Routes
 
-### Contents
+The route creation is a fundamental task during the development of any web application. Luthier CI improves the routing of CodeIgniter so that building large applications is not excessively complicated.
 
-1. [Introduction](#introduction)
-2. [Route types](#route-types)
-3. [Syntax](#syntax)
-   1. [Namespaces](#namespaces)
-   2. [Prefixes](#prefixes)
-   3. [Named routes](#named-routes)
-   4. [Callbacks as routes](#callbacks-as-routes)
-   5. [Groups](#groups)
-   5. [Resource routes](#resource-routes)
-   6. [Default controller](#default-controller)
-4. [Parameters](#parameters)
-   1. [Optional parameters](#optional-parameters)
-   2. [Parameter regex](#parameter-regex)
-   3. ["Sticky" parameters](#sticky-parameters)
+<!-- %index% -->
 
-### <a name="introduction"></a> Introduction
+### Differences between CodeIgniter and Luthier CI routing
 
-Luthier CI changes the behavior of the CodeIgniter router:
+The way how routes are handled by CodeIgniter is modified by Luthier CI during its execution:
 
-* In CodeIgniter, by default, the routes are accessible under any HTTP verb. With Luthier CI it's mandatory to define the accepted HTTP verbs for each route and any request that doesn't match these parameters will generate a 404 error.
-* In CodeIgniter it's possible to access the controllers directly from the URL without the need to define routes. On the other hand, with Luthier CI, trying to access a path that is not defined (even if the URL matches the name of the controller and the method) will generate a 404 error.
-* In CodeIgniter the route parameters are simple regular expressions that point to controllers, in Luthier CI a route is an independent and unique entity, which contains well-defined parameters and the ability to build URLs from them.
-* In CodeIgniter you can only create routes that point to controllers. With Luthier CI it's possible to use anonymous functions as controllers and even build a complete web application without using a single controller.
+* In CodeIgniter, by default, routes are accessible through any HTTP verb. With Luthier CI it is mandatory to define the accepted HTTP verbs in each path.
+* In CodeIgniter it is possible to access controllers without defining routes, while with Luthier CI only defined routes are detected.
+* With Luthier CI each route is an independent and unique entity, with well-defined parameters and the ability to build URLs from them.
+* With Luthier CI it is possible to use anonymous functions as controllers and even build a complete web application without using a single controller.
 
-### <a name="route-types"></a> Route types
+### Types of routes
 
-You can work with three types of routes:
+Three types of routes are available in Luthier CI:
 
-* **HTTP routes**: they're accessed under HTTP requests and are defined in the `application/routes/web.php` file
-* **AJAX routes**: they're accessed only under AJAX requests and are defined in the `application/routes/api.php` file
-* **CLI routes**: they're accessed only under a CLI (Command Line Interface) environment and are defined in the `application/routes/cli.php` file
+* **HTTP routes**: accessed under HTTP requests and defined in the `application/routes/web.php` file.
+* **AJAX routes**: accessed only under AJAX requests and defined in the `application /routes/api.php` file.
+* **CLI routes**: accessed only under a CLI (Command Line Interface) environment and defined in the `application/routes/cli.php` file.
+
 
 <div class="alert alert-success">
-    <i class="fa fa-check" aria-hidden="true"></i>
-    <strong>AJAX routes go in api.php</strong>
-    <br />
-    Although you can define AJAX routes in the <code>web.php</code> file, it is best to do so in <code>api.php</code>
+    Although you can define AJAX routes in the web.php file, the ideal is to do it in <code>api.php</code>
 </div>
 
-### <a name="syntax"></a> Syntax
+### Syntax
 
-If you have used Laravel then you will know how to use Luthier CI, since it's syntax is identical. This is the simplest possible example of a route:
+If you have used Laravel then you will know how to write routes in Luthier CI, because its syntax is very similar. This is an example of a Luthier CI route:
 
 ```php
 Route::get('foo', 'bar@baz');
 ```
 
-Where **foo** is the URL of the route and **bar@baz** is the name of the controller and method (separated by @) to which it points. By using the `get()` method you are telling Luthier CI that the route will be available under GET requests.
+Where:
 
-<div class="alert alert-info">
-    <i class="fa fa-info-circle" aria-hidden="true"></i>
-    <strong>The first route is the one that wins</strong>
-    <br />
-    If you define two or more routes with the same URL and the same HTTP verb, the first will be returned ALWAYS
+* **foo** is the route URL, and
+*  **bar@baz** is the name of the pointed controller and method, separated by **@**.
+
+The `Route::get()` method states that the route accepts only `GET` requests.
+
+<div class="alert alert-warning">
+    If you define two or more routes with the same URL and the same HTTP verb, the first one will always be used.
 </div>
 
-Luthier CI allows you to define HTTP routes with the verbs GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS and TRACE:
+You can define routes for the verbs GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS and TRACE using the following methods of the `Route` class:
 
 ```php
 Route::post('foo', 'bar@baz');
@@ -73,72 +57,70 @@ Route::options('foo', 'bar@baz');
 Route::trace('foo', 'bar@baz');
 ```
 
-Also, you can pass an array with the _properties_ of the route as a third argument (explained later).
+You can pass an array with the route _properties_ as a third argument:
 
 ```php
 Route::get('test', 'controller@method', ['prefix' => '...', 'namespace' => '...', (...)] );
 ```
-
-To accept multiple HTTP verbs in a route, use the `match()` method:
+:
+It is also possible to accept multiple HTTP verbs in a route, using the `Route::match()` method:
 
 ```php
 Route::match(['GET', 'POST'], 'path', 'controller@method', [ (...) ]);
 ```
 
-#### <a name="namespaces"></a> Namespaces
+#### Namespaces
 
-
-The namespace property tells CodeIgniter the sub-directory where the controller is located. (Note that this is not a PHP namespace, it's a directory name)
+The **namespace** property tells CodeIgniter the sub-directory where the controller is located:
 
 ```php
-// The controller is located in application/controllers/admin/Testcontroller.php
-Route::get('hello/world', 'testcontroller@index', ['namespace' => 'admin']);
+// The controller will point to application/controllers/foo/Bar.php
+Route::get('hello/world', 'bar@index', ['namespace' => 'admin']);
 ```
 
-#### <a name="prefixes"></a> Prefixes
+<div class="alert alert-info">
+    Note that this is not a PHP <em>namespace</em>, but a directory name.
+</div>
 
+#### Prefixes
 
-Use the `prefix` property to add prefixes to the routes:
+Use the **prefix** property to add prefixes to routes:
 
 ```php
-// The URL will be 'admin/hello/world' instead of 'hello/world'
+// The URL will be 'admin/hello/world'
 Route::get('hello/world', 'testcontroller@index', ['prefix' => 'admin']);
 ```
 
-#### <a name="named-routes"></a> Named routes
+#### Named routes
 
-You can (and, in fact, it's advisable) assign a name to your routes. This will allow you to call them from other places:
+It is advisable to assign a name to your routes. This will allow you to build URLs in your views and controllers:
 
 ```php
 Route::get('company/about_us', 'testcontroller@index')->name('about_us');
 ```
 
-To obtain a route by it's name use the `route()` function, whose first argument is the name of the route and a second optional argument is an array with the values of the parameters of that route. For example, to obtain the previous route, just write `route('about_us')`:
+To get a route by name use the `route($name)` function, where `$name` is the name of the route:
 
 ```php
-// http://example.com/company/about_us
-<a href="<?= route('about_us');?>">My link!</a>
+route('about_us');
 ```
 
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Duplicated names</strong>
-    <br />
-    You can not call two or more routes with the same name
+    Declaring two or more routes with the same name will result in an exception
 </div>
 
-#### <a name="groups"></a> Groups
+#### Groups
 
-You can create groups of routes using the `group()` method, where the first argument is the prefix they will have in common, and the second argument is an anonymous function with the sub-routes:
+Use the `Route::group method($prefix,$routes)` to define a group of routes, where `$prefix` is ​​the prefix and `$routes` is an anonymous function that contains the sub-routes:
 
 ```php
-Route::group('prefix', function(){
+Route::group('my_prefix', function(){
     Route::get('bar','test@bar');
     Route::get('baz','test@baz');
 });
 ```
 
-In addition, it's possible to assign properties in common for the groups of routes. This is an example of the extended syntax:
+It is possible to assign **properties** to all routes within the group, using the syntax `Route::group($prefix, $properties, $routes)`:
 
 ```php
 Route::group('prefix', ['namespace' => 'foo', 'middleware' => ['Admin','IPFilter']], function(){
@@ -147,15 +129,18 @@ Route::group('prefix', ['namespace' => 'foo', 'middleware' => ['Admin','IPFilter
 });
 ```
 
-#### <a name="resource-routes"></a> Resource routes
+#### Resource Routes
 
-Resource routes allow you to define CRUD operations (**C**reate, **R**ead, **U**pdate, **D**elete) for a controller on a single line. Example:
+Resource paths are a shortcut to create the routing of CRUD operations (**C**reate, **R**ead, **Up**date, **D**elete) for a controller.
+
+To create a resource route, use the `Route::resource($name,$controller)` method, where `$name` is the name/prefix of the routes and `$controller` is the name of the controller:
+
 
 ```php
 Route::resource('photos','PhotosController');
 ```
 
-Produces:
+Result:
 
 ```php
 [Name]                 [Path]               [Verb]          [Controller action]
@@ -168,33 +153,35 @@ photos.update          photos/{id}          PUT, PATCH      PhotosController@upd
 photos.destroy         photos/{id}          DELETE          PhotosController@destroy
 ```
 
-In addition, it is possible to create partial resource routes, passing a third argument with an array of the actions to be filtered:
+It is possible to define partial resource routes, using the syntax `Route::resource($name, $controller, $include)`, where `$include` is an (inclusive) array of the paths to be created:
+
 
 ```php
 Route::resource('photos','PhotosController', ['index','edit','update']);
 ```
 
-Produces:
+Resultado:
 
 ```php
 [Name]                 [Path]               [Verb]          [Controller action]
 photos.index           photos               GET             PhotosController@index
 photos.edit            photos/{id}/edit     GET             PhotosController@edit
 photos.update          photos/{id}          PUT, PATCH      PhotosController@update
+```
 
-#### <a name="default-controller"></a> Default controller
+#### Default controller
 
-Luthier CI automatically sets any route defined with the URL **/** and the HTTP verb **GET** as the default controller, however you can explicitly set it using the `set()` method and this special syntax:
+Luthier CI automatically sets any route defined with the `/` URL and the **GET** HTTP verb as the default controller.
+
+You can explicitly define the default controller using the `Route::set('default_controller', $name)` method, where `$name` is the default controller:
 
 ```php
-// Note that the value is binded to the special 'default_controller' route of CodeIgniter and you must
-// use the native syntax:
 Route::set('default_controller', 'welcome/index');
 ```
 
-#### <a name="callbacks-as-routes"></a> Callbacks as routes
+#### Anonymous functions as routes
 
-You can use anonymous functions (also called _closures_ or _lambda functions_) instead of pointing to a controller, for example:
+It is not necessary to provide a controller/method name to define a route in Luthier CI. You can use anonymous functions (or closures) as controllers:
 
 ```php
 Route::get('foo', function(){
@@ -202,63 +189,67 @@ Route::get('foo', function(){
 });
 ```
 
-To access the framework instance within the anonymous functions, use the `ci()` function.
+<div class="alert alert-info">
+    To access the instance (singleton) of CodeIgniter within anonymous functions, use the  <code>ci()</code> helper
+</div>
 
-### <a name="parameters"></a> Parameters
+### Route parameters
 
-It's possible to define parameters in your routes, so that they can be dynamic. To add a parameter to a segment of the route, enclose it between `{curly brackets}`
+Parameters are dynamic sections of a route URL, allowing that multiple URLs resolves to the same route. To define parameters, enclose them between {keys}, for example:
+Los parámetros son secciones dinámicas de la URL de una ruta, haciendo posible que múltiples URLs resuelvan a la misma ruta. Para definir parámetros, enciérralos entre `{llaves}`, por ejemplo:
 
 ```php
 Route::post('blog/{slug}', 'blog@post');
 ```
 
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Duplicated parameters</strong>
-    <br />
-    You can not call two or more parameters with the same name
+    You cannot define two or more parameters with the same name
 </div>
 
-#### <a name="optional-parameters"></a> Optional parameters
+#### Optional parameters
 
-To make an optional parameter, add a `?` before closing the curly brackets:
+To set a parameter as optional, add a `?` before closing the keys:
 
 ```php
 Route::put('categories/{primary?}/{secondary?}/{filter?}', 'clients@list');
 ```
 
-Note that after the first optional parameter is defined, ALL the following parameters must be optional.
+Keep in mind that after the first parameter defined as optional ALL others parameters must be optional.
 
 <div class="alert alert-success">
-    <i class="fa fa-check" aria-hidden="true"></i>
-    <strong>Routes generated automatically</strong>
-    <br />
-    Luthier CI will generate the complete route tree for all the optional parameters for you, so you don't have to worry about writing more routes besides the main one.
+    Luthier CI will generate for you the complete route tree for all optional parameters, so you don't have to worry about writing more routes besides the main one.
 </div>
 
-#### <a name="parameter-regex"></a> Parameter regex
+#### Regular expressions in parameters
 
-You can limit a parameter to a regular expression:
+You can limit the content of a route parameter to a specific character set:
 
 ```php
-// These are the equivalents of (:num) and (:any), respectively:
 Route::get('cars/{num:id}/{any:registration}', 'CarCatalog@index');
 ```
-Also, you can use a custom regular expression with the `{([expr]):[name]}` syntax:
+
+The `num:` and `any:` placeholders are equivalent to `(:num)` and `(:any)`, respectively.
+
+It is also possible to use a regular expression to define route parameters:
 
 ```php
-// This is equivalent to /^(es|en)$/
 Route::get('main/{((es|en)):_locale}/about', 'about@index');
 ```
 
-#### <a name="sticky-parameters"></a> "Sticky" parameters
+The above is equivalent to `/^(is|en)$/`.
 
-It's possible that you need to define a parameter in a group of routes and that in turn is available in all its sub-routes, without having to define it in the arguments of all the methods in all the controllers, which is tedious. Thinking about that, Luthier CI offers the so-called **Sticky parameters**. An adhesive parameter starts with an underscore (`_`) and has some singularities:
+#### Sticky parameters
 
-* It's not passed in the arguments of the controller method to which the route points.
-* In all the sub-routes that share the adhesive parameter, value will be taken from the URL and will be automatically supplied in the `route()` function, so you can omit it, or overwrite it for any other value.
+When you work with route groups that define parameters, they must be declared as arguments in their controller methods *recursively*. Depending on the complexity of your application, the inherited parameters will accumulate, making the methods of your controllers have a very large number of arguments.
 
-Consider this example:
+The **sticky parameters** helps you deal with this problem.
+
+An adhesive parameter is any route parameter that begins with an underscore (`_`). They have the following properties:
+
+* It is not necessary to define it in the arguments of the sub-routes controller methods.
+* The value of the parameter will be taken from the URL and will be automatically supplied in the `route()` function, so it can be omitted, or overwritten by any other value.
+
+Consider the following route group:
 
 ```php
 Route::group('shop/{_locale}', function()
@@ -268,67 +259,56 @@ Route::group('shop/{_locale}', function()
 });
 ```
 
-The routes `shop.category` and `shop.product.details` shares the `_locale` sticky parameter. While that parameter is required to be in the URL, it's not mandatory that it be present in the array of parameter values when you use the `route()` function in this context. This is especially useful when you need to link to other variants of the current route:
+The `shop.category` and `shop.product.details` routes share the `_locale` sticky parameter and, while is still required to be in the URL, you can skip it when you build routes within this group:
 
 ```php
-// If the URL is 'shop/en/category/1', {_locale} will be 'en' here:
-echo route('shop.category', ['id' => 1]); # shop/en/category/1
-echo route('shop.category', ['id' => 2]); # shop/en/category/2
-echo route('shop.category', ['id' => 3]); # shop/en/category/3
+// If the URL is 'shop/en/category/1', then {_locale} will be 'en' here:
 
-// You can overwrite that value for any other:
-echo route('shop.category', ['_locale' => 'es', 'id' => 1]); # shop/es/category/1
+echo route('shop.category', ['id' => 1]);
+# shop/en/category/1
+
+echo route('shop.category', ['id' => 2]); 
+# shop/en/category/2
+
+echo route('shop.category', ['id' => 3]); 
+# shop/en/category/3
 ```
 
-An advantage of the sticky parameters is that you don't have to define them as arguments of all the methods of the pointed controllers. In the previous example, within the `ShopCategory` and `ShopProduct` controllers, their methods will have a single argument: `$id`, because it's the only one supplied by the router:
+This is useful when you need to link to other variants of the current route:
 
 ```php
-<?php
+echo route('shop.category', ['_locale' => 'es', 'id' => 1]); 
+# shop/es/category/1
+```
+
+Within the `ShopCategory` and `ShopProduct` controllers, their methods will have a single argument: `$id`:
+
+```php
 # application/controllers/ShopCategory.php
-
-defined('BASEPATH') OR exit('No direct script access allowed');
-
 class ShopCategory extends CI_Controller
 {
-
-    // Define the method as categoryList($_locale, $id) will not work: it is
-	// waiting for exactly 1 argument:
     public function categoryList($id)
     {
-
+        // (...)
     }
 }
-```
 
-```php
-<?php
 # application/controllers/ShopProduct.php
-
-defined('BASEPATH') OR exit('No direct script access allowed');
-
 class ShopProduct extends CI_Controller
 {
-    // Same here:
     public function details($id)
     {
-
+        // (...)
     }
 }
 ```
 
-To obtain the value of an sticky parameter, use the `param()` method of the `route` property within the controller:
+To obtain the value of an adhesive parameter within a controller, use the `param($name)` method of the `route` property, where `$name` is the name of the parameter:
+
 
 ```php
-<?php
-# application/controllers/ShopCategory.php
-
-defined('BASEPATH') OR exit('No direct script access allowed');
-
-class ShopCategory extends CI_Controller
+public function categoryList($id)
 {
-    public function categoryList($id)
-    {
-        $locale = $this->route->param('_locale');
-    }
+    $locale = $this->route->param('_locale');
 }
 ```

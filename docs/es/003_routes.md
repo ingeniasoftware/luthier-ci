@@ -1,67 +1,49 @@
-[//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] El enrutamiento de Luthier CI explicado a fondo. Aprende más sobre las rutas y una nueva sintaxis inspirada en Laravel que está a tu alcance)
-
 # Rutas
 
-### Contenido
+La creación de rutas es una tarea fundamental durante el desarrollo de cualquier aplicación web. Luthier CI mejora  el enrutamiento de CodeIgniter para que construir aplicaciones grandes no sea excesivamente complicado.
 
-1. [Introducción](#introduction)
-2. [Tipos de rutas](#route-types)
-3. [Sintaxis](#syntax)
-   1. [Espacios de nombre](#namespaces)
-   2. [Prefijos](#prefixes)
-   3. [Rutas con nombre](#named-routes)
-   4. [Funciones anónimas como rutas](#callbacks-as-routes)
-   5. [Grupos](#groups)
-   6. [Rutas de recurso](#resource-routes)
-   7. [Controlador por defecto](#default-controller)
-4. [Parámetros](#parameters)
-   1. [Parámetros opcionales](#optional-parameters)
-   2. [Expresiones regulares en parámetros](#parameter-regex)
-   3. [Parámetros "adhesivos"](#sticky-parameters)
+<!-- %index% -->
 
-### <a name="introduction"></a> Introducción
+### Diferencias entre el enrutamiento de CodeIgniter y Luthier CI
 
-Luthier CI cambia el comportamiento del enrutador de CodeIgniter:
+La forma en que las rutas son manejadas por CodeIgniter es modificada por Luthier CI durante su ejecución:
 
-* En CodeIgniter, por defecto, las rutas son accesibles bajo cualquier verbo HTTP. Con Luthier CI es obligatorio definir los verbos HTTP aceptados para cada ruta y cualquier petición que no coincida con dichos parámetros generará un error 404.
-* En CodeIgniter es posible acceder a los controladores directamente desde la URL sin necesidad de definir rutas. En cambio, con Luthier CI, intentar acceder a una ruta que no esté definida (incluso si la URL coincide con el nombre del controlador y del método) generará un error 404.
-* En CodeIgniter los parámetros de rutas son simples expresiones regulares que apuntan a controladores, en Luthier CI una ruta es una entidad independiente y única, que contiene parámetros bien definidos y con la capacidad de construir URLs a partir de ellas.
-* En CodeIgniter únicamente se pueden crear rutas que apunten a controladores. Con Luthier CI es posible utilizar funciones anónimas como controladores e incluso construir una aplicación web completa sin usar ni un solo controlador.
+* En CodeIgniter, por defecto, las rutas son accesibles a través de cualquier verbo HTTP. Con Luthier CI es obligatorio definir en cada ruta los verbos HTTP aceptados.
+* En CodeIgniter es posible acceder a los controladores sin necesidad de definir rutas, mientras que con Luthier CI únicamente las rutas definidas son detectadas.
+* Con Luthier CI cada ruta es una entidad independiente y única, con parámetros bien definidos y con la capacidad de construir URLs a partir de ellas.
+* Con Luthier CI es posible utilizar funciones anónimas como controladores e incluso construir una aplicación web completa sin usar ni un solo controlador.
 
-### <a name="route-types"></a> Tipos de rutas
+### Tipos de rutas
 
-Puedes trabajar con tres tipos de rutas:
+Tres tipos de rutas están disponibles en Luthier CI:
 
 * **Rutas HTTP**: se acceden bajo peticiones HTTP y se definen en el archivo `application/routes/web.php`
 * **Rutas AJAX**: se acceden únicamente bajo peticiones AJAX y se definen en el archivo `application/routes/api.php`
 * **Rutas CLI**: se acceden únicamente bajo un entorno CLI (Command Line Interface) y se definen en el archivo `application/routes/cli.php`
 
 <div class="alert alert-success">
-    <i class="fa fa-check" aria-hidden="true"></i>
-    <strong>Las rutas AJAX van en api.php</strong>
-    <br />
     A pesar de que puedes definir rutas AJAX en el archivo <code>web.php</code>, lo ideal es hacerlo en <code>api.php</code>
 </div>
 
-### <a name="syntax"></a> Sintaxis
+### Sintaxis
 
-Si has usado Laravel entonces sabrás usar Luthier CI, pues su sintaxis es idéntica. Este es el ejemplo más sencillo posible de una ruta:
+Si has usado Laravel entonces sabrás cómo escribir rutas en Luthier CI, pues su sintaxis muy parecida. Este es un ejemplo de una ruta de Luthier CI:
 
 ```php
 Route::get('foo', 'bar@baz');
 ```
 
-Donde **foo** es la URL de la ruta y **bar@baz** es el nombre del controlador y método (separados por el @) al que apunta. Al usar el método `get()` estás indicando a Luthier CI que la ruta va a estar disponible bajo peticiones GET.
+Donde:
+* **foo** es la URL de la ruta, y
+*  **bar@baz** es el nombre del controlador y método al que hace referencia, separados por **@**. 
 
-<div class="alert alert-info">
-    <i class="fa fa-info-circle" aria-hidden="true"></i>
-    <strong>La primera ruta es la que gana</strong>
-    <br />
-    Si defines dos o más rutas con la misma URL y el mismo verbo HTTP, la primera será devuelta SIEMPRE
+El método `Route::get()` establece que la ruta acepta únicamente peticiones `GET`.
+
+<div class="alert alert-warning">
+    Si defines dos o más rutas con la misma URL y el mismo verbo HTTP siempre será usada la primera.
 </div>
 
-Luthier CI te permite definir rutas HTTP con los verbos GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS y TRACE:
+Se pueden definir rutas para los verbos GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS y TRACE usando los siguientes métodos de la clase `Route`: 
 
 ```php
 Route::post('foo', 'bar@baz');
@@ -73,70 +55,70 @@ Route::options('foo', 'bar@baz');
 Route::trace('foo', 'bar@baz');
 ```
 
-También, puedes pasar un arreglo con las _propiedades_ de la ruta como tercer argumento (explicados más adelante)
+Puedes pasar un arreglo con las _propiedades_ de la ruta como tercer argumento:
 
 ```php
 Route::get('test', 'controller@method', ['prefix' => '...', 'namespace' => '...', (...)] );
 ```
 
-Para aceptar múltiples verbos HTTP en una ruta, usa el método `match()`:
+También es posible aceptar múltiples verbos HTTP en una ruta, usando el método `Route::match()`:
 
 ```php
 Route::match(['GET', 'POST'], 'path', 'controller@method', [ (...) ]);
 ```
 
-#### <a name="namespaces"></a> Espacios de nombre
+#### Espacios de nombre
 
-La propiedad `namespace` le indica a CodeIgniter el sub-directorio donde se encuentra el controlador. (Nota que esto no es un _espacio de nombre_ de PHP, sino un nombre de directorio)
+La propiedad **namespace** le indica a CodeIgniter el sub-directorio donde se encuentra el controlador.
 
 ```php
-// El controlador está ubicado en application/controllers/admin/Testcontroller.php
-Route::get('hello/world', 'testcontroller@index', ['namespace' => 'admin']);
+// El controlador apuntará a application/controllers/foo/Bar.php
+Route::get('hello/world', 'bar@index', ['namespace' => 'admin']);
 ```
 
-#### <a name="prefixes"></a> Prefijos
+<div class="alert alert-info">
+    Nota que esto no es un <em>espacio de nombre</em> de PHP, sino un nombre de directorio.
+</div>
 
-Usa la propiedad `prefix` para agregar prefijos a las rutas:
+#### Prefijos
+
+Usa la propiedad **prefix** para agregar prefijos a las rutas:
 
 ```php
-// La URL será 'admin/hello/world' en lugar de 'hello/world'
+// La URL será 'admin/hello/world'
 Route::get('hello/world', 'testcontroller@index', ['prefix' => 'admin']);
 ```
 
-#### <a name="named-routes"></a> Rutas con nombre
+#### Rutas con nombre
 
-Puedes (y, de hecho, es recomendable) asignar un nombre a tus rutas. Esto te permitirá llamarlas desde otros lugares:
+Es recomendable asignar un nombre a tus rutas, esto te permitirá construir URLs en tus vistas y en otros controladores:
 
 ```php
 Route::get('company/about_us', 'testcontroller@index')->name('about_us');
 ```
 
-Para obtener una ruta por su nombre usa la función `route()`, cuyo el primer argumento es el nombre de la ruta y un segundo argumento opcional es un arreglo con los valores de los parámetros de dicha ruta. Por ejemplo, para obtener la ruta anterior, basta con escribir `route('about_us')`:
+Para obtener una ruta por su nombre usa la función `route($name)`, donde `$name` es el nombre de la ruta:
 
 ```php
-// http://example.com/company/about_us
-<a href="<?= route('about_us');?>">My link!</a>
+route('about_us');
 ```
 
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Nombres duplicados</strong>
-    <br />
-    No puedes llamar a dos o más rutas con el mismo nombre
+    Declarar dos o más rutas con el mismo nombre producirá una excepción
 </div>
 
-#### <a name="groups"></a> Grupos
+#### Grupos
 
-Puedes crear grupos de rutas usando el método `group()`, donde el primer argumento es el prefijo que tendrán en comun, y el segundo argumento es una funcion anónima con las sub-rutas:
+Usa el método `Route::group($prefix, $routes)` para definir un grupo de rutas, donde `$prefix` es el prefijo en común y `$routes` una función anónima con que contiene las sub-rutas:
 
 ```php
-Route::group('prefix', function(){
+Route::group('my_prefix', function(){
     Route::get('bar','test@bar');
     Route::get('baz','test@baz');
 });
 ```
 
-Además, es posible asignar propiedades en común para los grupos de rutas. Este es un ejemplo de la sintaxis extendida:
+Es posible asignar **propiedades** para todas las rutas del grupo usando la sintaxis `Route::group($prefix, $properties, $routes)`:
 
 ```php
 Route::group('prefix', ['namespace' => 'foo', 'middleware' => ['Admin','IPFilter']], function(){
@@ -145,15 +127,17 @@ Route::group('prefix', ['namespace' => 'foo', 'middleware' => ['Admin','IPFilter
 });
 ```
 
-#### <a name="resource-routes"></a> Rutas de recurso
+#### Rutas de recurso
 
-Las rutas de recurso permiten definir operaciones de CRUD (**C**reate, **R**ead, **U**pdate, **D**elete) para un controlador en una sola línea. Ejemplo:
+Las rutas de recurso son un atajo para crear el enrutamiento de operaciones CRUD (**C**reate, **R**ead, **U**pdate, **D**elete) para un controlador. 
+
+Para crer una ruta de recurso usa el método `Route::resource($name, $controller)`, donde `$name` es el nombre/prefijo de las rutas y `$controller` el nombre del controlador:
 
 ```php
 Route::resource('photos','PhotosController');
 ```
 
-Produce:
+Resultado:
 
 ```php
 [Name]                 [Path]               [Verb]          [Controller action]
@@ -166,13 +150,13 @@ photos.update          photos/{id}          PUT, PATCH      PhotosController@upd
 photos.destroy         photos/{id}          DELETE          PhotosController@destroy
 ```
 
-Además, es posible crear rutas de recurso parciales, pasando un tercer argumento con un arreglo de las acciones a filtrar:
+Es posible crear rutas de recurso parciales usando la sintaxis `Route::resource($name, $controller, $include)`, donde `$include` es un arreglo (incluyente) de las rutas a crear:
 
 ```php
 Route::resource('photos','PhotosController', ['index','edit','update']);
 ```
 
-Produce:
+Resultado:
 
 ```php
 [Name]                 [Path]               [Verb]          [Controller action]
@@ -181,82 +165,87 @@ photos.edit            photos/{id}/edit     GET             PhotosController@edi
 photos.update          photos/{id}          PUT, PATCH      PhotosController@update
 ```
 
-#### <a name="default-controller"></a> Controlador por defecto
+#### Controlador por defecto
 
-Luthier CI establece automáticamente cualquier ruta definida con la URL `/` y el verbo HTTP **GET** como el controlador por defecto, sin embargo puedes establecerlo explícitamente mediante el método `set()` y esta sintaxis especial:
+Luthier CI establece automáticamente cualquier ruta definida con la URL `/` y el verbo HTTP **GET** como el controlador por defecto.
+
+Puedes definir de forma explícita el controlador por defecto usando el método `Route::set('default_controller', $name)`, donde `$name` es el controlador por defecto:
+
 
 ```php
-// Nota que el valor está enlazado a la ruta especial 'default_controller' de CodeIgniter y debe
-// usarse la sintaxis nativa:
 Route::set('default_controller', 'welcome/index');
 ```
 
-#### <a name="callbacks-as-routes"></a> Funciones anónimas como rutas
+#### Funciones anónimas como rutas
 
-Puedes usar funciones anónimas (también llamadas _closures_ o _funciones lambda_) en lugar de apuntar a un controlador, por ejemplo:
+No es necesario suministrar un nombre de un controlador y un método para definir una ruta en Luthier CI. También puedes usar funciones anónimas (o _closures_) como controladores:
 
 ```php
 Route::get('foo', function(){
     ci()->load->view('some_view');
 });
 ```
-Para acceder a la instancia del framework dentro de las funciones anónimas, usa la función `ci()`.
 
-### <a name="parameters"></a> Parámetros
+<div class="alert alert-info">
+    Para acceder a la instancia (singleton) del CodeIgniter dentro de las funciones anónimas, usa el helper <code>ci()</code>.
+</div>
 
-Es posible definir parámetros en tus rutas, de modo que puedan ser dinámicas. Para añadir un parámetro a un segmento de la ruta, enciérralo entre `{llaves}`
+### Parámetros de rutas
+
+Los parámetros son secciones dinámicas de la URL de una ruta, haciendo posible que múltiples URLs resuelvan a la misma ruta. Para definir parámetros, enciérralos entre `{llaves}`, por ejemplo:
 
 ```php
 Route::post('blog/{slug}', 'blog@post');
 ```
 
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Parámetros duplicados</strong>
-    <br />
-    No puedes llamar a dos o más parámetros con el mismo nombre
+    No puedes definir dos o más parámetros con el mismo nombre
 </div>
 
-#### <a name="optional-parameters"></a> Parámetros opcionales
+#### Parámetros opcionales
 
-Para hacer un parámetro opcional, agrega un `?` antes de cerrar las llaves:
+Para establecer un parámetro como opcional, agrega un `?` antes de cerrar las llaves:
 
 ```php
 Route::put('categories/{primary?}/{secondary?}/{filter?}', 'clients@list');
 ```
 
-Ten en cuenta que luego del primer parámetro opcional definido, TODOS los siguientes parámetros deberán ser opcionales.
+Ten en cuenta que, tal como sucede con los argumentos de funciones en PHP, luego del primer parámetro definido como opcional TODOS los demás deberán ser opcionales también.
 
 <div class="alert alert-success">
-    <i class="fa fa-check" aria-hidden="true"></i>
-    <strong>Rutas generadas automáticamente</strong>
-    <br />
     Luthier CI generará por ti el árbol completo de rutas para todos los parámetros opcionales, así que no tienes que preocuparte por escribir más rutas además de la principal.
 </div>
 
-#### <a name="parameter-regex"></a> Expresiones regulares en parámetros
+#### Expresiones regulares en parámetros
 
-Puedes limitar un parámetro a una expresión regular:
+Puedes limitar el contenido de un parámetro de ruta para restringirlo a un set de caracteres en específico:
 
 ```php
-// Estos son los equivalentes de (:num) y (:any), respectivamente
 Route::get('cars/{num:id}/{any:registration}', 'CarCatalog@index');
 ```
-Además, puedes usar una expresión regular personalizada con la sintaxis `{([expr]):[name]}`:
+
+Los placeholders `num:` y `any:` son equivalentes a `(:num)` y `(:any)`, respectivamente.
+
+También es posible usar una expresión regular para definir parámetros de ruta:
 
 ```php
-// Esto es equivalente a /^(es|en)$/
 Route::get('main/{((es|en)):_locale}/about', 'about@index');
 ```
 
-#### <a name="sticky-parameters"></a> Parámetros "adhesivos"
+Lo anterior es equivalente a `/^(es|en)$/`.
 
-Es posible que necesites definir un parámetro en un grupo de rutas y que a su vez esté disponible en todas sus sub-rutas, sin tener que definirlo en los argumentos de todos los metodos en todos los controladores, lo cual es tedioso. Pensando en eso, Luthier CI ofrece los llamados **parámetros adhesivos**. Un parámetro adhesivo comienza con un guión bajo (`_`) y tiene algunas singularidades:
+#### Parámetros adhesivos
 
-* No se pasa en los argumentos del método del controlador al que apunta dicha ruta.
-* En todas la sub-rutas que compartan el parámetro adhesivo, valor se tomará de la URL y será suministrado automáticamente en la función `route()`, por lo que puedes omitirlo, o bien, sobreescribirlo por cualquier otro valor.
+Cuando trabajas con grupos de rutas que definen parámetros éstos deben ser declarados como argumentos en los métodos de los controladores, *recursivamente*. Dependiendo de la complejidad de tu aplicación, los parámetros heredados se irán acumulando, lo que hará que los métodos de tus controldores tengan una cantidad muy grande de argumentos. 
 
-Considera este ejemplo:
+Los **parámetros adhesivos** sirven precisamente para ayudarte a lidiar con éste problema. 
+
+Un parámetro adhesivo es cualquier parámetro de ruta que comience con un guión bajo (`_`). Tienen las siguientes propiedades:
+
+* No es necesario definirlo en los argumentos de los métodos de los controladores en las sub-rutas.
+* El valor del parámetro se tomará de la URL y será suministrado automáticamente en la función `route()`, por lo que puede ser omitido, o sobreescribirlo por cualquier otro valor.
+
+Considera el siguiente grupo de rutas:
 
 ```php
 Route::group('shop/{_locale}', function()
@@ -266,66 +255,55 @@ Route::group('shop/{_locale}', function()
 });
 ```
 
-Las rutas `shop.category` y `shop.product.details` comparten el parámetro adhesivo `_locale`. Mientras que es requerido que dicho parámetro esté en la URL, no es obligatorio que esté presente en el arreglo de parámetros cuando uses la función `route()` en este contexto. Esto es especialmente útil cuando necesites enlazar a otras variantes de la ruta actual:
+Las rutas `shop.category` y `shop.product.details` comparten el parámetro adhesivo `_locale` y, mientras que sigue siendo requerido que dicho parámetro esté en la URL, puedes omitirlo cuando construyas rutas dentro de éste grupo:
 
 ```php
 // Si la URL es 'shop/en/category/1', {_locale} será 'en' aquí:
-echo route('shop.category', ['id' => 1]); # shop/en/category/1
-echo route('shop.category', ['id' => 2]); # shop/en/category/2
-echo route('shop.category', ['id' => 3]); # shop/en/category/3
 
-// Puedes sobreescribir ese valor por cualquier otro:
-echo route('shop.category', ['_locale' => 'es', 'id' => 1]); # shop/es/category/1
+echo route('shop.category', ['id' => 1]);
+# shop/en/category/1
+
+echo route('shop.category', ['id' => 2]); 
+# shop/en/category/2
+
+echo route('shop.category', ['id' => 3]); 
+# shop/en/category/3
 ```
 
-Una ventaja de los parámetros adhesivos es que no tienes que definirlos como argumentos de todos los métodos de los controladores apuntados. En el ejemplo anterior, dentro de los controladores `ShopCategory` y `ShopProduct`, sus métodos tendrán un único argumento: `$id`, debido a que es el único suministrado por el enrutador:
+Esto es útil cuando necesites enlazar a otras variantes de la ruta actual:
 
 ```php
-<?php
+echo route('shop.category', ['_locale' => 'es', 'id' => 1]); 
+# shop/es/category/1
+```
+
+Dentro de los controladores `ShopCategory` y `ShopProduct`, sus métodos tendrán un único argumento: `$id`:
+
+```php
 # application/controllers/ShopCategory.php
-
-defined('BASEPATH') OR exit('No direct script access allowed');
-
 class ShopCategory extends CI_Controller
 {
-    // Definir el método como categoryList($_locale, $id) no va a funcionar: se está
-    // esperando exactamente 1 argumento:
     public function categoryList($id)
     {
-
+        // (...)
     }
 }
-```
 
-```php
-<?php
 # application/controllers/ShopProduct.php
-
-defined('BASEPATH') OR exit('No direct script access allowed');
-
 class ShopProduct extends CI_Controller
 {
-    // Lo mismo aquí:
     public function details($id)
     {
-
+        // (...)
     }
 }
 ```
 
-Para obtener el valor de un parámetro adhesivo usa al método `param()` de la propiedad `route` dentro del controlador:
+Para obtener el valor de un parámetro adhesivo dentro de un controlador usa al método `param($name)` de la propiedad `route`, donde `$name` es el nombre del parámetro:
 
 ```php
-<?php
-# application/controllers/ShopCategory.php
-
-defined('BASEPATH') OR exit('No direct script access allowed');
-
-class ShopCategory extends CI_Controller
+public function categoryList($id)
 {
-    public function categoryList($id)
-    {
-        $locale = $this->route->param('_locale');
-    }
+    $locale = $this->route->param('_locale');
 }
 ```

@@ -1,43 +1,21 @@
-[//]: # ([author] Anderson Salas, translated by Julio Cedeño)
-[//]: # ([meta_description] Explore the concept of Middleware that Luthier CI introduces into your CodeIgniter applications and learn to use it with practical examples)
-
 # Middleware
 
-### Contents
+Middleware is a series of _layers_ that incoming HTTP requests must go through before reaching the controllers of your application. This concept is introduced to CodeIgniter by Luthier CI and opens up a range of possibilities in the framework.
 
-1. [Introduction](#introduction)
-2. [Middleware execution points](#middleware-execution-points)
-3. [Create a middleware](#create-a-middleware)
-4. [Assign a middleware](#assign-a-middleware)
-   1. [Global Middleware](#global-middleware)
-   2. [Route middleware](#route-middleware)
-5. [Run a middleware](#run-a-middleware)
-   1. [Middleware parameters](#middleware-parameters)
-   2. [External middleware](#external-middleware)
+<!-- %index% -->
 
-### <a name="introduction"></a> Introduction
+### Middleware execution points
 
-Think of middleware as a set of _layers_ that requests must go through in your application in order to reach a resource.
+There are two possible execution points for the Middleware in Luthier CI, and they are related to the loading and execution of CodeIgniter controllers:
 
-With the middleware you can, for example, validate that a user is logged in and has sufficient permissions to access certain sections of your application, and redirect it to another place otherwise.
-
-The middleware is, in fact, an extension of the controller, because the singleton of the framework has already been built at this point and you can get it using the `ci()` function.
-
-### <a name="middleware-execution-points"></a> Middleware execution points
-
-Two execution points are available:
-
-* `pre_controller`: the middleware defined at this point will be executed after the controller constructor, _BUT_ before any controller action is performed.
-* `post_controller`: the middleware defined at this point will run exactly on the native `post_controller` hook of CodeIgniter.
+* `pre_controller`: the Middleware defined at this point will run after the controller's constructor, BUT before any other method is executed.
+* `post_controller`: the Middleware defined at this point will run exactly on the `post_controller` CodeIgniter native hook.
 
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>The controller constructor always executed first</strong>
-    <br />
-    This is the behavior of CodeIgniter and Luthier CI does not modify it.
+    The controller constructor <strong>always</strong> runs first
 </div>
 
-It's possible that at some point you need to execute code before the middleware, the way to do it is by defining a public method in your controller called `preMiddleware`:
+It is possible that at some point you need to execute code before your Middleware, and the way to do it is by defining a public method in your controller called `preMiddleware`:
 
 ```php
 <?php
@@ -49,23 +27,22 @@ class TestController extends CI_Controller
 {
     public function preMiddleware()
     {
-        // This will be executed after the constructor (if it exists), but before the middleware
+        // (...)
     }
 }
 ```
 
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Not available in callbacks as routes</strong>
-    <br />
-    When you use callbacks as routes there is no way to execute arbitrary code before the middleware
+    When you use <strong>anonymous functions</strong> as controllers there is no way to execute arbitrary code before Middleware
 </div>
 
-### <a name="create-a-middleware"></a> Create a middleware
+### Create a Middleware
 
-All middleware must be saved in the `application/middleware` folder. A middleware is any PHP class with a `run()` public method.
+All Middleware should be stored in the `application/middleware` folder. A Middleware is any PHP class that implements the `Luthier\MiddlewareInterface` interface.
 
-Example:
+The `Luthier\MiddlewareInterface` interface only defines a method called `run()`, which is the entry point of the Middleware.
+
+For example:
 
 ```php
 <?php
@@ -75,46 +52,38 @@ class TestMiddleware implements Luthier\MiddlewareInterface
 {
     public function run()
     {
-        // This is the entry point of the middleware
+        // (...)
     }
 }
 ```
 
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Implementing the <code>MiddlewareInterface</code> interface will be mandatory</strong>
-    <br />
-    As of 0.3.0 version, the use of Middleware classes that do not implement the <code>Luthier\MiddlewareInterface </code> interface is DEPRECATED and will stop working in the next version</div>
+    As of version 0.3.0, the use of Middleware classes that do not implement the <code>Luthier\MiddlewareInterface</code> interface is OBSOLETE and will stop working in the next version
+</div>
 
-In order to assign a middleware in your application it's necessary that both the name of the class and the name of the file are exactly the same. Also, be careful not to use the same name as some other resource in the framework, such as a controller, model, library, etc.
+It is necessary that both the class name and the file name are exactly the same.
 
-<div class="alert alert-success">
-    <i class="fa fa-check" aria-hidden="true"></i>
-    <strong>Add <em>Middleware</em> suffix</strong>
-    <br />
-    One way to avoid conflicts is by adding the <em>Middleware</em> suffix to the middleware name.
+<div class="alert alert-warning">
+    Avoid using a name of another framework existing resource, such as a controller, model, or library.
 </div>
 
 <div class="alert alert-success">
-    <i class="fa fa-check" aria-hidden="true"></i>
-    <strong>Create a middleware from the command line</strong>
-    <br />
-    If you have activated the built-in CLI tools of Luthier CI, use the <code>luthier make middleware [name]</code> command to create a new middleware
+    A good practice is to add the <em>Middleware</em> suffix to the name of your Middleware.
 </div>
 
-### <a name="assign-a-middleware"></a> Assign a middleware
+### Assign a Middleware
 
-You can assign a middleware in different contexts of your application:
+You can assign a Middleware in different contexts:
 
-#### <a name="global-middleware"></a> Global middleware
+#### Global Middleware
 
-To define a middleware in a **global** context, use this syntax:
+As the name implies, global Middleware runs on all incoming requests from your application:
 
 ```php
 Route::middleware([name], [exec_point?]);
 ```
 
-Where `name` is the name of the middleware and `exec_point` is the execution point, which by default is `pre_controller`.
+Where `name` is the name of the Middleware and `exec_point` is the execution point (by default, pre_controller)
 
 You can use an anonymous function instead of the name of a middleware:
 
@@ -124,9 +93,9 @@ Route::middleware(function(){
 });
 ```
 
-#### <a name="route-middleware"></a> Route middleware
+#### Middleware in route groups
 
-In the **route group** context, middleware is another property, so it goes in the third argument of the `group()` method:
+Route middleware is defined as any other property. In the case of **route groups**, it goes in the second argument of the `Route::group()` method:
 
 ```php
 Route::group('site', ['middleware' => ['AuthMiddleware']], function(){
@@ -134,22 +103,19 @@ Route::group('site', ['middleware' => ['AuthMiddleware']], function(){
 });
 ```
 
-Finally, in the **individual route** context, middleware is also another property, so it goes in the second argument:
+For an **individual route**, the Middleware is also defined as a property:
 
 ```php
 Route::put('foo/bar','controller@method', ['middleware' => ['TestMiddleware']]);
 ```
 
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Only at the pre_controller point</strong>
-    <br />
-    When you assign a middleware to routes and route groups, the execution point is ALWAYS <code>pre_controller</code>
+    In individual routes and route groups, the execution point is ALWAYS <code>pre_controller</code>
 </div>
 
-### <a name="run-a-middleware"></a> Run a middleware
+### Run a middleware programatically
 
-For run a middleware from a controller, use the `run()` method of the `middleware` property:
+To run a Middleware from a controller, use the `run()` method of the `middleware` property:
 
 ```php
 <?php
@@ -166,20 +132,13 @@ class TestController extends CI_Controller
 }
 ```
 
-#### <a name="middleware-parameters"></a> Middleware parameters
-
-The `run()` method of the `middleware` property supports a second argument with the middleware parameters:
+This method supports a second argument with the parameters of the Middleware:
 
 ```php
-// $args can be any variable type:
-
-$args = ['foo' => 'bar'];
-$this->middleware->run('AuthMiddleware', $args);
+$this->middleware->run('AuthMiddleware', ['foo' => 'bar']);
 ````
 
-#### <a name="external-middleware"></a> External middleware
-
-It is possible to run middleware from an external class, as long as it has a public method called `run()`
+It is possible to run Middleware from an external class, as long as it has a `run()` public method
 
 ```php
 <?php

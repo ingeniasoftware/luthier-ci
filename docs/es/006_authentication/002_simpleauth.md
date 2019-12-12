@@ -1,123 +1,44 @@
-[//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] ¡Con SimpleAuth puedes añadir un inicio de sesión y registro de usuarios a tu aplicación en menos de 5 minutos!)
-
 # SimpleAuth
 
-### Contenido
+Con SimpleAuth puedes añadir un formulario de inicio de sesión personalizable y listo para usar en CodeIgniter.
 
-1. [Introducción](#introduction)
-2. [Instalación](#installation)
-   1. [Paso 1: Copiar los archivos necesarios](#step-1-copy-required-files)
-   2. [Paso 2: Instalar la base de datos](#step-2-install-the-database)
-   3. [Paso 3: Definir las rutas](#step-3-define-the-routes)
-3. [Controlador de SimpleAuth](#simpleauth-controller)
-   1. [Personalizar el formulario de registro de usuario](#signup-form-personalization)
-4. [Middleware de SimpleAuth](#simpleauth-middleware)
-5. [Librería de SimpleAuth](#simpleauth-library)
-   1. [Funciones básicas](#simpleauth-library-basic-functions)
-      1. [Obtener el usuario actual](#obtaining-the-current-user)
-      2. [Verificar si un usuario es invitado (anónimo)](#verifying-if-user-is-guest)
-      3. [Verificar el rol de un usuario](#verifying-the-user-role)
-      4. [Verificar los permisos de un usuario](#verifying-the-user-permissions)
-   2. [Funciones de Listas de Control de Acceso (ACL)](#simpleauth-library-acl-functions)
-   3. [Otras funciones](#simpleauth-library-other-functions)
-6. [Vistas y traducciones](#views-and-translations)
-   1. [Estableciendo el skin de SimpleAuth](#establishing-simpleauth-skin)
-   2. [Estableciendo el idioma de SimpleAuth](#establishing-simpleauth-language)
-   3. [Utilizando tus propias vistas](#using-your-own-views)
-7. [Configuración de SimpleAuth](#simpleauth-configuration)
-   1. [Configuración general](#general-configuration)
-   2. [Activación/desactivación de características](#enabling-disabling-features)
-   3. [Configuración de vistas](#views-configuration)
-   4. [Configuración de Listas de Control de Acceso (ACL)](#access-control-list-configuration)
-   5. [Configuración de emails](#email-configuration)
-   6. [Configuración de funcionalidad "Recuérdame"](#remember-me-functionality-configuration)
-   7. [Configuración de base de datos](#database-configuration)
+SimpleAuth se compone de un controlador (`SimpleAuthController`) un middleware (`SimpleAuthMiddleware`) y una librería (`Simple_auth`) todo ello construído sobre el **Framework de Autenticación de Luthier CI**.
 
-### <a name="introduction"></a> Introducción
+<!-- %index% -->
 
-¡Con **SimpleAuth** puedes añadir un inicio de sesión y registro de usuarios a tu aplicación en menos de 5 minutos! SimpleAuth se compone de un controlador (`SimpleAuthController`) un middleware (`SimpleAuthMiddleware`) una librería (`Simple_auth`) y otros elementos construídos a partir del **Framework de Autenticación de Luthier CI**.
+### Instalación de SimpleAuth
 
-### <a name="installation"></a> Instalación
+La instalación se realiza a través del comando `make` de las [Herramientas CLI Incorporadas de Luthier CI](../cli#herramientas-para-cli-incorporadas?relative_url=..%2Fcli%23herramientas-para-cli-incorporadas). Es necesario configurar una conexión a una base de datos (en `application/config/database.php`) y activar las migraciones (en `application/config/migration.php`) antes de proceder con la instalación.
 
-Como la instalación se realiza a través del comando `make` de las [Herramientas CLI Incorporadas de Luthier CI](../cli#built-in-cli-tools), asegúrate de definir dichos comandos en tu archivo de rutas `cli.php`:
+#### Paso 1: Copiar los archivos necesarios
 
-```php
-<?php
-# application/routes/cli.php
-
-Luthier\Cli::maker();      // Comando 'luthier make'
-Luthier\Cli::migrations(); // Comando 'luthier migrate'
-```
-
-Además, es necesario que configures correctamente la conexión a la base de datos (en `application/config/database.php`) y las migraciones (en `application/config/migration.php`) antes de comenzar.
-
-#### <a name="step-1-copy-required-files"></a> Paso 1: Copiar los archivos necesarios
-
-Ejecuta en la carpeta raíz de tu aplicación:
+Abre una terminal y ejecuta en la carpeta raíz de tu aplicación el siguiente comando:
 
 ```
 php index.php luthier make auth
 ```
 
-Si todo sale bien, deberás tener los siguientes nuevos archivos:
+#### Paso 2: Instalar la base de datos
 
-```
-application
-    |- config
-    |   |- auth.php
-    |
-    |- controllers
-    |   |- SimpleAuthController.php
-    |
-    |- libraries
-    |   |- Simple_Auth.php
-    |
-    |- middleware
-    |   |- SimpleAuthMiddleware.php
-    |
-    |- migrations
-    |   |- 20180516000000_create_users_table.php
-    |   |- 20180516000001_create_password_resets_table.php
-    |   |- 20180516000002_create_email_verifications_table.php
-    |   |- 20180516000003_create_login_attempts_table.php
-    |   |- 20180516000004_create_user_permissions_categories_table.php
-    |   |- 20180516000005_create_user_permissions_table.php
-    |
-    |- security
-    |   |- providers
-    |       |- User.php
-    |       |- UserProvider.php
-```
-
-#### <a name="step-2-install-the-database"></a> Paso 2: Instalar la base de datos
-
-Ejecuta en la carpeta raíz de tu aplicación:
+Para instalar la base de datos ejecuta lo siguiente desde la línea de comandos:
 
 ```
 php index.php luthier migrate
 ```
 
-Deberás poder ver la siguiente salida:
+<div class="alert alert-info">
+    Si ocurre un error asegúrate de que los paraémtros de conexión a la base de datos son correctos
+</div>
 
-```
-MIGRATED: 20180516000000_create_users_table.php
-MIGRATED: 20180516000001_create_password_resets_table.php
-MIGRATED: 20180516000002_create_email_verifications_table.php
-MIGRATED: 20180516000003_create_login_attempts_table.php
-MIGRATED: 20180516000004_create_user_permissions_categories_table.php
-MIGRATED: 20180516000005_create_user_permissions_table.php
-```
+#### Paso 3: Definir las rutas
 
-#### <a name="step-3-define-the-routes"></a> Paso 3: Definir las rutas
-
-En tu archivo `web.php`, añade la siguiente línea:
+En tu archivo de rutas `web.php` añade la siguiente línea:
 
 ```php
 Route::auth();
 ```
 
-Que es un atajo para definir todas estas rutas:
+El método `Route::auth()` es un atajo para crear todas las rutas  necesarias:
 
 ```php
 Route::match(['get', 'post'], 'login', 'SimpleAuthController@login')->name('login');
@@ -131,20 +52,16 @@ Route::group('password-reset', function(){
 });
 ```
 
-Si has seguido todos los pasos correctamente, al visitar la url `/login` deberás ver tu nueva pantalla de inicio de sesión:
-
-<img src="https://ingenia.me/uploads/2018/06/11/simpleauth_login_screenshot.png" alt="SimpleAuth login screen" class="img-responsive center" />
+Al visitar la URL `/login` de tu aplicación deberás ver tu nueva pantalla de inicio de sesión.
 
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Información acerca de la ruta de cierre de sesión</strong>
-    <br />
-    Por defecto, la ruta <code>logout</code> sólo acepta peticiones POST, así que un link a la url <code>/logout</code> no va a funcionar para cerrar la sesión, a menos se use un formulario HTML que apunte a esa ruta. Para permitir peticiones GET, usa <code>Route::auth(FALSE)</code>
+    <strong>La ruta de cierre de sesión</strong><br />
+    Por defecto, la ruta <code>logout</code> sólo acepta peticiones POST, así que navegar a la URL <code>/logout</code> no va a funcionar para cerrar la sesión. Lo ideal sería usar un formulario HTML que apunte a esa ruta, no obstante, si quieres aceptar peticiones GET usa <code>Route::auth(FALSE)</code>
 </div>
 
-### <a name="simpleauth-controller"></a> Controlador de SimpleAuth
+### Controlador de SimpleAuth
 
-El controlador de SimpleAuth (`SimpleAuthController`) contiene las acciones de autenticación tales como el inicio de sesión, el registro de usuario, el restablecimiento de contraseña, entre otros. Se ve similar a esto:
+El controlador de SimpleAuth (`SimpleAuthController`) contiene la lógica de cara al usuario para las operaciones de autenticación, tales como el **inicio de sesión**, el **registro de usuario** y el **restablecimiento de contraseña**. Un controlador de SimpleAuth recién creado se ve parecido a esto:
 
 ```php
 <?php
@@ -158,41 +75,28 @@ class SimpleAuthController extends Luthier\Auth\SimpleAuth\Controller
 {
 
     /**
-     * Sign up form fields
-     *
      * (...)
      */
     public function getSignupFields()
     {
-        return [ /* (...) */ ];
+        return [ ... ];
     }
 
     /**
-     * Fillable database user fields
-     *
      * (...)
-
-     * @access public
      */
     public function getUserFields()
     {
-        return [ /* (...) */ ];
+        return [ ... ];
     }
 }
 ```
 
-A menos que desees personalizar SimpleAuth, no hace falta agregar nada más a éste controlador, pues la clase a la que extiende (`Luthier\Auth\SimpleAuth\Controller`) ya define la lógica de autenticación y, en tu archivo de rutas, `Route::auth()` ya define todas las rutas que deben apuntar hacia aquí.
+La clase a la que extiende éste controlador (`Luthier\Auth\SimpleAuth\Controller`) ya provee todos los métodos necesarios por lo que, a menos que desees crear algo personalizado, no hace falta modificar mucho aquí.
 
-<div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Sobreescribir métodos elimina cualquier funcionalidad base</strong>
-    <br />
-    Puede parecer obvio, pero si sobreescribes cualquier método del controlador de SimpleAuth perderás el sistema de skins (temas) vistas traducidas, el constructor de formulario de registro de usuario, y otras funciones útiles que vienen pre-configuradas, descritas más abajo
-</div>
+#### Personalizar el formulario de registro de usuario
 
-#### <a name="signup-form-personalization"></a> Personalizar el formulario de registro de usuario
-
-Puedes cambiar los campos del formulario de registro a tu gusto. Para ello, el método `getSignupFields()` de tu controlador de SimpleAuth debe retornar un arreglo que defina su estructura, con la siguiente sintaxis:
+Puedes cambiar los campos del formulario de registro a tu gusto modificando el arreglo que es devuelto por el método `getSignupFields()`. Ésto es un ejemplo de la estructura que debe tener el arreglo:
 
 ```php
 public function getSignupFields()
@@ -202,8 +106,8 @@ public function getSignupFields()
             'Field type',
             'Field label',
             [ /* HTML5 attributes array */ ],
-            [ /* CI Validation rules array */] ,
-            [ /* CI Validation error essages array (Optional)*/]
+            [ /* CI Validation rules array */ ] ,
+            [ /* CI Validation error essages array (Optional) */ ]
         ],
         'Field name 2' => [
             'Field type',
@@ -224,7 +128,7 @@ public function getSignupFields()
 }
 ```
 
-Por otra parte, el método `getUserFields()` de tu controlador de SimpleAuth debe retornar un arreglo con los campos de dicho formulario que se almacenarán en el nuevo usuario, donde cada elemento del arreglo coincide tanto con el campo de dicho formulario de registro como con el nombre de la columna de la tabla de usuarios en tu base de datos:
+El método `getUserFields()` retorna un arreglo con las columnas de la tabla donde se almacenan los usuarios en la base de datos. Cada elemento del arreglo **debe coincidir** con el nombre del campo HTML en el formulario de registro de usuario:
 
 ```php
 public function getUserFields()
@@ -241,247 +145,132 @@ public function getUserFields()
 }
 ```
 
-Los usuarios de Laravel notarán que este es exactamente el mismo comportamiento de la propiedad `$fillable` de los modelos de EloquentORM, pero aplicado al formulario de registro de usuarios de SimpleAuth.
+### Middleware de SimpleAuth
 
-### <a name="simpleauth-middleware"></a> Middleware de SimpleAuth
+El middleware de SimpleAuth (`SimpleAuthMiddleware`) se usa para proteger aquellas rutas de la aplicación en las que se requiera que el usuario esté autenticado. Éste middleware se encarga automáticamente de verificar el estado actual del usuario:
 
-El middleware de SimpleAuth (`SimpleAuthMiddleware`) es la primera línea de defensa para las rutas que requieran la autenticación previa del usuario. Este middleware se encarga automáticamente de verificar el estado actual del usuario:
+* Si el usuario **está autenticado** la solicitud sigue con normalidad.
+* Si el usuario **no está autenticado** se intentará restaurar la sesión utilizando la característica *Recuérdame*.
+* Si no es posible restaurar ninguna sesión previa se redireccionará al usuario a la pantalla de inicio de sesión.
 
-* Si el usuario está **autenticado**, la solicitud sigue con normalidad
-* Si el usuario NO está **autenticado**, se intentará restaurar la sesión utilizando la funcionalidad "Recuérdame" (en caso de estár activada)
-* Si no es posible restaurar ninguna sesión previa, se redireccionará al usuario a la pantalla de inicio de sesión
-
-Puedes usar el middleware de SimpleAuth en tantas rutas y grupos de rutas como quieras, e incluso combinarlo con tus propios middleware para añadir capas de seguridad adicionales.
-
-Ejemplo:
+Puedes usar el middleware de SimpleAuth en tus rutas y grupos de rutas como cualquier otro middleware, e incluso combinarlo con tus propios middleware para añadir capas de seguridad adicionales:
 
 ```php
 <?php
 # application/routes/web.php
 
-// Rutas predeterminadas de SimpleAuth:
-
 Route::auth();
-
-// Rutas públicas:
-
 Route::get('/', 'FrontendController@homepage')->name('homepage');
-Route::get('/about', 'FrontendController@about')->name('about');
-Route::match(['get','post'], '/contact', 'FrontendController@contact')->name('contact');
-
-// Rutas protegidas: acceder aquí sin estar autenticado va a redirigirte a la pantalla de
-//                   inicio de sesión
-
 Route::group('dashboard', ['middleware' => ['SimpleAuthMiddleware']], function(){
     Route::get('/', 'UserArea@dashboard');
 });
 ```
 
-### <a name="simpleauth-library"></a> Librería de SimpleAuth
+### Librería de SimpleAuth
 
-La librería de SimpleAuth es un *wrapper* de la clase `Auth` del Framework de Autenticación de Luthier CI, en el formato de una librería nativa de CodeIgniter, por lo que todos sus métodos están disponibles para ti con una sintaxis que ya conoces.
-
-Para comenzar a usar la Librería de SimpleAuth, debes cargarla en el framework:
+La librería de SimpleAuth contiene métodos para realizar operaciones que involucran usuarios. Para usar la librería de SimpleAuth primero debes cargarla en el framework:
 
 ```php
 $this->load->library('Simple_auth');
 ```
 
-#### <a name="simpleauth-library-basic-functions"></a> Funciones básicas
+##### Obtener el usuario actual
 
-*NOTA: No todos los métodos de la clase `Luthier\Auth` son relevantes cuando estás usando SimpleAuth, por lo que únicamente enumeramos los que pueden resultarte útiles*
-
-
-##### <a name="obtaining-the-current-user"></a> Obtener el usuario actual
-
-Para obtener el usuario que se encuentra autenticado en tu aplicación, usa el método `user()`, el cual retorna un *objeto de usuario*, o `NULL` en caso de no existir ningún usuario autenticado:
+Para obtener el usuario autenticado actual, usa el método `user()`. Éste método retorna una **instancia de usuario** si el usuario se encuentra autenticado, o `NULL` en caso contrario:
 
 ```php
-// El objeto de usuario actual:
-$userObject = $this->simple_auth->user();
-
-// Con el objeto de usuario se tiene acceso a:
-// ...la entidad de usuario de la base de datos:
-$user = $userObject->getEntity();
-
-// ...sus roles:
-$roles = $userObject->getRoles();
-
-// ...y sus permisos:
-$permissions = $userObject->getPermissions();
+$user = $this->simple_auth->user();
 ```
 
-Si estás usando el Proveedor de usuario predeterminado de SimpleAuth, puedes acceder directamente a los datos del usuario actual sin tener que usar el método `getEntity()`. Las siguientes expresiones son equivalentes:
+Puedes acceder a los datos del usuario como propiedades del objeto devuelto:
 
 ```php
-$this->simple_auth->user()->getEntity()->first_name;
+$user = $this->simple_auth->user();
 
-$this->simple_auth->user()->first_name;
+$firstName = $user->first_name;
+$lastName = $user->last_name;
 ```
 
-##### <a name="verifying-if-user-is-guest"></a> Verificar si un usuario es invitado (anónimo)
+<div class="alert alert-info">
+    El método <code>user()</code> y las <strong>instancias de usuario</strong> que son devueltas se tratan en detalle en la documentación del <strong>Framework de Autenticación de Luthier CI</strong>.
+</div>
 
-Para verificar rápidamente si un usuario es invitado, usa el método `isGuest()`, el cual retorna `TRUE` si el usuario NO ha iniciado sesión aún, y `FALSE` en caso contrario:
+##### Verificar si un usuario es invitado (anónimo)
+
+El método `isGuest()` retorna `TRUE` si el usuario es anónimo (no ha iniciado sesión) o `FALSE` en caso contrario:
 
 ```php
 $this->simple_auth->isGuest();
 ```
 
-##### <a name="verifying-the-user-role"></a> Verificar el rol de un usuario
+##### Verificar el rol de un usuario
 
-Para verificar si un usuario posee un rol en específico, usa el método `isRole($role)`, el cual retorna `TRUE` si el usuario posee el rol `$role`, o `FALSE` si no lo posee o no hay ningún usuario autenticado:
+Para verificar si un usuario posee un rol en específico, usa el método `isRole($role)`, el cual retorna `TRUE` si el usuario posee el rol `$role`, o `FALSE` en caso contrario:
 
 ```php
 $this->simple_auth->isRole('ADMIN');
 ```
 
-##### <a name="verifying-the-user-permissions"></a> Verificar los permisos de un usuario
+##### Verificar los permisos de un usuario
 
-Para verificar si un usuario posee un permiso en específico, usa el método `isGranted($permission)`, el cual retorna `TRUE` si el usuario posee el permiso `permission`, o `FALSE` si no lo posee o no hay ningún usuario autenticado.
-
-Ejemplo:
+Para verificar si un usuario posee un permiso en específico, usa el método `isGranted($permission)`, el cual retorna `TRUE` si el usuario posee el permiso `$permission`, o `FALSE` en caso contrario:
 
 ```php
 $this->simple_auth->isGranted('general.read');
 ```
 
-Una sintaxis alternativa está disponible, para verificar si un usuario pertenece a un rol que comience por una frase/categoría en específico:
+Para verificar si un usuario pertenece a un rol que comience por una frase/categoría en específico, utiliza el caracter (**\***):
 
 ```php
-// Lo siguiente dará TRUE para los permisos que comiencen por 'general.'
 $this->simple_auth->isGranted('general.*');
 ```
 
-#### <a name="simpleauth-library-acl-functions"></a> Funciones de Listas de Control de Acceso (ACL)
+##### Verificar si un usuario está completamente autenticado
 
-Las Listas de Control de Acceso (ACL) son una funcionalidad opcional de autenticación utilizada para establecer permisos específicos a cada usuario autenticado. Un usuario puede, por lo tanto, tener un rol y varios permisos asignados que le garanticen (o nieguen) el acceso a determinados recursos de la aplicación.
+El método `isFullyAuthenticated()` devuelve `TRUE` si el usuario se encuentra completamente autenticado, o `FALSE` en caso contrario:
 
-En SimpleAuth no existen *grupos de usuarios* ni nada parecido, los permisos de usuario se almacenan en un arbol de permisos de profundidad variable (el límite de sub-permisos depende de ti).
-
-Considera los siguientes permisos:
-
-```
-ID      NAME        PARENT_ID
------------------------------
-1       general     [null]
-2       read        1
-3       write       1
-4       delete      1
-5       local       4
-6       global      4
+```php
+$this->simple_auth->isFullyAuthenticated();
 ```
 
-Y ésta asignación de permisos:
+Un usuario completamente autenticado es aquel que ha iniciado sesión a través del formulario de inicio de sesión y no por medio de la característica _Recuérdame_.
 
-```
-ID      USERNAME    PERMISSION_ID
----------------------------------
-1       anderson    2
-2       anderson    5
-3       julio       3
-4       julio       6
-```
+##### Solicitar contraseña
 
-Cuando, por ejemplo, el usuario `anderson` inicie sesión, tendrá los siguientes permisos:
+El método `promptPassword($route)` redirige automáticamente a `$route` en caso de que el usuario no esté **completamente autenticado** (ver función `isFullyAuthenticated()`). 
 
-```
-general.read
-general.delete.local
-```
+Esto es útil para validar la sesión de los usuarios autenticados mediante la característica *Recuérdame*.
 
-Y cuando el usuario `julio` inicie sesión, tendrá los siguientes permisos:
+##### Buscar un usuario
 
-```
-general.write
-general.delete.global
-```
+El método `searchUser($search)` devuelve un objeto con el primer usuario que coincida con `$search`, o `NULL` en caso de no encontrar ninguno. El criterio de búsqueda varía dependiendo del tipo de variable `$search` suministrado:
 
-El árbol de permisos se almacena en la tabla `user_permissions_categories`, mientras que las asignaciones de permisos se almacenan en la tabla `user_permissions`, ambas creadas mediante las migraciones que se incluyen con SimpleAuth. No existe un método automatizado para crear o eliminar permisos, por lo que debes hacerlo manualmente.
-
----
-
-Estas son las funciones de ACL disponibles en la librería de SimpleAuth:
-
-##### <a name="simpleauth-library-permissionsexists-method"></a> permissionsExists(*string* **$permission**) *: [bool]*
-
-Verifica que el permiso `$permission` exista en la tabla de la Lista de Control de Acceso (ACL).
+* Si `$search` es un **entero**, se buscará y devolverá el usuario con la clave primaria (ID) que coincida.
+* Si `$search` es un **string**, Buscará y devolverá el primer usuario que coincida con el valor de la columna establecida para el nombre de usuario (parámetro `simpleauth_username_col`)
+* Si `$search` es un **array**, se tratará como el `where($search)` del QueryBuilder nativo de CodeIgniter.
 
 Ejemplo:
 
 ```php
-$this->simple_auth->permissionExists('general.read');
-```
-
-##### <a name="simpleauth-library-grantpermission-method"></a> grantPermission(*string* **$permission**, *string* **$username** = *NULL*) *: [bool]*
-
-Asigna el permiso `$permission` al usuario `$username`, retornando `TRUE` si la operación fué exitosa o `FALSE` en caso contrario.
-
-```php
-// Asignando el permiso 'general.read' al usuario actual
-$this->simple_auth->grantPermission('general.read');
-```
-
-##### <a name="simpleauth-library-revokepermission-method"></a> revokePermission(*string* **$permission**, *string* **$username** = *NULL*) *: [bool]*
-
-Revoca el permiso `$permission` al usuario `$username`, retornando `TRUE` si la operación fué exitosa o `FALSE` en caso contrario.
-
-```php
-// Revocando el permiso 'general.read' al usuario actual
-$this->simple_auth->revokePermission('general.read');
-```
-
-#### <a name="simpleauth-library-other-functions"></a> Otras funciones
-
-Las siguientes funciones sirven de ayuda para tareas especiales relacionadas con la autenticación de usuario:
-
-##### <a name="simpleauth-library-isfullyauthenticated-method"></a> isFullyAutenticated() *: [bool]*
-
-Devuelve `TRUE` si el usuario se encuentra totalmente autenticado, `FALSE` en caso contrario. Un usuario totalmente autenticado es aquel que ha iniciado sesión directamente y NO a través de la funcionalidad "Recuérdame".
-
-##### <a name="simpleauth-library-promptpassword-method"></a> promptPassword(*string* **$route** = `'confirm_password'`) *: [bool]*
-
-Redirige automáticamente a la ruta `$route` en caso de que el usuario no se encuentre totalmente autenticado. Ésta función es útil para solicitar nuevamente al usuario autenticado a través de la funcionaldiad "Recuérdame" que confirme su contraseña.
-
-##### <a name="simpleauth-library-searchuser-method"></a> searchUser(*mixed* **$search**) *: [object|null]*
-
-Devuelve un objeto con el usuario encontrado bajo el criterio `$search`, o `NULL` en caso de no encontrar ninguno. Dependiendo del tipo de variable `$search`, este método realiza tres tipos de búsquedas:
-
-* **int**: Buscará y devolverá al usuario con la clave primaria que coincida (configuración `simpleauth_id_col`)
-* **string**: Buscará y devolverá al primer usuario que coincida con el valor de la columna establecida para el nombre de usuario durante el inicio de sesión (configuración `simpleauth_username_col`)
-* **array**: Es equivalente al método `where($search)` del QueryBuilder de CodeIgniter.
-
-Ejemplo:
-
-```php
-// Buscará el usuario con la ID 1
 $this->simple_auth->searchUser(1);
-
-// Buscará el usuario con la columna de nombre de usuario/email igual a 'admin@admin.com'
 $this->simple_auth->searchUser('admin@admin.com');
-
-// Buscará el usuario cuyo valor de columna 'gender' sea 'm' y 'active' igual a 1
 $this->simple_auth->searchUser(['gender' => 'm', 'active' => 1]);
 ```
 
-##### <a name="simpleauth-library-updateuser-method"></a> updateUser(*int|string* **$search**) *: [void]*
+##### Modificar un usuario
 
-Actualiza el usuario encontrado bajo el criterio `$search`. Dependiendo del tipo de variable `$search`, este método realiza dos tipos de actualización distintas:
-
-* **int**: Buscará y actualizará el primer usuario con el valor de la clave primaria que coincida (configuración `simpleauth_id_col`)
-* **string**: Buscará y actualizará el primer usuario con el valor de columna establecida para el nombre de usuario durante el inicio de sesión que coincida (configuración `simpleauth_username_col`)
+El método `updateUser($search, $values)` modifica el usuario encontrado bajo el criterio `$search` (ver método `searchUser()`) con los nuevos valores del arreglo `$values`. 
 
 Ejemplo:
-```php
-// Reemplazará los datos del usuario con la ID 1
-$this->simple_auth->updateUser(1, ['first_name' => 'John']);
 
-// Reemplazará los datos del usuario con la columna de nombre de usuario/email igual a 'admin@admin.com'
-$this->simple_auth->searchUser('admin@admin.com', ['gender' => 'f']);
+```php
+$this->simple_auth->updateUser(1, ['first_name' => 'John']);
+$this->simple_auth->updateUser('admin@admin.com', ['gender' => 'f']);
 ```
 
-##### <a name="simpleauth-library-createuser-method"></a> createUser(*array* **$data**) *: [void]*
+##### Crear un usuario
 
-Crea un nuevo usuario en la base de datos con los valores del arreglo `$data`. Cada índice del arreglo `$data` corresponde a una columna de la tabla de usuarios, definida en la configuración `simpleauth_users_table`
+El método `createUser($user)` crea un nuevo usuario en la base de datos con los valores del arreglo `$data`. Cada índice del arreglo `$data` corresponde a una columna de la tabla de usuarios.
 
 Ejemplo:
 
@@ -500,42 +289,127 @@ $this->simple_auth->createUser(
 );
 ```
 
-Esta función crea automáticamente el hash de la contraseña si el nombre de la columna coincide con el nombre establecido en la configuración `simpleauth_password_col`
+<div class="alert alert-info">
+    Esta método crea automáticamente el hash de la contraseña para el nombre de la columna que coincida el valor establecido en la opción <code>simpleauth_password_col</code>
+</div>
 
+### Listas de Control de Acceso (ACL)
 
-### <a name="views-and-translations"></a> Vistas y traducciones
+Las **Listas de Control de Acceso** proporcionan un mayor control de los permisos asignados a los usuarios. Cuando se usa ésta característica, un usuario tiene uno o varios permisos asignados que, en conjunto, le conceden (o niegan) el acceso a determinados recursos de la aplicación.
 
-SimpleAuth te da la posibilidad de escoger entre diseños (skins) predeterminados o usar tus propias vistas. Los diseños incluídos en SimpleAuth tienen la ventaja de estar traducidos a varios idiomas. Por el momento, los idiomas soportados son los siguientes:
+<div class="alert alert-info">
+    En SimpleAuth no existen <em>grupos de usuarios</em> ni nada parecido. Los permisos de usuario se almacenan como un árbol de permisos dentro de una base de datos.
+</div>
+
+<div class="alert alert-info">
+    No existe un método para crear o eliminar permisos, por lo que debes hacerlo manualmente. Las tablas usadas por las ACL, sin embargo, son creadas con las migraciones que se incluyen con SimpleAuth
+</div>
+
+Considera los siguientes permisos almacenados en la tabla `user_permissions_categories`:
+
+```
+ID      NAME        PARENT_ID
+-----------------------------
+1       general     [null]
+2       read        1
+3       write       1
+4       delete      1
+5       local       4
+6       global      4
+```
+
+Y la siguiente aignación de permisos en la tabla `user_permissions`:
+
+```
+ID      USERNAME    PERMISSION_ID
+---------------------------------
+1       anderson    2
+2       anderson    5
+3       julio       3
+4       julio       6
+```
+
+Cuando el usuario `anderson` inicie sesión, tendrá los siguientes permisos:
+
+```
+general.read
+general.delete.local
+```
+
+Y cuando el usuario `julio` inicie sesión, tendrá los siguientes permisos:
+
+```
+general.write
+general.delete.global
+```
+
+##### Verificar que un permiso exista
+
+El método `permissionsExists($permission)` devuelve `TRUE` si el permiso `$permission` existe en la tabla de la Lista de Control de Acceso (ACL), o `FALSE` en caso contrario.
+
+Ejemplo:
+
+```php
+$this->simple_auth->permissionExists('general.read');
+```
+
+##### Conceder un permiso a un usuario
+
+El método `grantPermission($permission, $username)` asigna el permiso `$permission` al usuario `$username` y devuelve `TRUE` si la operación fué exitosa o `FALSE` en caso contrario. Si se omite el argumento `$user` la operación se realiza en el usuario autenticado actual.
+
+Ejemplo:
+
+```php
+$this->simple_auth->grantPermission('general.read');
+```
+
+##### Revocar un permiso a un usuario
+
+El método `revokePermission($permission, $username)` revoca el permiso `$permission` del usuario `$username`, retornando `TRUE` si la operación fué exitosa o `FALSE` en caso contrario. Si se omite el argumento `$username` la operación se realiza en el usuario autenticado actual.
+
+Ejemplo:
+
+```php
+$this->simple_auth->revokePermission('general.read');
+```
+
+### Vistas y traducciones
+
+Puedes cambiar el diseño (skin) de los formularios renderizados por SimpleAuth escogiendo entre las vistas predeterminadas o tus propias vistas. Los vistas predeterminadas en SimpleAuth tienen la ventaja de estar traducidas a varios idiomas. Los idiomas soportados por SimpleAuth son los siguientes:
 
 * Inglés
 * Español
+* Italiano
 
-#### <a name="establishing-simpleauth-skin"></a> Estableciendo el skin de SimpleAuth
+##### Establecer el skin de SimpleAuth
 
-Para cambiar el skin utilizado en las vistas, modifica la opción `simpleauth_skin` del archivo de configuración de SimpleAuth:
+Para cambiar el skin modifica la opción `simpleauth_skin` del archivo de configuración de SimpleAuth:
 
 ```php
 # application/config/auth.php
 
 $config['simpleauth_skin'] = 'default';
 ```
+El idioma utilizado por los skins es tomado del valor de la opción `language` (`$config['language']`) del archivo de configuración principal del framework (`application/config/config.php`). 
 
-#### <a name="establishing-simpleauth-language"></a> Estableciendo el idioma de SimpleAuth
+<div class="alert alert-info">
+    En caso de no encontrarse el idioma actual entre los idiomas soportados por SimpleAuth, se utilizará el Inglés
+</div>
 
-El idioma utilizado por los skins depende del valor de la opción `language` (`$config['language']`) del archivo de configuración principal del framework (`application/config/config.php`). En caso de no encontrarse el idioma actual entre los soportados por SimpleAuth se utilizará el Inglés (`english`).
+##### Utilizando tus propias vistas
 
-#### <a name="using-your-own-views"></a> Utilizando tus propias vistas
-
-Puedes usar tus propias vistas sin necesidad de sobreescribir métodos del controlador de SimpleAuth. En total, 6 vistas son utilizadas por SimpleAuth:
+En total, 6 vistas son utilizadas por SimpleAuth:
 
 * **login.php**: Vista de inicio de sesión
 * **signup.php**: Vista de registro de usuario
-* **password_prompt.php**: Vista de confirmación de contraseña actual (funcionalidad "Recuérdame")
+* **password_prompt.php**: Vista de confirmación de contraseña actual (característica *Recuérdame*)
 * **password_reset.php**: Vista de del formulario de solicitud de restablecimiento de contraseña
 * **password_reset_form.php**: Vista de del formulario de restablecimiento de contraseña
 * **message.php**: Vista de un mensaje genérico
 
-Por lo tanto, para utilizar tus propias vistas, basta con crear un archivo con el nombre de la vista a reemplazar, dentro de una carpeta `simpleauth` (si no existe, debes crearla primero) en tu carpeta `views`. Por ejemplo:
+Para utilizar tus propias vistas, crea un archivo con el mismo nombre de la vista a reemplazar dentro de la carpeta `applications/views/simpleauth`.
+
+Por ejemplo:
 
 ```php
 application/views/simpleauth/login.php
@@ -546,68 +420,81 @@ application/views/simpleauth/password_reset_form.php
 application/views/simpleauth/signup.php
 ```
 
-### <a name="simpleauth-configuration"></a> Configuración de SimpleAuth
+### Configuración de SimpleAuth
 
-La configuración de SimpleAuth se encuentra en el archivo `application/config/auth.php`. A continuación, una breve explicación de cada elemento:
+La configuración de SimpleAuth se encuentra en el archivo `application/config/auth.php`. Éste archivo es creado automáticamente durante la instalación de SimpleAuth.
 
-#### <a name="general-configuration"></a> Configuración general
+##### Activación/desactivación de características
 
-* **auth_login_route**: *[string]* Ruta de inicio de sesión. Si utilizas el método `Route::auth()` para definir las rutas de SimpleAuth, éste valor será ignorado.
-* **auth_logout_route**: *[string]* Ruta de cierre de sesión. Si utilizas el método `Route::auth()` para definir las rutas de SimpleAuth, éste valor será ignorado.
-* **auth_login_route_redirect**: *[string]* Ruta de redirección en caso de inicio de sesión exitoso.
-* **auth_logout_route_redirect**: *[string]* Ruta de redirección inmediatamente después del cierre de sesión.
-* **auth_route_auto_redirect**: *[array]* Rutas que activarán una redirección automática a la ruta `auth_login_route_redirect` en caso de que el usuario ya esté autenticado.
-* **auth_form_username_field**: *[string]* Nombre del campo del formulario de inicio de sesión correspondiente al nombre de usuario/email a autenticar.
-* **auth_form_username_field**: *[string]* Nombre del campo del formulario de inicio de sesión correspondiente a la contraseña de usuario a autenticar.
-* **auth_session_var**: *[string]* Nombre de la variable de sesión utilizada por el módulo de Autenticación de Luthier CI.
+| Parámetro | Tipo  | Descripción |
+| :--- | :---: | :--- |
+| **simpleauth_enable_signup** | *bool* | Activa o desactiva el formulario de registro de usuario |
+| **simpleauth_enable_password_reset** | *bool* | Activa o desactiva el formulario de restablecimiento de contraseña |
+| **simpleauth_enable_remember_me** | *bool* | Activa o desactiva la característica *Recuérdame* |
+| **simpleauth_enable_email_verification** | *bool* | Activa o desactiva la verificación de correo electrónico. Para usar esta característica necesitas cargar y configurar la [Librería de Email](https://codeigniter.com/user_guide/libraries/email.html) |
+| **simpleauth_enforce_email_verification** | *bool* | Forza a los usuarios a verificr su dirección de correo electrónio. Para usar esta característica necesitas cargar y configurar la [Librería de Email](https://codeigniter.com/user_guide/libraries/email.html) |
+| **simpleauth_enable_brute_force_protection** | *bool* | Activa o desactiva la defensa contra ataques de inicio de sesión por fuerza bruta |
+| **simpleauth_enable_acl** | *bool* | Activa o desactiva las Listas de Control de Acceso (ACL) |
 
-#### <a name="enabling-disabling-features"></a> Activación/desactivación de características
+##### Configuración general
 
-* **simpleauth_enable_signup**: *[bool]* Activa el formulario de registro de usuario.
-* **simpleauth_enable_password_reset**: *[bool]* Activa el formulario de restablecimiento de contraseña.
-* **simpleauth_enable_remember_me**: *[bool]* Activa la función "Recuérdame" basada en cookie.
-* **simpleauth_enable_email_verification**: *[bool]* Activa la verificación de correo electrónico durante el proceso de registro de usuario. Para que funcione es necesario que el envío de correos electrónicos del framework esté correctamente configurado.
-* **simpleauth_enforce_email_verification**: *[bool]* Cuando esta opción es `TRUE`, SimpleAuth denegará el inicio de sesión a los usuarios que no posean su cuenta de correo electrónico verificada.
-* **simpleauth_enable_brute_force_protection**: *[bool]* Activa la defensa de ataques de inicio de sesión por fuerza bruta.
-* **simpleauth_enable_acl**: *[bool]* Activa las Listas de Control de Acceso (ACL)
+| Parámetro | Tipo  | Descripción |
+| :--- | :---: | :--- |
+| **simpleauth_user_provider** | *string* | *Proveedor de usuario* utilizado por SimepleAuth |
+| **auth_login_route** | *string* | Ruta de inicio de sesión. Si utilizas el método `Route::auth()` para definir las rutas de SimpleAuth éste valor será ignorado |
+| **auth_logout_route** | *string* | Ruta de cierre de sesión. Si utilizas el método `Route::auth()` para definir las rutas de SimpleAuth éste valor será ignorado |
+| **auth_login_route_redirect** | *string* | Ruta a redireccionar después de iniciar sesión |
+| **auth_logout_route_redirect** | *string* |  Ruta a redireccionar después de cerrar sesión |
+| **auth_route_auto_redirect** | *array* |  Rutas que activarán una redirección automática a `auth_login_route_redirect` si el usuario está autenticado |
+| **auth_form_username_field** | *string* | Nombre del campo del formulario de inicio de sesión correspondiente al nombre de usuario/email |
+| **auth_form_password_field** | *string* | Nombre del campo del formulario de inicio de sesión correspondiente a la contraseña  |
+| **auth_session_var** | *string* | Nombre de la variable de sesión utilizada por el Framework de Autenticación de Luthier CI |
 
-#### <a name="views-configuration"></a> Configuración de vistas
+##### Configuración de vistas
 
-* **simpleauth_skin**: *[string]* Skin utilizado en las vistas incluídas por SimpleAuth. Por defecto es `default`.
-* **simpleauth_assets_dir**: *[string]* URL pública relativa a la aplicación donde se guardarán los recursos (css, js, etc) de las vistas de SimpleAuth.
+| Parámetro | Tipo  | Descripción |
+| :--- | :---: | :--- |
+| **simpleauth_skin** | *string* | Skin utilizado en las vistas incluídas por SimpleAuth. |
+| **simpleauth_assets_dir** | *string* | URL pública para los recursos de SimpleAuth (css, js, etc.) |
 
-#### <a name="access-control-list-configuration"></a> Configuración de Listas de Control de Acceso (ACL)
+##### Configuración de Listas de Control de Acceso (ACL)
 
-* **simpleauth_acl_map**: *[array]* Arreglo asociativo con los nombres e IDs de categorías y grupos de categorías de permisos usados por las Listas de Control de Acceso. Configurar esto reduce drásticamente la cantidad de consultas la base de datos, en especial cuando se posee un árbol de permisos profundo.
+| Parámetro | Tipo  | Descripción |
+| :--- | :---: | :--- |
+| **simpleauth_acl_map** | *array* | Arreglo asociativo (`'name' => 'Category ID'`) de las categorías y grupos de permisos usados por las Listas de Control de Acceso. Configurar esto mejora considerablemente el rendimiento de la base de datos |
 
-#### <a name="email-configuration"></a> Configuración de emails
+##### Configuración de emails
 
-* **simpleauth_email_configuration**: *[array|null]* Arreglo con la configuración personalizada que será suministrada durante la inicialización de la librería de email para el envío de correos de SimpleAuth. Dejar en `null` para usar la misma de la aplicación.
-* **simpleauth_email_address**: *[string]* Dirección de correo electrónico que aparecerá en el campo `from` de los emails enviados por SimpleAuth.
-* **simpleauth_email_name**: *[string]* Nombre que aparecerá junto al campo `from` en los correos electrónicos enviados por SimpleAuth.
-* **simpleauth_email_verification_message**: *[string|null]* Mensaje automático con las instrucciones para la verificación de correo electrónico enviado al usuario luego de registrarse exitosamente en la aplicación. Dejar en `null` para usar el mensaje por defecto de SimpleAuth, que está traducido al idioma actual de la aplicación. Nota: para que los mensajes que contengan HTML puedan ser visualizados correctamente, se debe configurar primero la librería de emails.
-* **simpleauth_password_reset_message**: *[string|null]* Mensaje automático con las instrucciones para el restablecimiento de contraseña. Dejar en `null` para usar el mensaje por defecto de SimpleAuth traducido al idioma actual de la aplicación. Nota: para que los mensajes que contengan HTML puedan ser visualizados correctamente, se debe configurar primero la librería de emails.
+| Parámetro | Tipo  | Descripción |
+| :--- | :---: | :--- |
+| **simpleauth_email_configuration** | *array\|null* | Arrelo con la configuración de la **Librería de Email** usada por SimpleAuth. Dejar en `NULL` para usar la misma de la aplicación |
+| **simpleauth_email_address** | *string* | Dirección de correo electrónico que aparecerá en el campo `from` de los emails enviados por SimpleAuth |
+| **simpleauth_email_name** | *string* | Nombre del remitente de los correos enviados por SimpleAuth |
+| **simpleauth_email_verification_message** | *string\|null* | Plantilla del email con las instrucciones de verificación de correo electrónico que es enviado por SimpleAuth luego del regitro de usuario. Dejar en `null` para usar el mensaje por defecto. |
+| **simpleauth_password_reset_message** | *string\|null* | Plantilla del email con las instrucciones para el restablecimiento de contraseña. Dejar en `null` para usar el mensaje por defecto. |
 
-#### <a name="remember-me-functionality-configuration"></a> Configuración de funcionalidad "Recuérdame"
+##### Configuración de la característica "Recuérdame"
 
-* **simpleauth_remember_me_field**: *[string]* Nombre del campo del formulario de inicio de sesión correspondiente a la funcionalidad "Recuérdame".
-* **simpleauth_remember_me_cookie**: *[string]* Nombre de la cookie utilizada por funcionalidad "Recuérdame".
+| Parámetro | Tipo  | Descripción |
+| :--- | :---: | :--- |
+| **simpleauth_remember_me_field** | *string* | Nombre del campo del formulario de inicio de sesión usado por la característica _Recuérdame_ |
+| **simpleauth_remember_me_cookie** | *string* | Nombre de la cookie usada por la característica _Recuérdame_ |
 
-#### <a name="database-configuration"></a> Configuración de base de datos
+##### Configuración de base de datos
 
-* **simpleauth_user_provider**: *[string]* Proveedor de usuario utilizado por SimepleAuth.
-* **simpleauth_users_table**: *[string]* Nombre de la tabla donde se almacenan los usuarios.
-* **simpleauth_users_email_verification_table**: *[string]* Nombre de la tabla donde se almacenan los tokens de verificación de correo electrónico.
-* **simpleauth_password_resets_table**: *[string]* Nombre de la tabla donde se almacenan los tokens de restablecimiento de contraseña.
-* **simpleauth_login_attempts_table**: *[string]* Nombre de la tabla donde se almacenan los intentos de inicio de sesión fallidos, utilizados para la defensa contra ataques de inicio de sesión por fuerza bruta.
-* **simpleauth_users_acl_table**: *[string]* Nombre de la tabla donde se almacenan los permisos de usuarios concendidos, utilizados por las Listas de Control de Acceso (ACL).
-* **simpleauth_users_acl_categories_table**: *[string]* Nombre de la tabla donde se almacenan el árbol de permisos utilizados por las Listas de Control de Acceso (ACL).
-* **simpleauth_id_col**: *[string]* Nombre de la columna de identificación de la tabla de usuarios.
-* **simpleauth_username_col**: *[string]* Nombre de la columna correspondiente al nombre de usuario de la tabla de usuarios. Ésta columna es la que se usará durante el proceso de autenticación de usuario.
-* **simpleauth_email_col**: *[string]* Nombre de la columna correspondiente al email de la tabla de usuarios. Ésta columna es la que se usará para los envíos de email de la librería.
-* **simpleauth_email_first_name_col**: *[string]* Nombre de la columna correspondiente al primer nombre (o nombre) de la tabla de usuarios. Ésta columna es la que se usará para los envíos de email de la librería.
-* **simpleauth_password_col**: *[string]* Nombre de la columna correspondiente la contraseña en la tabla de usuarios. Ésta columna es la que se se usará durante el proceso de autenticación de usuario.
-* **simpleauth_role_col**: *[string]* Nombre de la columna correspondiente al rol en la tabla de usuarios. Ésta columna será utilizada para la comprobación de roles de usuario de la librería.
-* **simpleauth_active_col**: *[string]* Nombre de la columna correspondiente al estatus del usuario. En la base de datos, debe definirse como una columna del tipo INT, donde el valor `0` corresponde a un usuario **desactivado** y `1` a un usuario **activado**. Se usa durante el inicio de sesión.
-* **simpleauth_verified_col**: *[string]* Nombre de la columna correspondiente al estatus de la verificación del email del usuario. En la base de datos, debe definirse como una columna del tipo INT, donde el valor `0` corresponde a un usuario **desactivado** y `1` a un usuario **activado**. Se usa durante el inicio de sesión.
-* **simpleauth_remember_me_col**: *[string]* Nombre de la columna donde se almacena el token utilizado por la funcionalidad "Recuérdame", en caso de estar activada.
+| Parámetro | Tipo  | Descripción |
+| :--- | :---: | :--- |
+| **simpleauth_users_table** | *string* | Nombre de la tabla donde se almacenan los usuarios |
+| **simpleauth_users_email_verification_table** | *string* | Nombre de la tabla donde se almacenan los tokens de verificación de correo electrónico |
+| **simpleauth_password_resets_table** | *string* | Nombre de la tabla donde se almacenan los tokens de restablecimiento de contraseña |
+| **simpleauth_login_attempts_table** | *string* | Nombre de la tabla donde se almacenan los intentos de inicio de sesión fallidos |
+| **simpleauth_users_acl_table** | *string* | Nombre de la tabla para ACL |
+| **simpleauth_users_acl_categories_table** | *string* | Nombre de la tabla donde se almacenan las categorías de los permisos usados por ACL |
+| **simpleauth_id_col** | *string* | Nombre de la columna _ID_ de la tabla de usuarios |
+| **simpleauth_username_col** | *string* | Nombre de la columna _username_ de la tabla de usuarios |
+| **simpleauth_email_col** | *string* | Nombre de la columna _email_ de la tabla de usuarios |
+| **simpleauth_password_col** | *string* | Nombre de la column _password_ de la tabla de usuarios |
+| **simpleauth_role_col** | *string* | Nombre de la columna _role_ de la tabla de usuarios. Es usada para la comprobación de roles |
+| **simpleauth_active_col** | *string* | Nombre de la columna _active_ de la tabla de usuarios. El valor de ésta columna es un booleano, donde `1` corresponde a un usuario activo, y `0` a un usuario inactivo. |
+| **simpleauth_verified_col** | *string* | Nombre de la columna _verified_ de la tabla de usuarios. El valor de ésta columna es un booleano, donde `1` corresponde a un usuario verificado, y `0` a un usuario no verificado. |
+| **simpleauth_remember_me_col** | *string* | Nombre de la columna donde son almacenados los tokens usados por la característica _Recuérdame_ |

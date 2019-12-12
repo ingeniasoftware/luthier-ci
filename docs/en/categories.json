@@ -1,0 +1,12 @@
+{
+    "categories" : {
+        "welcome" : "Welcome",
+        "installation" : "Installation",
+        "routes" : "Routes",
+        "cli" : "CLI",
+        "middleware" : "Middleware",
+        "authentication" : "Authentication",
+        "debug" : "Debug",
+        "examples" : "Examples"
+    }
+}

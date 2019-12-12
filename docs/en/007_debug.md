@@ -1,43 +1,16 @@
-[//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] You can add PHP Debug Bar to your application thanks to the integration of Luthier CI with this fantastic tool)
-
 # Debug
-
-<div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Experimental feature</strong>
-    <br />
-    We have made an effort to make things work properly, but errors may occur rendering and / or charging of the assets required by this feature. Please <a href="https://github.com/ingeniasoftware/luthier-ci/issues/new">notify us</a> if you have had an incident during its use.
-</div>
-
-### Contents
-
-1. [Introduction](#introduction)
-2. [Activation](#activation)
-3. [Debug messages](#debug-messages)
-4. [Add your own data collectors](#add-your-own-data-collectors)
-
-
-### <a name="introduction"></a> Introduction
 
 You can add [PHP Debug Bar](http://phpdebugbar.com) to your application thanks to the integration of Luthier CI with this fantastic tool.
 
-### <a name="activation"></a> Activation
+<div class="alert alert-info">
+    Being a mainly development tool, it will be automatically deactivated in any environment other than <strong>development</strong>
+</div>
 
-To activate this feature (which is disabled by default) go to your `application/config/hooks.php` file and replace:
+<!-- %index% -->
 
-```php
-<?php
-# application/config/hooks.php
+### Activation
 
-defined('BASEPATH') OR exit('No direct script access allowed');
-
-// (...)
-
-$hook = Luthier\Hook::getHooks();
-```
-
-With:
+The debugging capabilities of Luthier CI are disabled by default. To activate them, go to your `application/config/hooks.php` file and modify the `Luthier\Hook::getHooks()` method with the following:
 
 ```php
 <?php
@@ -54,23 +27,17 @@ $hook = Luthier\Hook::getHooks(
 );
 ```
 
-You should see the debug bar at the bottom of the window:
+### Debug Messages
 
-<p align="center">
-    <img src="https://ingenia.me/uploads/2018/06/19/luthier-ci-debugbar.png" alt="Luthier CI PHP Debug Bar" class="img-responsive" />
-</p>
-
-### <a name="debug-messages"></a> Debug messages
-
-
-To add debug messages, use the `log()` static method of the `Luthier\Debug` class:
+To add debug messages, use the `Debug::log()` method:
 
 ```php
-# use Luthier\Debug;
-Debug::log($variable, $type, $dataCollector);
+use Luthier\Debug;
+
+Debug::log($variable, $type);
 ```
 
-Where `$variable` is the variable to debug, and `$type` is the type of message, which can be `'info'`, `'warning'` or `'error'`.
+Where `$variable` is the variable (or expression) to debug, and `$type` is the type of message, which can be `info`, `warning` or `error`:
 
 Example:
 
@@ -95,43 +62,29 @@ class TestController extends CI_Controller
 }
 ```
 
-And the result:
-
-<p align="center">
-    <img src="https://ingenia.me/uploads/2018/06/19/luthier-ci-debugbar-log.png" alt="Luthier CI PHP Debug Bar" class="img-responsive" />
-</p>
-
-An optional `$dataCollector` argument is the name of the [data collector](http://phpdebugbar.com/docs/data-collectors.html) where the message will be stored:
+The `Debug::log()` method accepts a `$dataCollector` third argument, which is the name of the [data collector](http://phpdebugbar.com/docs/data-collectors.html) where the message will be logged:
 
 ```php
 Debug::log('Custom data collector','error','my_custom_data_collector');
 ```
 
-If you need to store a message to be shown in the next request (for example, after submitting a form) use the `logFlash()` method, whose syntax is identical to the `log()` static method:
+If you need to store a message to be displayed in the following request (for example, after submitting a form) use the `Debug::logFlash()` method:
 
 ```php
 Debug::logFlash('Hey! this will be available in the next request','info');
 ```
 
-<div class="alert alert-success">
-    <i class="fa fa-check" aria-hidden="true"></i>
-    <strong>Deactivated in production environments</strong>
-    <br />
-    If you set the environment of your application to <code>production</code> this feature will be automatically disabled, and any debugging code will be ignored
-</div>
-
 <div class="alert alert-warning">
-    <i class="fa fa-warning" aria-hidden="true"></i>
-    <strong>Requires that there is data in the output buffer</strong>
-    <br />
-    Luthier CI adds the PHP Debug Bar code in the output buffer BEFORE it is processed and sent to the browser by the <code> output</code> library of CodeIgniter. Therefore, it is necessary to have used at least once the function<code>$this->load-> view()</code> or have explicitly defined an output buffer to work on. The <code>echo</code> statements DO NOT produce any internal output buffer. In addition, stopping the execution of the script with the functions <code>die</code> or <code>exit</code> will prevent the PHP Debug Bar from being displayed.
+    <strong>Requires that there is data in the output buffer</strong><br />
+    Luthier CI adds the PHP Debug Bar code to the output buffer BEFORE it is processed and sent to the browser by the <strong>CodeIgniter Output Library</strong>. Therefore, it is necessary to have used the <code>$this->load->view()</code> function at least once, or to have explicitly defined an output buffer on which to work. <code>echo</code> statements DO NOT produce any internal output buffer. In addition, stopping the execution of the script with the die or exit functions will prevent PHP Debug Bar from being displayed.
 </div>
 
-### <a name="add-your-own-data-collectors"></a> Add your own data collectors
+### Add external data collectors
 
-It is possible to add your own data collectors and store messages in them. To add a data collector to the PHP Debug Bar instance, use the `addCollector()` static method:
+To add an external data collector to the PHP Debug Bar instance, use the `Debug::addCollector()` method:
 
 ```php
-# use Luthier\Debug;
+use Luthier\Debug;
+
 Debug::addCollector(new MyCollector());
 ```

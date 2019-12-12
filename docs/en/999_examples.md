@@ -1,12 +1,8 @@
-[//]: # ([author] Anderson Salas, translated by Julio Cedeño)
-[//]: # ([meta_description] Look Luthier-CI in action! Here we compile some real examples of use so you can find inspiration)
-
 # Examples
 
-### Example # 1: Multi-language website
+### Example #1: Multi-language website
 
-This is an example shows a multi-language website managed by the URL.
-A middleware is used to load the current language file.
+This example shows the management of a multi-language website through the URL. Use a middleware to load the current language file.
 
 ```php
 <?php
@@ -14,9 +10,9 @@ A middleware is used to load the current language file.
 
 Route::get('/', function(){
 
-    // Route "by default". This is a good place to request a cookie, session variable
-    // or something that allows us to restore the last language of the user, or show a
-    // language selection screen if no information is provided.
+    // "Default" path. This is a good place to request a cookie, session variable or something
+    // that allows us to restore the user's last language, or display a language selection screen 
+    // if no information is provided.
 
     redirect(route('homepage', ['_locale' => 'en']));
 });
@@ -42,7 +38,7 @@ class Lang_middleware
 {
     public function run()
     {
-        // Obtaining the value of the "_locale" sticky parameter
+        Obtaining the value of the "_locale" sticky parameter 
         $locale = ci()->route->param('_locale');
 
         $langs = [

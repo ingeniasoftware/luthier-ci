@@ -1,13 +1,8 @@
-[//]: # ([author] Anderson Salas)
-[//]: # ([meta_description] Lee la documentación oficial de Luthier CI y descubre las posibilidades que te ofrece, mira ejemplos, casos de uso y mucho más)
-
 # Bienvenido
 
-### Acerca de Luthier CI
+**Luthier CI** es un plugin de CodeIgniter con añadidos destinados a facilitar la construcción de sitios web y APIs en general.
 
-**Luthier CI** es un complemento para CodeIgniter que añade interesantes características pensadas para facilitar la construcción de sitios web grandes y APIs en general. Fué hecho para integrarse lo mejor posible con el framework, de modo que todo lo que ya existe en tu aplicación debe seguir funcionando sin problemas luego de instalar Luthier CI.
-
-Esta documentación asume que tienes conocimientos básicos sobre CodeIgniter. Si nunca has usado CodeIgniter, un buen punto de partida es su [documentación oficial](https://www.codeigniter.com/user_guide) (en inglés)
+Esta documentación asume que tienes conocimientos básicos sobre CodeIgniter. Si nunca has usado CodeIgniter te recomendamos leer su [documentación oficial](https://www.codeigniter.com/user_guide) (en inglés)
 
 Luthier CI es software libre y está disponible bajo una licencia MIT.
 
@@ -15,9 +10,7 @@ Luthier CI es software libre y está disponible bajo una licencia MIT.
 
 #### Enrutamiento mejorado
 
-Luthier CI reemplaza la forma en que defines las rutas en tu aplicación por una sintaxis inspirada en Laravel.
-
-Por ejemplo, en lugar de definir un enorme arreglo de rutas parecido a esto:
+Con Luthier CI instalado en tu aplicación, en lugar de definir un arreglo de rutas como éste:
 
 ```php
 $route['catalog/cars/(:any)']['GET'] = 'CarsController/catalog/$1';
@@ -30,7 +23,7 @@ $route['catalog/airplanes/(:any)']['GET'] = 'AirplanesController/catalog/$1/$2';
 $route['catalog/airplanes/(:any)/(:any)']['GET'] = 'AirplanesController/catalog/$1/$2';
 ```
 
-...puedes escribir lo mismo de forma más compacta:
+Puedes escribirlo de una forma más compacta:
 
 ```php
 Route::group('catalog', function(){
@@ -40,20 +33,18 @@ Route::group('catalog', function(){
 });
 ```
 
-Además, Luthier CI te ayuda a mantener tus rutas organizadas, pues cada tipo de ruta tiene su propio archivo donde debe definirse: hay un archivo para rutas HTTP, otro para rutas AJAX y otro para rutas CLI.
-
 #### Middleware
 
 Luthier CI introduce el concepto de _Middleware_ en el framework.
 
-Usado correctamente, el middleware puede ayudarte a crear filtros y acciones en tus controladores que, de otra forma, serían muy tediosas de implementar usando _librerías_ y _helpers_.
-
-Puedes usar el middleware tanto en rutas específicas como en grupos de rutas, o incluso a nivel global en tu aplicación.
+Con el Middleware puedes definir la lógica que se ejecuta antes de que las peticiones entrantes sean manejadas por los controladores de tu aplicación, algo que de otra forma serían muy tedioso de implementar usando _librerías_ y _helpers_.
 
 #### Fácil instalación
 
-Luthier CI se instala a través de Composer y utiliza los _hooks_ de CodeIgniter para integrase en tu aplicación. Olvídate de copiar o mover archivos o de seguir listas enormes de pasos para poner a funcionar Luthier CI ¡en la mayoría de los casos la instalación no toma más de 5 minutos!
+Una de las metas cuando se diseñó Luthier CI era que la instalación fuese lo más intuitiva y transparente posible tanto para el usuario como para el framework.
+
+¡Y lo hemos logrado! Olvídate de seguir engorrosas instrucciones de instalación que involucran descargar y copiar archivos.
 
 ### Comunidad y soporte
 
-Para reportar errores y proponer cambios por favor visita el repositorio de [Luthier CI en Github](https://github.com/ingeniasoftware/luthier-ci)
+Tus comentarios y sugerencias son bienvenida. Para reportar errores y proponer cambios por favor visita el repositorio de [Luthier CI en Github](https://github.com/ingeniasoftware/luthier-ci).

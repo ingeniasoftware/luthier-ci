@@ -1,0 +1,12 @@
+{
+    "categories" : {
+        "welcome" : "Bienvenido",
+        "installation" : "Instalación",
+        "routes" : "Rutas",
+        "cli" : "CLI",
+        "middleware" : "Middleware",
+        "authentication" : "Autenticación",
+        "debug" : "Depuración",
+        "examples" : "Ejemplos"
+    }
+}
