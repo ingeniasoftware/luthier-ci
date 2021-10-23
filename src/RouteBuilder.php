@@ -151,7 +151,7 @@ class RouteBuilder
             {
                 if(!is_array($attributes['middleware']))
                 {
-                    show_error('Route group middleware must be an array o a string');
+                    show_error('Route group middleware must be an array or a string');
                 }
             }
             self::$context['middleware']['route'][] = $attributes['middleware'];
